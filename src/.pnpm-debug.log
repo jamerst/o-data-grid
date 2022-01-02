@@ -1,0 +1,82 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 debug pnpm:package-manifest": {
+    "initial": {
+      "name": "o-data-grid",
+      "version": "0.1.0",
+      "description": "A React Data Grid for use with OData APIs. Based on the Material-UI DataGrid.",
+      "main": "build/index.js",
+      "scripts": {
+        "build": "tsc"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jamerst/o-data-grid.git"
+      },
+      "keywords": [
+        "odata",
+        "mui",
+        "datagrid",
+        "filter",
+        "react",
+        "material-ui"
+      ],
+      "author": "James Tattersall",
+      "license": "GPL-3.0-or-later",
+      "bugs": {
+        "url": "https://github.com/jamerst/o-data-grid/issues"
+      },
+      "homepage": "https://github.com/jamerst/o-data-grid#readme",
+      "devDependencies": {
+        "@types": "link:@types",
+        "@types/ramda": "^0.27.62",
+        "@types/react": "^17.0.38",
+        "@types/react-dom": "^17.0.11",
+        "ramda": "^0.27.1",
+        "typescript": "^4.5.4"
+      },
+      "peerDependencies": {
+        "@mui/material": "^5.0.0",
+        "@mui/system": "^5.0.0",
+        "@mui/x-data-grid": "^5.0.0",
+        "@mui/x-data-grid-pro": "^5.0.0",
+        "react": "^17.0.2"
+      },
+      "dependencies": {
+        "@mui/material": "^5.2.6",
+        "@mui/system": "^5.2.6",
+        "@mui/x-data-grid": "^5.2.1",
+        "@mui/x-data-grid-pro": "^5.2.1"
+      }
+    },
+    "prefix": "/home/james/src/o-data-grid"
+  },
+  "2 debug pnpm:context": {
+    "currentLockfileExists": true,
+    "storeDir": "/home/james/.pnpm-store/v3",
+    "virtualStoreDir": "/home/james/src/o-data-grid/node_modules/.pnpm"
+  },
+  "3 debug pnpm:stage": {
+    "prefix": "/home/james/src/o-data-grid",
+    "stage": "resolution_started"
+  },
+  "4 warn pnpm": {
+    "message": "Moving @types that was installed by a different package manager to \"node_modules/.ignored",
+    "prefix": "/home/james/src/o-data-grid"
+  },
+  "5 error pnpm": {
+    "errno": -39,
+    "code": "ENOTEMPTY",
+    "syscall": "rename",
+    "path": "/home/james/src/o-data-grid/node_modules/@types",
+    "dest": "/home/james/src/o-data-grid/node_modules/.ignored/@types",
+    "err": {
+      "name": "pnpm",
+      "message": "ENOTEMPTY: directory not empty, rename '/home/james/src/o-data-grid/node_modules/@types' -> '/home/james/src/o-data-grid/node_modules/.ignored/@types'",
+      "code": "ENOTEMPTY",
+      "stack": "pnpm: ENOTEMPTY: directory not empty, rename '/home/james/src/o-data-grid/node_modules/@types' -> '/home/james/src/o-data-grid/node_modules/.ignored/@types'"
+    }
+  }
+}
