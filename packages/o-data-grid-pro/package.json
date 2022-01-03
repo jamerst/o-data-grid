@@ -1,26 +1,31 @@
 {
-  "name": "o-data-grid",
+  "name": "o-data-grid-pro",
   "version": "0.1.0",
-  "description": "A React Data Grid for use with OData APIs. Based on the Material-UI DataGrid.",
-  "main": "build/o-data-grid-cjs.js",
-  "module": "build/o-data-grid-esm.js",
-  "types": "build/o-data-grid.d.ts",
+  "description": "A React Data Grid and Query Builder for OData APIs. Based on the Material-UI DataGridPro.",
+  "main": "build/o-data-grid-pro-cjs.js",
+  "module": "build/o-data-grid-pro-esm.js",
+  "types": "build/o-data-grid-pro.d.ts",
   "scripts": {
     "build": "rollup -c ./rollup.config.js",
-    "lint": "eslint",
-    "analyse": "source-map-explorer 'build/o-data-grid.bundle.js'"
+    "lint": "eslint"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jamerst/o-data-grid.git"
   },
   "keywords": [
+    "react",
+    "react-component",
     "odata",
+    "material-ui",
     "mui",
     "datagrid",
+    "data-grid",
+    "table",
+    "datatable",
+    "data-table",
     "filter",
-    "react",
-    "material-ui"
+    "query"
   ],
   "author": "James Tattersall",
   "license": "GPL-3.0-or-later",
@@ -36,7 +41,6 @@
     "@mui/lab": "^5.0.0-alpha.62",
     "@mui/material": "^5.2.6",
     "@mui/system": "^5.2.6",
-    "@mui/x-data-grid": "^5.2.1",
     "@mui/x-data-grid-pro": "^5.2.1",
     "@types/ramda": "^0.27.62",
     "@types/react": "^17.0.38",
@@ -52,7 +56,6 @@
     "rollup-plugin-dts": "^4.1.0",
     "rollup-plugin-typescript2": "^0.31.1",
     "source-map-explorer": "^2.5.2",
-    "ts-loader": "^9.2.6",
     "tslib": "^2.3.1",
     "typescript": "^4.5.4"
   },
@@ -61,7 +64,6 @@
     "@mui/lab": "^5.0.0-alpha.62",
     "@mui/material": "^5.2.6",
     "@mui/system": "^5.2.6",
-    "@mui/x-data-grid": "^5.2.1",
     "@mui/x-data-grid-pro": "^5.2.1",
     "react": "^17.0.2"
   },

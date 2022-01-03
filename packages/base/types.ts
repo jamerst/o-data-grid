@@ -1,24 +1,23 @@
 
-import { DataGridProps, GridSortModel, GridColDef, GridRowModel, GridInputComponentProps } from "@mui/x-data-grid"
-import { DataGridProProps } from "@mui/x-data-grid-pro"
-import { ResponsiveValues } from "hooks"
-import { ExternalBuilderProps, FieldDef } from "FilterBuilder/types"
+import { ResponsiveValues } from "./hooks"
+import { ExternalBuilderProps, FieldDef } from "./FilterBuilder/types"
 import React from "react";
 
-export type ODataGridProps = ODataGridBaseProps<DataGridProps>;
-export type ODataGridProProps = ODataGridBaseProps<DataGridProProps>;
-
-export type ODataGridBaseProps<T> =
-  removeProps<T>
+export type ODataGridBaseProps<
+  ComponentProps extends IGridProps,
+  SortModel extends IGridSortModel,
+  ColDef
+> =
+  OmitGridProps<ComponentProps>
   &
   {
     url: string,
     queryParams?: [string, string | undefined][],
-    columns: ODataGridColDef[],
+    columns: ODataGridBaseColDef<ColDef>[],
     idField?: string,
     alwaysFetch?: string[],
     $filter?: string,
-    defaultSortModel?: GridSortModel,
+    defaultSortModel?: SortModel,
     disableFilterBuilder?: boolean,
     filterBuilderProps?: ExternalBuilderProps,
     defaultPageSize?: number,
@@ -27,7 +26,7 @@ export type ODataGridBaseProps<T> =
   };
 
 // remove properties which should not be used - these are handled internally
-type removeProps<T> = Omit<T,
+type OmitGridProps<T> = Omit<T,
   "columns"
   | "rows"
   | "rowCount"
@@ -44,7 +43,7 @@ type removeProps<T> = Omit<T,
   | "onFilterModelChange"
 >
 
-export type ODataGridColDef = Omit<GridColDef, "hide" | "filterOperators" | "sortComparator"> & FieldDef & {
+export type ODataGridBaseColDef<ColDef> = Omit<ColDef, "hide" | "filterOperators" | "sortComparator"> & FieldDef & {
   select?: string,
   expand?: Expand,
   hide?: ResponsiveValues<boolean> | boolean,
@@ -53,7 +52,7 @@ export type ODataGridColDef = Omit<GridColDef, "hide" | "filterOperators" | "sor
 
 export type ODataResponse = {
   "@odata.count"?: number,
-  value: GridRowModel[]
+  value: IGridRowModel[]
 }
 
 export type Expand = {
@@ -70,4 +69,13 @@ export type ValueOption = string | number | SelectOption;
 export type SelectOption = {
   value: any,
   label: string
+}
+
+export type IGridSortModel = ({ field: string, sort: 'asc' | 'desc' | null | undefined })[];
+
+export type IGridRowModel<T = { [key: string]: any }> = T;
+
+export type IGridProps = {
+  onColumnVisibilityChange?: any,
+  onSortModelChange?: any
 }

@@ -6,7 +6,7 @@ import { DatePicker, DateTimePicker, LocalizationProvider } from "@mui/lab";
 import { CollectionFieldDef, CollectionOperation, FieldDef, Operation } from "../types";
 
 import { propsState, schemaState } from "../state"
-import { SelectOption, ValueOption } from "types";
+import { SelectOption, ValueOption } from "../../types";
 import { getLocaleText, getSelectOption } from "../utils";
 import { allOperators, numericOperators } from "../constants";
 

@@ -2,7 +2,7 @@ import React from "react";
 import { DatePickerProps, DateTimePickerProps, LocalizationProviderProps } from "@mui/lab";
 import { AutocompleteProps, FormControlProps, SelectProps, TextFieldProps } from "@mui/material";
 import { GridValueOptionsParams } from "@mui/x-data-grid";
-import { ValueOption } from "types";
+import { ValueOption } from "../types";
 
 export type ExternalBuilderProps = {
   searchMenuItems?: ({ label: string, onClick: () => void })[],

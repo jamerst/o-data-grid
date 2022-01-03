@@ -10,7 +10,7 @@ import { clauseState, propsState, schemaState, treeState } from "../state"
 import { initialClauses, initialTree, rootConditionUuid, rootGroupUuid } from "../constants"
 import { FilterBuilderProps } from "./FilterBuilder";
 import { UseODataFilter } from "../hooks";
-import { useMountEffect } from "hooks";
+import { useMountEffect } from "../../hooks";
 import { ConditionClause, Group, QueryStringCollection } from "../types";
 import { deserialise } from "../utils";
 

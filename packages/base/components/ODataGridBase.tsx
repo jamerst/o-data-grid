@@ -1,32 +1,33 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { DataGrid, GridColDef, GridFeatureModeConstant, GridRowModel, GridColumnVisibilityChangeParams, GridSortModel, GridInputComponentProps, DataGridProps } from "@mui/x-data-grid"
 import { Box } from "@mui/system";
 import { o, OdataQuery } from "odata"
 
-import { ResponsiveValues, useResponsive } from "hooks";
+import { ResponsiveValues, useResponsive } from "../hooks";
 
-import FilterBuilder from "FilterBuilder/components/FilterBuilder";
+import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 
-import { Expand, ODataGridProps, ODataGridColDef, ODataResponse, ODataGridBaseProps, ODataGridProProps } from "types";
+import { Expand, ODataGridBaseColDef, ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridRowModel } from "../types";
 
-import { ExpandToQuery, Flatten, GroupArrayBy, GetPageNumber, GetPageSizeOrDefault } from "utils";
+import { ExpandToQuery, Flatten, GroupArrayBy, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
 import { defaultPageSize } from "../constants";
-import { Group, QueryStringCollection } from "FilterBuilder/types";
-import { DataGridProProps } from "@mui/x-data-grid-pro";
+import { Group, QueryStringCollection } from "../FilterBuilder/types";
 
-const ODataGridBase= React.memo((props: (ODataGridProps | ODataGridProProps)) => {
+const ODataGridBase = <ComponentProps extends IGridProps,
+  SortModel extends IGridSortModel,
+  ColDef,>(props: ODataGridBaseProps<ComponentProps, SortModel, ColDef>) => {
+
   const [pageNumber, setPageNumber] = useState<number>(GetPageNumber());
   const [pageSize, setPageSize] = useState<number>(GetPageSizeOrDefault(props.defaultPageSize));
-  const [rows, setRows] = useState<GridRowModel[]>([])
+  const [rows, setRows] = useState<IGridRowModel[]>([])
   const [rowCount, setRowCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
-  const [sortModel, setSortModel] = useState<GridSortModel | undefined>(props.defaultSortModel);
+  const [sortModel, setSortModel] = useState<SortModel | undefined>(props.defaultSortModel);
 
   const [filter, setFilter] = useState<string>("");
   const [queryString, setQueryString] = useState<QueryStringCollection | undefined>();
 
-  const [visibleColumns, setVisibleColumns] = useState<ODataGridColDef[]>(props.columns.filter(c => c.hide !== true));
+  const [visibleColumns, setVisibleColumns] = useState<ODataGridBaseColDef<ColDef>[]>(props.columns.filter(c => c.hide !== true));
   const [columnHideOverrides, setColumnHideOverrides] = useState<{ [key: string]: boolean }>({});
 
   const firstLoad = useRef<boolean>(true);
@@ -187,7 +188,7 @@ const ODataGridBase= React.memo((props: (ODataGridProps | ODataGridProProps)) =>
 
     if (props.disableHistory !== true) {
       if (state.oDataGrid?.sortModel) {
-        setSortModel(state.oDataGrid.sortModel as GridSortModel);
+        setSortModel(state.oDataGrid.sortModel as SortModel);
       } else {
         setSortModel(props.defaultSortModel);
       }
@@ -203,7 +204,7 @@ const ODataGridBase= React.memo((props: (ODataGridProps | ODataGridProProps)) =>
 
   const { onColumnVisibilityChange, onSortModelChange } = props;
 
-  const handleColumnVisibility = useCallback((params: GridColumnVisibilityChangeParams, event, details) => {
+  const handleColumnVisibility = useCallback((params: any, event, details) => {
     if (onColumnVisibilityChange) {
       onColumnVisibilityChange(params, event, details);
     }
@@ -236,7 +237,7 @@ const ODataGridBase= React.memo((props: (ODataGridProps | ODataGridProProps)) =>
     }
   }, [visibleColumns, props.columns, onColumnVisibilityChange, columnHideOverrides]);
 
-  const handleSortModelChange = useCallback((model: GridSortModel, details) => {
+  const handleSortModelChange = useCallback((model: SortModel, details) => {
     if (onSortModelChange) {
       onSortModelChange(model, details);
     }
@@ -333,7 +334,7 @@ const ODataGridBase= React.memo((props: (ODataGridProps | ODataGridProProps)) =>
         // only restore sort model from history if history is enabled and FilterBuilder is disabled
         // if FilterBuilder is enabled sort model restoration is handled in handleBuilderRestore
         if (e.state.oDataGrid?.sortModel) {
-          setSortModel(e.state.oDataGrid.sortModel as GridSortModel);
+          setSortModel(e.state.oDataGrid.sortModel as SortModel);
         } else {
           setSortModel(props.defaultSortModel);
         }
@@ -365,7 +366,7 @@ const ODataGridBase= React.memo((props: (ODataGridProps | ODataGridProProps)) =>
       hide = r(responsive);
     }
 
-    return { ...c, hide: hide } as GridColDef;
+    return { ...c, hide: hide };
   }), [props.columns, r, columnHideOverrides]);
 
   const GridComponent = props.component;
@@ -396,10 +397,9 @@ const ODataGridBase= React.memo((props: (ODataGridProps | ODataGridProProps)) =>
         rowCount={rowCount}
 
         pagination
-        paginationMode={GridFeatureModeConstant.server}
+        paginationMode="server"
         page={pageNumber}
         pageSize={pageSize}
-        rowsPerPageOptions={props.rowsPerPageOptions ?? [10, 15, 20, 50]}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         disableColumnFilter
@@ -408,12 +408,12 @@ const ODataGridBase= React.memo((props: (ODataGridProps | ODataGridProProps)) =>
 
         onColumnVisibilityChange={handleColumnVisibility}
 
-        sortingMode={GridFeatureModeConstant.server}
+        sortingMode="server"
         sortModel={sortModel}
         onSortModelChange={handleSortModelChange}
       />
     </Fragment>
   )
-});
+};
 
 export default ODataGridBase;

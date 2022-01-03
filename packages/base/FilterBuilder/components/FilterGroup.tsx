@@ -12,8 +12,8 @@ import { clauseState, propsState, schemaState, treeState } from "../state"
 
 import { getDefaultCondition, getDefaultGroup, getLocaleText } from "../utils";
 
-import makeStyles from "makeStyles";
-import { useResponsive } from "hooks";
+import makeStyles from "../../makeStyles";
+import { useResponsive } from "../../hooks";
 
 
 const useStyles = makeStyles()((theme) => ({

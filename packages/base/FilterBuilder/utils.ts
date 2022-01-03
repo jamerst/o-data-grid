@@ -1,5 +1,5 @@
 import Immutable from "immutable";
-import { SelectOption, ValueOption } from "types";
+import { SelectOption, ValueOption } from "../types";
 import { v4 as uuid } from "uuid";
 import { defaultLocale, rootGroupUuid } from "./constants";
 import { Group, StateTree, StateClause, TreeGroup } from "./types";

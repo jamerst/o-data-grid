@@ -1,4 +1,4 @@
-import { Expand } from "types";
+import { Expand } from "./types";
 
 import { defaultPageSize } from "./constants";
 
