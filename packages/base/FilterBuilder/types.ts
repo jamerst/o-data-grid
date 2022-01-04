@@ -55,28 +55,32 @@ export type FilterBuilderLocaleText = {
 
 export type BaseFieldDef = {
   field: string,
-  filterField?: string,
-  sortField?: string,
-  label?: string,
   autocompleteGroup?: string,
-
-  type?: string,
   caseSensitive?: boolean,
-  filterType?: string,
-  filterable?: boolean,
-  filterOperators?: Operation[],
-  nullable?: boolean,
-  valueOptions?: ValueOption[] | ((params: GridValueOptionsParams) => ValueOption[]),
 
   datePickerProps?: DatePickerProps,
   dateTimePickerProps?: DateTimePickerProps,
+
+  filterable?: boolean,
+  filterField?: string,
+  filterOperators?: Operation[],
+  filterType?: string,
+
+  getCustomFilterString?: (op: Operation, value: any) => string,
+  getCustomQueryString?: (op: Operation, value: any) => QueryStringCollection,
+
+  label?: string,
+  nullable?: boolean,
+
   selectProps?: { selectProps?: SelectProps, formControlProps?: FormControlProps, label?: string },
+  sortField?: string,
   textFieldProps?: TextFieldProps,
 
-  renderCustomFilter?: (value: any, setValue: (v: any) => void) => React.ReactNode,
   renderCustomInput?: (value: any, setValue: (v: any) => void) => React.ReactNode,
-  getCustomFilterString?: (op: Operation, value: any) => string,
-  getCustomQueryString?: (op: Operation, value: any) => QueryStringCollection
+  renderCustomFilter?: (value: any, setValue: (v: any) => void) => React.ReactNode,
+
+  type?: string,
+  valueOptions?: ValueOption[] | ((params: GridValueOptionsParams) => ValueOption[]),
 }
 
 export type FieldDef = BaseFieldDef & {

@@ -63,8 +63,8 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       fields.add(props.idField);
     }
 
-    if (props.alwaysFetch) {
-      props.alwaysFetch.forEach((c) => fields.add(c));
+    if (props.alwaysSelect) {
+      props.alwaysSelect.forEach((c) => fields.add(c));
     }
 
     // group all expands by the navigation field
@@ -155,7 +155,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       queryString,
       props.url,
       props.idField,
-      props.alwaysFetch,
+      props.alwaysSelect,
       props.columns,
       props.$filter,
       props.disableFilterBuilder,

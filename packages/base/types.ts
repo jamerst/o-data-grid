@@ -12,38 +12,39 @@ export type ODataGridBaseProps<
   &
   {
     url: string,
-    queryParams?: [string, string | undefined][],
+    alwaysSelect?: string[],
     columns: ODataGridBaseColDef<ColDef>[],
-    idField?: string,
-    alwaysFetch?: string[],
-    $filter?: string,
+    component: React.ElementType,
+    defaultPageSize?: number,
     defaultSortModel?: SortModel,
     disableFilterBuilder?: boolean,
-    filterBuilderProps?: ExternalBuilderProps,
-    defaultPageSize?: number,
     disableHistory?: boolean,
-    component: React.ElementType
+    $filter?: string,
+    filterBuilderProps?: ExternalBuilderProps,
+    idField?: string,
   };
 
 // remove properties which should not be used - these are handled internally
 type OmitGridProps<T> = Omit<T,
   "columns"
   | "rows"
-  | "rowCount"
-  | "pagination"
-  | "paginationMode"
-  | "page"
-  | "pageSize"
+  | "autoPageSize"
+  | "disableColumnFilter"
+  | "filterMode"
+  | "filterModel"
+  | "loading"
+  | "onFilterModelChange"
   | "onPageChange"
   | "onPageSizeChange"
-  | "loading"
+  | "page"
+  | "pageSize"
+  | "paginationMode"
+  | "rowCount"
   | "sortingMode"
   | "sortModel"
-  | "disableColumnFilter"
-  | "onFilterModelChange"
 >
 
-export type ODataGridBaseColDef<ColDef> = Omit<ColDef, "hide" | "filterOperators" | "sortComparator"> & FieldDef & {
+export type ODataGridBaseColDef<ColDef> = Omit<ColDef, "filterOperators" | "hide" | "sortComparator"> & FieldDef & {
   select?: string,
   expand?: Expand,
   hide?: ResponsiveValues<boolean> | boolean,
