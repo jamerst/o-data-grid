@@ -1,7 +1,7 @@
-# ODataGrid
+# ODataGridPro
 ODataGrid is an extension to the [MUI DataGrid](https://github.com/mui-org/material-ui-x) React component which implements features such as sorting, pagination, column selection, and filtering using the [OData Standard](https://www.odata.org/). This allows you to quickly create a powerful interface for browsing data with minimal back-end code.
 
-![ODataGrid in action](images/o-data-grid.png)
+![ODataGrid in action](../../images/o-data-grid.png)
 
 ## Features
 - Supports DataGrid and DataGridPro

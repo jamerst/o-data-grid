@@ -6,12 +6,12 @@ import { ResponsiveValues, useResponsive } from "../hooks";
 
 import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 
-import { Expand, ODataGridBaseColDef, ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridRowModel } from "../types";
+import { Expand, ODataGridBaseColDef, ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridRowModel, ColumnVisibilityModel } from "../types";
 
 import { ExpandToQuery, Flatten, GroupArrayBy, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
 import { defaultPageSize } from "../constants";
-import { Group, QueryStringCollection } from "../FilterBuilder/types";
+import { SerialisedGroup, QueryStringCollection } from "../FilterBuilder/types";
 
 const ODataGridBase = <ComponentProps extends IGridProps,
   SortModel extends IGridSortModel,
@@ -27,7 +27,12 @@ const ODataGridBase = <ComponentProps extends IGridProps,
   const [filter, setFilter] = useState<string>("");
   const [queryString, setQueryString] = useState<QueryStringCollection | undefined>();
 
-  const [visibleColumns, setVisibleColumns] = useState<ODataGridBaseColDef<ColDef>[]>(props.columns.filter(c => c.hide !== true));
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(props.columns
+    .filter(c => (props.columnVisibilityModel && props.columnVisibilityModel[c.field] !== true) || c.hide !== true)
+    .map(c => c.field)
+  );
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityModel>({});
+  const [columnVisibilityOverride, setColumnVisibilityOverride] = useState<ColumnVisibilityModel>({});
   const [columnHideOverrides, setColumnHideOverrides] = useState<{ [key: string]: boolean }>({});
 
   const firstLoad = useRef<boolean>(true);
@@ -41,6 +46,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       !filter
       && props.disableFilterBuilder !== true
       && props.filterBuilderProps?.disableHistory !== true
+      && window.history.state
       && window.history.state.filterBuilder
       && window.history.state.filterBuilder.reset !== true
     ) {
@@ -53,8 +59,8 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
     // select all fields for visible columns
     const fields = new Set(
-      visibleColumns
-        .filter(c => c.expand === undefined && c.filterOnly !== true)
+      props.columns
+        .filter(c => visibleColumns.includes(c.field) && c.expand === undefined && c.filterOnly !== true)
         .map(c => c.select ?? c.field)
     );
 
@@ -69,8 +75,8 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
     // group all expands by the navigation field
     const groupedExpands = GroupArrayBy(
-      visibleColumns
-        .filter(c => !!c.expand)
+      props.columns
+        .filter(c => visibleColumns.includes(c.field) && !!c.expand)
         .map(c => c.expand!),
       (e) => e.navigationField
     );
@@ -164,7 +170,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
   );
 
 
-  const handleBuilderSubmit = useCallback((f: string, s: Group | undefined, q: QueryStringCollection | undefined) => {
+  const handleBuilderSubmit = useCallback((f: string, s: SerialisedGroup | undefined, q: QueryStringCollection | undefined) => {
     pendingFilter.current = true;
     fetchCount.current = true;
 
@@ -179,7 +185,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     return { oDataGrid: { sortModel: sortModel } };
   }, [props.filterBuilderProps, sortModel]);
 
-  const handleBuilderRestore = useCallback((f: string, s: Group | undefined, q: QueryStringCollection | undefined, state: any) => {
+  const handleBuilderRestore = useCallback((f: string, s: SerialisedGroup | undefined, q: QueryStringCollection | undefined, state: any) => {
     fetchCount.current = true;
 
     if (props.filterBuilderProps?.onRestoreState) {
@@ -209,33 +215,41 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       onColumnVisibilityChange(params, event, details);
     }
 
-    if (visibleColumns) {
-      if (params.isVisible) {
-        // add to visibleColumns if column is now visible
-        const index = props.columns.findIndex(c => c.field === params.field);
-        if (index !== -1) {
-          setColumnHideOverrides({ ...columnHideOverrides, [params.field]: false });
+    setColumnVisibilityOverride((visibility) => ({ ...visibility, [params.field]: params.isVisible }));
 
-          setVisibleColumns([...visibleColumns, props.columns[index]]);
+    if (params.isVisible) {
+      setVisibleColumns((visible) => [...visible, params.field]);
+    } else {
+      setVisibleColumns((visible) => visible.filter(c => c !== params.field));
+    }
+  }, [onColumnVisibilityChange]);
+
+  useEffect(() => {
+    let visibility: ColumnVisibilityModel = {};
+    if (props.columnVisibilityModel) {
+      for (const field in props.columnVisibilityModel) {
+        if (typeof props.columnVisibilityModel[field] === "boolean") {
+          visibility[field] = props.columnVisibilityModel[field] as boolean;
         } else {
-          console.error(`Column ${params.field} not found`);
-        }
-      } else {
-        // remove from visibleColumns if no longer visible
-        const index = visibleColumns.findIndex(c => c.field === params.field);
-
-        if (index !== -1) {
-          setColumnHideOverrides({ ...columnHideOverrides, [params.field]: true });
-
-          const newColumns = [...visibleColumns];
-          newColumns.splice(index, 1);
-          setVisibleColumns(newColumns);
-        } else {
-          console.error(`Column ${params.field} not found`);
+          visibility[field] = r(props.columnVisibilityModel[field] as ResponsiveValues<boolean>) as boolean;
         }
       }
+    } else {
+      props.columns.filter(c => c.filterOnly !== true).forEach(c => {
+        if (typeof c.hide === "boolean") {
+          visibility[c.field] = !(c.hide as boolean);
+        } else if (c.hide) {
+          visibility[c.field] = !r(c.hide as ResponsiveValues<boolean>);
+        }
+      })
     }
-  }, [visibleColumns, props.columns, onColumnVisibilityChange, columnHideOverrides]);
+
+    props.columns.filter(c => c.filterOnly === true).forEach(c => {
+      visibility[c.field] = false;
+    })
+
+    setColumnVisibility(visibility);
+  }, [r, props.columnVisibilityModel, props.columns]);
 
   const handleSortModelChange = useCallback((model: SortModel, details) => {
     if (onSortModelChange) {
@@ -248,7 +262,6 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       window.history.pushState({ ...window.history.state, oDataGrid: { sortModel: model } }, "");
     }
   }, [onSortModelChange, props.disableHistory]);
-
 
   useEffect(() => {
     let changed = false;
@@ -349,25 +362,16 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     setPageNumber(page);
   }, []);
 
-  const handlePageSizeChange = useCallback((page: number) => {
-    setPageSize(page);
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size);
   }, []);
 
-
-  const columns = useMemo(() => props.columns.filter(c => c.filterOnly !== true).map((c) => {
-    let hide: boolean | undefined;
-    const override = columnHideOverrides[c.field];
-    if (override !== undefined) {
-      hide = override;
-    } else if (typeof c.hide === "boolean") {
-      hide = c.hide;
-    } else if (c.hide) {
-      const responsive = c.hide as ResponsiveValues<boolean>
-      hide = r(responsive);
-    }
-
-    return { ...c, hide: hide };
-  }), [props.columns, r, columnHideOverrides]);
+  // combine columnVisibility and columnVisibilityOverride
+  // columnVisibilityOverride will take priority if the same field is in both
+  const visibility = useMemo(
+    () => ({ ...columnVisibility, ...columnVisibilityOverride }),
+    [columnVisibility, columnVisibilityOverride]
+  );
 
   const GridComponent = props.component;
 
@@ -391,7 +395,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
         {...props}
 
-        columns={columns}
+        columns={props.columns}
 
         rows={rows}
         rowCount={rowCount}
@@ -406,6 +410,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
         loading={loading}
 
+        columnVisibilityModel={visibility}
         onColumnVisibilityChange={handleColumnVisibility}
 
         sortingMode="server"

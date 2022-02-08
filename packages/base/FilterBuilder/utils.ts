@@ -2,7 +2,7 @@ import Immutable from "immutable";
 import { SelectOption, ValueOption } from "../types";
 import { v4 as uuid } from "uuid";
 import { defaultLocale, rootGroupUuid } from "./constants";
-import { Group, StateTree, StateClause, TreeGroup } from "./types";
+import { SerialisedGroup, StateTree, StateClause, TreeGroup } from "./types";
 
 import { GroupClause, ConditionClause, FilterBuilderLocaleText } from "./types"
 
@@ -31,7 +31,7 @@ export const getSelectOption = (option: ValueOption): SelectOption => {
 export const getLocaleText = (key: keyof FilterBuilderLocaleText, locale: FilterBuilderLocaleText | undefined) =>
   locale !== undefined && locale[key] ? locale[key]! : defaultLocale[key];
 
-export const deserialise = (obj: Group): [StateTree, StateClause] => {
+export const deserialise = (obj: SerialisedGroup): [StateTree, StateClause] => {
   const [treeGroup, clauses] = groupObjToMap(obj, rootGroupUuid);
 
   return [
@@ -42,7 +42,7 @@ export const deserialise = (obj: Group): [StateTree, StateClause] => {
   ];
 }
 
-const groupObjToMap = (obj: Group, id: string, clauses?: StateClause): [TreeGroup, StateClause] => {
+const groupObjToMap = (obj: SerialisedGroup, id: string, clauses?: StateClause): [TreeGroup, StateClause] => {
   let children = Immutable.Map<string, TreeGroup | string>();
 
   if (!clauses) {
@@ -61,7 +61,7 @@ const groupObjToMap = (obj: Group, id: string, clauses?: StateClause): [TreeGrou
       ...child
     });
 
-    const g = child as Group;
+    const g = child as SerialisedGroup;
     if (g.connective) {
       const result = groupObjToMap(g, childId, clauses);
 

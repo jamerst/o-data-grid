@@ -11,7 +11,7 @@ import { initialClauses, initialTree, rootConditionUuid, rootGroupUuid } from ".
 import { FilterBuilderProps } from "./FilterBuilder";
 import { UseODataFilter } from "../hooks";
 import { useMountEffect } from "../../hooks";
-import { ConditionClause, Group, QueryStringCollection } from "../types";
+import { ConditionClause, SerialisedGroup, QueryStringCollection } from "../types";
 import { deserialise } from "../utils";
 
 type FilterRootProps = {
@@ -24,16 +24,16 @@ const FilterRoot = ({ props }: FilterRootProps) => {
   const setSchema = useSetRecoilState(schemaState);
   const setTree = useSetRecoilState(treeState);
 
-  const filter = UseODataFilter();
+  const odataFilter = UseODataFilter();
   const currentFilter = useRef("");
 
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
-  const { onSubmit, onRestoreState, disableHistory } = props;
+  const { onSubmit, onRestoreState, disableHistory, filter: propsFilter } = props;
   const submit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSubmit) {
-      const result = filter();
+      const result = odataFilter();
 
       if (result.filter) {
         currentFilter.current = result.filter;
@@ -56,7 +56,7 @@ const FilterRoot = ({ props }: FilterRootProps) => {
         }
       }
     }
-  }, [onSubmit, filter, disableHistory]);
+  }, [onSubmit, odataFilter, disableHistory]);
 
   const reset = useCallback(() => {
     currentFilter.current = "";
@@ -90,6 +90,11 @@ const FilterRoot = ({ props }: FilterRootProps) => {
   }, [props.schema, setClauses, setTree]);
 
   const restoreState = useCallback((state: any, isPopstate: boolean) => {
+    console.debug("restoreState");
+    if (!state) {
+      return;
+    }
+
     let filter = "", obj, queryString;
 
     if (state.filterBuilder) {
@@ -98,7 +103,7 @@ const FilterRoot = ({ props }: FilterRootProps) => {
       }
 
       filter = state.filterBuilder.filter as string;
-      obj = state.filterBuilder.serialised as Group;
+      obj = state.filterBuilder.serialised as SerialisedGroup;
       queryString = state.filterBuilder.queryString as QueryStringCollection;
     } else {
       restoreDefault();
@@ -118,7 +123,22 @@ const FilterRoot = ({ props }: FilterRootProps) => {
     }
   }, [onRestoreState, restoreDefault, setClauses, setTree]);
 
+  const restoreFilter = useCallback((serialised: SerialisedGroup) => {
+    console.debug("restoreFilter");
+    const [tree, clauses] = deserialise(serialised);
+
+    setClauses(clauses);
+    setTree(tree);
+
+    // if (onRestoreState) {
+    //   // const result = odataFilter();
+
+    //   onRestoreState(result.filter ?? "", result.serialised, result.queryString);
+    // }
+  }, []);
+
   useEffect(() => {
+    console.debug("popstate useEffect");
     if (disableHistory !== true) {
       const handlePopState = (e: PopStateEvent) => { restoreState(e.state, true); };
 
@@ -127,12 +147,24 @@ const FilterRoot = ({ props }: FilterRootProps) => {
     }
   }, [disableHistory, restoreState]);
 
+  useEffect(() => {
+    console.debug("propsFilter useEffect");
+    if (propsFilter) {
+      restoreFilter(propsFilter);
+    } else {
+      restoreDefault();
+    }
+  }, [propsFilter, restoreFilter]);
+
   useMountEffect(() => {
+    console.debug("useMountEffect");
     setProps(props);
 
     // restore query from history state if enabled
-    if (disableHistory !== true) {
+    if (disableHistory !== true && window.history.state && window.history.state.filterBuilder) {
       restoreState(window.history.state, false);
+    } else if (propsFilter) {
+      restoreFilter(propsFilter);
     } else {
       restoreDefault();
     }

@@ -6,8 +6,8 @@ import { ValueOption } from "../types";
 
 export type ExternalBuilderProps = {
   searchMenuItems?: ({ label: string, onClick: () => void })[],
-  onSubmit?: (filter: string, serialised: Group | undefined, queryString: QueryStringCollection | undefined) => (void | any),
-  onRestoreState?: (filter: string, serialised: Group | undefined, queryString: QueryStringCollection | undefined, state: any) => void,
+  onSubmit?: (filter: string, serialised: SerialisedGroup | undefined, queryString: QueryStringCollection | undefined) => (void | any),
+  onRestoreState?: (filter: string, serialised: SerialisedGroup | undefined, queryString: QueryStringCollection | undefined, state?: any) => void,
   localeText?: FilterBuilderLocaleText,
 
   autocompleteGroups?: string[],
@@ -19,7 +19,9 @@ export type ExternalBuilderProps = {
   selectProps?: SelectProps,
   textFieldProps?: TextFieldProps,
 
-  disableHistory?: boolean
+  disableHistory?: boolean,
+
+  filter?: SerialisedGroup
 }
 
 export type FilterBuilderLocaleText = {
@@ -127,8 +129,8 @@ export type TreeChildren = Immutable.Map<string, TreeGroup | string>;
 export type StateClause = Immutable.Map<string, GroupClause | ConditionClause>;
 export type StateTree = Immutable.Map<string, string | TreeGroup>;
 
-export type Group = Omit<GroupClause, "id"> & {
-  children: (Group | Condition)[]
+export type SerialisedGroup = Omit<GroupClause, "id"> & {
+  children: (SerialisedGroup | SerialisedCondition)[]
 }
 
-export type Condition = Omit<ConditionClause, "id" | "default">
+export type SerialisedCondition = Omit<ConditionClause, "id" | "default">;

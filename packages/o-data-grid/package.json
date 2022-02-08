@@ -6,8 +6,9 @@
   "module": "build/o-data-grid-esm.js",
   "types": "build/o-data-grid.d.ts",
   "scripts": {
-    "build": "rollup -c ./rollup.config.js",
-    "lint": "eslint"
+    "build": "cd ../ && node_modules/.bin/rollup -c ./rollup.o-data-grid.config.js",
+    "start": "cd ../ && node_modules/.bin/webpack-dev-server --mode development --open --hot -c ./webpack.o-data-grid.config.js",
+    "build-dev": "cd ../ && node_modules/.bin/webpack -c ./webpack.o-data-grid.config.js"
   },
   "repository": {
     "type": "git",
@@ -33,38 +34,12 @@
     "url": "https://github.com/jamerst/o-data-grid/issues"
   },
   "homepage": "https://github.com/jamerst/o-data-grid#readme",
-  "devDependencies": {
-    "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.6.0",
-    "@mui/base": "^5.0.0-alpha.62",
-    "@mui/icons-material": "^5.2.5",
-    "@mui/lab": "^5.0.0-alpha.62",
-    "@mui/material": "^5.2.6",
-    "@mui/system": "^5.2.6",
-    "@mui/x-data-grid": "^5.2.1",
-    "@types/ramda": "^0.27.62",
-    "@types/react": "^17.0.38",
-    "@types/react-dom": "^17.0.11",
-    "@types/uuid": "^8.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.8.1",
-    "@typescript-eslint/parser": "^5.8.1",
-    "eslint": "^8.6.0",
-    "eslint-plugin-react": "^7.28.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "rollup": "^2.62.0",
-    "rollup-plugin-dts": "^4.1.0",
-    "rollup-plugin-typescript2": "^0.31.1",
-    "source-map-explorer": "^2.5.2",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.4"
-  },
   "peerDependencies": {
     "@mui/icons-material": "^5.2.5",
     "@mui/lab": "^5.0.0-alpha.62",
-    "@mui/material": "^5.2.6",
-    "@mui/system": "^5.2.6",
-    "@mui/x-data-grid": "^5.2.1",
+    "@mui/material": "^5.2.8",
+    "@mui/system": "^5.2.8",
+    "@mui/x-data-grid": "^5.4.0",
     "react": "^17.0.2"
   },
   "dependencies": {

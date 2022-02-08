@@ -2,14 +2,14 @@ import { useCallback } from "react";
 import { useRecoilValue, waitForAll } from "recoil"
 import { rootGroupUuid } from "./constants";
 import { clauseState, schemaState, treeState } from "./state"
-import { BaseFieldDef, Condition, ConditionClause, FieldDef, Group, GroupClause, Operation, QueryStringCollection, StateClause, StateTree, TreeGroup } from "./types";
+import { BaseFieldDef, SerialisedCondition, ConditionClause, FieldDef, SerialisedGroup, GroupClause, Operation, QueryStringCollection, StateClause, StateTree, TreeGroup } from "./types";
 
 export const UseODataFilter = () => {
   const schema = useRecoilValue(schemaState);
   const [clauses, tree] = useRecoilValue(waitForAll([clauseState, treeState]));
 
   return useCallback(() => {
-    return buildGroup(schema, clauses, tree, rootGroupUuid, []) as BuiltQuery<Group>;
+    return buildGroup(schema, clauses, tree, rootGroupUuid, []) as BuiltQuery<SerialisedGroup>;
   }, [schema, clauses, tree]);
 }
 
@@ -22,7 +22,7 @@ type BuiltQuery<T> = BuiltInnerQuery & {
   serialised: T
 }
 
-const buildGroup = (schema: FieldDef[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (BuiltQuery<Group> | boolean) => {
+const buildGroup = (schema: FieldDef[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (BuiltQuery<SerialisedGroup> | boolean) => {
   const clause = clauses.get(id) as GroupClause;
   const treeNode = tree.getIn([...path, id]) as TreeGroup;
 
@@ -40,7 +40,7 @@ const buildGroup = (schema: FieldDef[], clauses: StateClause, tree: StateTree, i
         return buildGroup(schema, clauses, tree, c[0], [...path, id, "children"]);
       }
     })
-    .filter(c => c !== false) as (BuiltQuery<Group> | BuiltQuery<Condition>)[];
+    .filter(c => c !== false) as (BuiltQuery<SerialisedGroup> | BuiltQuery<SerialisedCondition>)[];
 
   if (childClauses.length > 1) {
     return {
@@ -60,10 +60,10 @@ const buildGroup = (schema: FieldDef[], clauses: StateClause, tree: StateTree, i
   }
 }
 
-const buildCondition = (schema: FieldDef[], clauses: StateClause, id: string): (BuiltQuery<Condition> | boolean) => {
+const buildCondition = (schema: FieldDef[], clauses: StateClause, id: string): (BuiltQuery<SerialisedCondition> | boolean) => {
   const clause = clauses.get(id) as ConditionClause;
 
-  let condition: Condition | undefined = undefined;
+  let condition: SerialisedCondition | undefined = undefined;
   if (!clause || clause.default === true) {
     console.error(`Clause not found: ${id}`);
     return false;

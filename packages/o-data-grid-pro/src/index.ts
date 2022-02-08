@@ -15,6 +15,15 @@ export {
 export type { ODataGridProProps } from "ODataGridProProps"
 export type ODataGridColDef = ODataGridBaseColDef<GridColDef>
 
-export type { SelectOption, ValueOption } from "../../base/types";
-export type { CollectionFieldDef, CollectionOperation, Connective, FilterBuilderLocaleText, FieldDef, Group, Condition, QueryStringCollection } from "../../base/FilterBuilder/types";
+export type { SelectOption, ValueOption, ODataColumnVisibilityModel } from "../../base/types";
+export type {
+  CollectionFieldDef,
+  CollectionOperation,
+  Connective,
+  FilterBuilderLocaleText,
+  FieldDef,
+  QueryStringCollection,
+  SerialisedGroup,
+  SerialisedCondition,
+} from "../../base/FilterBuilder/types";
 export type { FilterBuilderProps } from "../../base/FilterBuilder/components/FilterBuilder";

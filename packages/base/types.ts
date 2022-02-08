@@ -14,6 +14,7 @@ export type ODataGridBaseProps<
     url: string,
     alwaysSelect?: string[],
     columns: ODataGridBaseColDef<ColDef>[],
+    columnVisibilityModel?: ODataColumnVisibilityModel,
     component: React.ElementType,
     defaultPageSize?: number,
     defaultSortModel?: SortModel,
@@ -24,11 +25,12 @@ export type ODataGridBaseProps<
     idField?: string,
   };
 
-// remove properties which should not be used - these are handled internally
+// remove properties which should not be used - these are handled internally or overridden
 type OmitGridProps<T> = Omit<T,
   "columns"
   | "rows"
   | "autoPageSize"
+  | "columnVisibilityModel"
   | "disableColumnFilter"
   | "filterMode"
   | "filterModel"
@@ -72,11 +74,16 @@ export type SelectOption = {
   label: string
 }
 
+export type ODataColumnVisibilityModel = Record<string, boolean | ResponsiveValues<boolean>>;
+
+export type ColumnVisibilityModel = Record<string, boolean>;
+
 export type IGridSortModel = ({ field: string, sort: 'asc' | 'desc' | null | undefined })[];
 
 export type IGridRowModel<T = { [key: string]: any }> = T;
 
 export type IGridProps = {
   onColumnVisibilityChange?: any,
+  columnVisibilityModel?: ColumnVisibilityModel,
   onSortModelChange?: any
 }
