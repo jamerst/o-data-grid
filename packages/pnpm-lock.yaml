@@ -10,6 +10,7 @@ specifiers:
   '@mui/material': ^5.2.8
   '@mui/system': ^5.2.8
   '@mui/x-data-grid': ^5.4.0
+  '@mui/x-data-grid-pro': ^5.5.1
   '@types/ramda': ^0.27.62
   '@types/react': ^17.0.38
   '@types/react-dom': ^17.0.11
@@ -50,6 +51,7 @@ devDependencies:
   '@mui/material': 5.4.1_6226f8758b5b21b5515ad844c1caeb22
   '@mui/system': 5.4.1_2af1fda251a25a998cef61bdffa74edc
   '@mui/x-data-grid': 5.5.0_cb47c7e14db85098d561483455a0b6a1
+  '@mui/x-data-grid-pro': 5.5.1_cb47c7e14db85098d561483455a0b6a1
   '@types/ramda': 0.27.64
   '@types/react': 17.0.39
   '@types/react-dom': 17.0.11
@@ -554,6 +556,24 @@ packages:
       react-is: 17.0.2
     dev: true
 
+  /@mui/x-data-grid-pro/5.5.1_cb47c7e14db85098d561483455a0b6a1:
+    resolution: {integrity: sha512-Fh5zWvu6Mz135uIAH7he64Zx4AWCp+ztgsc5EHISd457Mcc4rWJqpSVE6bMOo4tfNT32NFPoApJqc/LFK/33ng==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      '@mui/material': ^5.2.8
+      '@mui/system': ^5.2.8
+      react: ^17.0.2
+    dependencies:
+      '@mui/material': 5.4.1_6226f8758b5b21b5515ad844c1caeb22
+      '@mui/system': 5.4.1_2af1fda251a25a998cef61bdffa74edc
+      '@mui/utils': 5.4.1_react@17.0.2
+      '@mui/x-license-pro': 5.5.1_react@17.0.2
+      clsx: 1.1.1
+      prop-types: 15.8.1
+      react: 17.0.2
+      reselect: 4.1.5
+    dev: true
+
   /@mui/x-data-grid/5.5.0_cb47c7e14db85098d561483455a0b6a1:
     resolution: {integrity: sha512-qjOAqUHDsQ1elZuvL05k6bQITI2bbCRFrYYk03Y8mz7PpbSn1KrHlMVwJQbZByl/+uWO0Md1my/UUfaVWy9Puw==}
     engines: {node: '>=12.0.0'}
@@ -569,6 +589,19 @@ packages:
       prop-types: 15.8.1
       react: 17.0.2
       reselect: 4.1.5
+    dev: true
+
+  /@mui/x-license-pro/5.5.1_react@17.0.2:
+    resolution: {integrity: sha512-GPx9u9vceYwLZWbpgItVAtBFAruwGkeOKV7fPz1oGMQo7nF5yKbJAycLzFG6gAh7dxjzSi3w5Vg561QeV1TKFQ==}
+    engines: {node: '>=12.0.0'}
+    hasBin: true
+    peerDependencies:
+      react: ^17.0.2
+    dependencies:
+      '@mui/utils': 5.4.1_react@17.0.2
+      esm: 3.2.25
+      react: 17.0.2
+      yargs: 17.3.1
     dev: true
 
   /@nodelib/fs.scandir/2.1.5:
@@ -2000,6 +2033,11 @@ packages:
       v8-compile-cache: 2.3.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /esm/3.2.25:
+    resolution: {integrity: sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==}
+    engines: {node: '>=6'}
     dev: true
 
   /espree/9.3.0:
@@ -4607,6 +4645,11 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /yargs-parser/21.0.0:
+    resolution: {integrity: sha512-z9kApYUOCwoeZ78rfRYYWdiU/iNL6mwwYlkkZfJoyMR1xps+NEBX5X7XmRpxkZHhXJ6+Ey00IwKxBBSW9FIjyA==}
+    engines: {node: '>=12'}
+    dev: true
+
   /yargs/16.2.0:
     resolution: {integrity: sha512-D1mvvtDG0L5ft/jGWkLpG1+m0eQxOfaBvTNELraWj22wSVUMWxZUvYgJYcKh6jGGIkJFhH4IZPQhR4TKpc8mBw==}
     engines: {node: '>=10'}
@@ -4618,6 +4661,19 @@ packages:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 20.2.9
+    dev: true
+
+  /yargs/17.3.1:
+    resolution: {integrity: sha512-WUANQeVgjLbNsEmGk20f+nlHgOqzRFpiGWVaBrYGYIGANIIu3lWjoyi0fNlFmJkvfhCZ6BXINe7/W2O2bV4iaA==}
+    engines: {node: '>=12'}
+    dependencies:
+      cliui: 7.0.4
+      escalade: 3.1.1
+      get-caller-file: 2.0.5
+      require-directory: 2.1.1
+      string-width: 4.2.3
+      y18n: 5.0.8
+      yargs-parser: 21.0.0
     dev: true
 
   /yocto-queue/0.1.0:

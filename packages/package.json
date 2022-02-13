@@ -15,6 +15,7 @@
     "@mui/material": "^5.2.8",
     "@mui/system": "^5.2.8",
     "@mui/x-data-grid": "^5.4.0",
+    "@mui/x-data-grid-pro": "^5.5.1",
     "@types/ramda": "^0.27.62",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
