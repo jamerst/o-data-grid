@@ -30,7 +30,7 @@ const FilterCondition = ({ clauseId, path }: FilterConditionProps) => {
     const newFieldDef = schema.find(c => c.field === newField);
 
     setClauses(old => old.update(clauseId, c => {
-      let condition = { ...c as ConditionClause };
+      const condition = { ...c as ConditionClause };
       condition.field = newField;
       condition.default = false;
 
@@ -76,7 +76,7 @@ const FilterCondition = ({ clauseId, path }: FilterConditionProps) => {
 
   const changeCollectionOp = useCallback((o: CollectionOperation) => {
     setClauses(old => old.update(clauseId, c => {
-      let condition = { ...c as ConditionClause, collectionOp: o, default: false };
+      const condition = { ...c as ConditionClause, collectionOp: o, default: false };
 
       // reset field operator if switching to count operator and current op is not valid
       if (o === "count" && !numericOperators.includes(condition.op)) {
@@ -91,7 +91,7 @@ const FilterCondition = ({ clauseId, path }: FilterConditionProps) => {
     const fieldDef = schema.find(c => c.field === field);
 
     setClauses(old => old.update(clauseId, c => {
-      let condition = { ...c as ConditionClause };
+      const condition = { ...c as ConditionClause };
       condition.collectionField = newColField;
       condition.default = false;
 
@@ -122,7 +122,7 @@ const FilterCondition = ({ clauseId, path }: FilterConditionProps) => {
         old.deleteIn([...path, clauseId]);
 
         // get path to parent node (i.e. remove "children" from end of path)
-        let parentPath = [...path];
+        const parentPath = [...path];
         parentPath.splice(-1, 1);
 
         do {

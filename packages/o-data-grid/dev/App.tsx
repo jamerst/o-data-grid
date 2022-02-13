@@ -1,7 +1,7 @@
 import React from "react"
 import { CssBaseline, Typography, Grid, TextField, Slider, Chip } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { GridSortModel } from "@mui/x-data-grid"
+import { GridSortModel, GridOverlay } from "@mui/x-data-grid"
 import { ODataGridColDef, QueryStringCollection, ODataColumnVisibilityModel } from "../src/index";
 import ODataGrid from "../src/ODataGrid";
 import { CacheProvider } from "@emotion/react";
@@ -24,13 +24,14 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <ODataGrid
-          url="/api/odata/job"
+          url="http://0.0.0.0:5000/api/odata/job"
           columns={columns}
           columnVisibilityModel={columnVisibility}
-          idField="Id"
+          getRowId={(row) => row.Id}
           defaultSortModel={defaultSort}
           filterBuilderProps={filterBuilderProps}
           defaultPageSize={15}
+          alwaysSelect={alwaysFetch}
         />
       </ThemeProvider>
     </CacheProvider>
@@ -44,7 +45,7 @@ type LocationFilter = {
 
 const filterBuilderProps = { autocompleteGroups: ["Job", "Company"] };
 
-const alwaysFetch = ["Archived"];
+const alwaysFetch = ["Id", "Archived"];
 const columns: ODataGridColDef[] = [
   {
     field: "Title",
@@ -209,7 +210,7 @@ const columns: ODataGridColDef[] = [
 const columnVisibility: ODataColumnVisibilityModel = {
   "Company/Name": { xs: false, md: true },
   "Salary": { xs: false, lg: true },
-  "Status": true,
+  "Status": false,
   "JobCategories": { xs: false, xl: true },
   "Source/DisplayName": true,
   "Posted": { xs: false, sm: true },

@@ -9,7 +9,7 @@ import { clauseState, propsState, schemaState, treeState } from "../state"
 
 import { initialClauses, initialTree, rootConditionUuid, rootGroupUuid } from "../constants"
 import { FilterBuilderProps } from "./FilterBuilder";
-import { UseODataFilter } from "../hooks";
+import { UseODataFilter, UseODataFilterWithState } from "../hooks";
 import { useMountEffect } from "../../hooks";
 import { ConditionClause, SerialisedGroup, QueryStringCollection } from "../types";
 import { deserialise } from "../utils";
@@ -25,6 +25,7 @@ const FilterRoot = ({ props }: FilterRootProps) => {
   const setTree = useSetRecoilState(treeState);
 
   const odataFilter = UseODataFilter();
+  const odataFilterWithState = UseODataFilterWithState();
   const currentFilter = useRef("");
 
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
@@ -90,14 +91,9 @@ const FilterRoot = ({ props }: FilterRootProps) => {
   }, [props.schema, setClauses, setTree]);
 
   const restoreState = useCallback((state: any, isPopstate: boolean) => {
-    console.debug("restoreState");
-    if (!state) {
-      return;
-    }
-
     let filter = "", obj, queryString;
 
-    if (state.filterBuilder) {
+    if (state?.filterBuilder) {
       if (state.filterBuilder.reset === true && isPopstate === true) {
         restoreDefault();
       }
@@ -124,21 +120,19 @@ const FilterRoot = ({ props }: FilterRootProps) => {
   }, [onRestoreState, restoreDefault, setClauses, setTree]);
 
   const restoreFilter = useCallback((serialised: SerialisedGroup) => {
-    console.debug("restoreFilter");
     const [tree, clauses] = deserialise(serialised);
 
     setClauses(clauses);
     setTree(tree);
 
-    // if (onRestoreState) {
-    //   // const result = odataFilter();
+    if (onRestoreState) {
+      const result = odataFilterWithState(clauses, tree);
 
-    //   onRestoreState(result.filter ?? "", result.serialised, result.queryString);
-    // }
-  }, []);
+      onRestoreState(result.filter ?? "", result.serialised, result.queryString);
+    }
+  }, [setClauses, setTree, onRestoreState, odataFilterWithState]);
 
   useEffect(() => {
-    console.debug("popstate useEffect");
     if (disableHistory !== true) {
       const handlePopState = (e: PopStateEvent) => { restoreState(e.state, true); };
 
@@ -148,16 +142,14 @@ const FilterRoot = ({ props }: FilterRootProps) => {
   }, [disableHistory, restoreState]);
 
   useEffect(() => {
-    console.debug("propsFilter useEffect");
     if (propsFilter) {
       restoreFilter(propsFilter);
     } else {
       restoreDefault();
     }
-  }, [propsFilter, restoreFilter]);
+  }, [propsFilter, restoreFilter, restoreDefault]);
 
   useMountEffect(() => {
-    console.debug("useMountEffect");
     setProps(props);
 
     // restore query from history state if enabled

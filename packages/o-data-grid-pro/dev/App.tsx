@@ -27,10 +27,11 @@ const App = () => {
           url="/api/odata/job"
           columns={columns}
           columnVisibilityModel={columnVisibility}
-          idField="Id"
+          getRowId={(row) => row.Id}
           defaultSortModel={defaultSort}
           filterBuilderProps={filterBuilderProps}
           defaultPageSize={15}
+          alwaysSelect={alwaysFetch}
         />
       </ThemeProvider>
     </CacheProvider>
@@ -44,7 +45,7 @@ type LocationFilter = {
 
 const filterBuilderProps = { autocompleteGroups: ["Job", "Company"] };
 
-const alwaysFetch = ["Archived"];
+const alwaysFetch = ["Id", "Archived"];
 const columns: ODataGridColDef[] = [
   {
     field: "Title",

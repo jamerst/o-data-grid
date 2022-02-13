@@ -1,3 +1,4 @@
+const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 
 module.exports = {
@@ -21,6 +22,7 @@ module.exports = {
     plugins: [
         new HtmlWebPackPlugin({
             template: "./o-data-grid/dev/index.html"
-        })
+        }),
+        new ESLintPlugin({ context: "./o-data-grid/" })
     ]
 }

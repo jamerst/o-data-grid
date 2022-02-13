@@ -74,14 +74,13 @@ _* = required property_
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `url*` | `string` | | URL of the OData endpoint |
-| `alwaysSelect` | `string[]` | | Array of entity properties to add to the `$select` clause of the query, even if a column doesn't exist for that property or the column is not visible. |
+| `alwaysSelect` | `string[]` | | Array of entity properties to add to the `$select` clause of the query, even if a column doesn't exist for that property or the column is not visible.<br/><br/>If you use the `getRowId` prop of the DataGrid, ensure that property is added here as well. |
 | `defaultPageSize` | `number` | `10` | The default page size to use. |
 | `defaultSortModel` | `GridSortModel` | | The default property/properties to sort by. |
 | `disableFilterBuilder` | `boolean` | | Disable the filter/query builder if set to `true` |
 | `disableHistory` | `boolean` | | Disable the browser history integration for sorting and pagination if set to `true`. <br/> **Note: this does not disable history integration for the filter builder.** |
 | `$filter` | `string` | | Static value to use for the `$filter` clause of the query.<br/><br/>**Note: this also has the effect of setting `disableFilterBuilder` to `true`**. |
 | `filterBuilderProps` | [`FilterBuilderProps`](#FilterBuilderProps) | | Props to be passed to the FilterBuilder. |
-| `idField` | `string` | | The DataGrid requires that each row in the grid has a property called `id`. If the unique ID field of your entity is not named `id`, provide the name of it here and the value of the property will be copied to `id` in the rows. |
 
 ### <a id="ODataGridColDef">ODataGridColDef</a>
 The column definition is again similar to the standard [GridColDef](https://mui.com/components/data-grid/columns/).
@@ -174,7 +173,7 @@ ODataGrid is developed using [pnpm](https://pnpm.io/). It will probably work fin
 To build and run the packages, you first need to install the development packages by running `pnpm i` in the `packages` directory. Once you have done that you can build or run the relevant package.
 
 ### Building
-Building is simple, just run `pnpm build` in the relevant directory under `packages`.
+Building is simple, just run `pnpm build` in `packages/o-data-grid` or `packages/o-data-grid-pro`.
 
 The build output is in the `build` directory.
 

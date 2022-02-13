@@ -13,6 +13,14 @@ export const UseODataFilter = () => {
   }, [schema, clauses, tree]);
 }
 
+export const UseODataFilterWithState = () => {
+  const schema = useRecoilValue(schemaState);
+
+  return useCallback((clauses: StateClause, tree: StateTree) => {
+    return buildGroup(schema, clauses, tree, rootGroupUuid, []) as BuiltQuery<SerialisedGroup>;
+  }, [schema])
+}
+
 type BuiltInnerQuery = {
   filter?: string,
   queryString?: QueryStringCollection

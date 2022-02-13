@@ -21,8 +21,7 @@ export type ODataGridBaseProps<
     disableFilterBuilder?: boolean,
     disableHistory?: boolean,
     $filter?: string,
-    filterBuilderProps?: ExternalBuilderProps,
-    idField?: string,
+    filterBuilderProps?: ExternalBuilderProps
   };
 
 // remove properties which should not be used - these are handled internally or overridden

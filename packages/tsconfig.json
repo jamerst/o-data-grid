@@ -25,9 +25,5 @@
   "include": [
     "./o-data-grid/src",
     "./base"
-  ],
-  "paths": {
-    "o-data-grid-base": "./base",
-    "o-data-grid-base/*": "./base/*"
-  }
+  ]
 }
