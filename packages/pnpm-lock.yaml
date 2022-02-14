@@ -23,8 +23,6 @@ specifiers:
   eslint-webpack-plugin: ^3.1.1
   html-webpack-plugin: ^5.5.0
   immutable: ^4.0.0
-  odata: ^1.3.1
-  ramda: ^0.28.0
   react: ^17.0.2
   react-dom: ^17.0.2
   recoil: ^0.6.1
@@ -64,8 +62,6 @@ devDependencies:
   eslint-webpack-plugin: 3.1.1_eslint@8.8.0+webpack@5.68.0
   html-webpack-plugin: 5.5.0_webpack@5.68.0
   immutable: 4.0.0
-  odata: 1.3.1
-  ramda: 0.28.0
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
   recoil: 0.6.1_react-dom@17.0.2+react@17.0.2
@@ -1590,14 +1586,6 @@ packages:
       yaml: 1.10.2
     dev: true
 
-  /cross-fetch/3.1.5:
-    resolution: {integrity: sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==}
-    dependencies:
-      node-fetch: 2.6.7
-    transitivePeerDependencies:
-      - encoding
-    dev: true
-
   /cross-spawn/7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
@@ -2440,11 +2428,6 @@ packages:
       function-bind: 1.1.1
     dev: true
 
-  /hasurl/1.0.0:
-    resolution: {integrity: sha512-43ypUd3DbwyCT01UYpA99AEZxZ4aKtRxWGBHEIbjcOsUghd9YUON0C+JF6isNjaiwC/UF5neaUudy6JS9jZPZQ==}
-    engines: {node: '>= 4'}
-    dev: true
-
   /he/1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
@@ -2941,10 +2924,6 @@ packages:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
 
-  /lodash.sortby/4.7.0:
-    resolution: {integrity: sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=}
-    dev: true
-
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: true
@@ -3108,18 +3087,6 @@ packages:
       tslib: 2.3.1
     dev: true
 
-  /node-fetch/2.6.7:
-    resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
-    dependencies:
-      whatwg-url: 5.0.0
-    dev: true
-
   /node-forge/1.2.1:
     resolution: {integrity: sha512-Fcvtbb+zBcZXbTTVwqGA5W+MKBj56UjVRevvchv5XrcyXbmNdesfZL37nlcWOfpgHhgmxApw3tQbTr4CqNmX4w==}
     engines: {node: '>= 6.13.0'}
@@ -3215,17 +3182,6 @@ packages:
 
   /obuf/1.1.2:
     resolution: {integrity: sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==}
-    dev: true
-
-  /odata/1.3.1:
-    resolution: {integrity: sha512-cLhLk4FGPmXtTgjaW79I+VlpBM2+8m3FILwRZyadw6vlJDs5RvujPV2c6iyx5otC/1+SjncqscuZfPKAqKCEmA==}
-    engines: {node: '>=10.14.2'}
-    dependencies:
-      cross-fetch: 3.1.5
-      tslib: 1.14.1
-      universal-url: 2.0.0
-    transitivePeerDependencies:
-      - encoding
     dev: true
 
   /on-finished/2.3.0:
@@ -3482,10 +3438,6 @@ packages:
 
   /queue-microtask/1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
-    dev: true
-
-  /ramda/0.28.0:
-    resolution: {integrity: sha512-9QnLuG/kPVgWvMQ4aODhsBUFKOUmnbUnsSXACv+NCQZcHbeb+v8Lodp8OVxtRULN1/xOyYLLaL6npE6dMq5QTA==}
     dev: true
 
   /randombytes/2.1.0:
@@ -4200,16 +4152,6 @@ packages:
     engines: {node: '>=0.6'}
     dev: true
 
-  /tr46/0.0.3:
-    resolution: {integrity: sha1-gYT9NH2snNwYWZLzpmIuFLnZq2o=}
-    dev: true
-
-  /tr46/1.0.1:
-    resolution: {integrity: sha1-qLE/1r/SSJUZZ0zN5VujaTtwbQk=}
-    dependencies:
-      punycode: 2.1.1
-    dev: true
-
   /ts-loader/9.2.6_typescript@4.5.5+webpack@5.68.0:
     resolution: {integrity: sha512-QMTC4UFzHmu9wU2VHZEmWWE9cUajjfcdcws+Gh7FhiO+Dy0RnR1bNz0YCHqhI0yRowCE9arVnNxYHqELOy9Hjw==}
     engines: {node: '>=12.0.0'}
@@ -4307,14 +4249,6 @@ packages:
       which-boxed-primitive: 1.0.2
     dev: true
 
-  /universal-url/2.0.0:
-    resolution: {integrity: sha512-3DLtXdm/G1LQMCnPj+Aw7uDoleQttNHp2g5FnNQKR6cP6taNWS1b/Ehjjx4PVyvejKi3TJyu8iBraKM4q3JQPg==}
-    engines: {node: '>= 6'}
-    dependencies:
-      hasurl: 1.0.0
-      whatwg-url: 7.1.0
-    dev: true
-
   /universalify/2.0.0:
     resolution: {integrity: sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==}
     engines: {node: '>= 10.0.0'}
@@ -4380,14 +4314,6 @@ packages:
     resolution: {integrity: sha512-O84QOnr0icsbFGLS0O3bI5FswxzRr8/gHwWkDlQFskhSPryQXvrTMxjxGP4+iWYoauLoBvfDpkrOauZ+0iZpDA==}
     dependencies:
       minimalistic-assert: 1.0.1
-    dev: true
-
-  /webidl-conversions/3.0.1:
-    resolution: {integrity: sha1-JFNCdeKnvGvnvIZhHMFq4KVlSHE=}
-    dev: true
-
-  /webidl-conversions/4.0.2:
-    resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
 
   /webpack-cli/4.9.2_19108610e47e80b101fe97b50133aa84:
@@ -4556,21 +4482,6 @@ packages:
   /websocket-extensions/0.1.4:
     resolution: {integrity: sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==}
     engines: {node: '>=0.8.0'}
-    dev: true
-
-  /whatwg-url/5.0.0:
-    resolution: {integrity: sha1-lmRU6HZUYuN2RNNib2dCzotwll0=}
-    dependencies:
-      tr46: 0.0.3
-      webidl-conversions: 3.0.1
-    dev: true
-
-  /whatwg-url/7.1.0:
-    resolution: {integrity: sha512-WUu7Rg1DroM7oQvGWfOiAK21n74Gg+T4elXEQYkOhtyLeWiJFoOGLXPKI/9gzIie9CtwVLm8wtw6YJdKyxSjeg==}
-    dependencies:
-      lodash.sortby: 4.7.0
-      tr46: 1.0.1
-      webidl-conversions: 4.0.2
     dev: true
 
   /which-boxed-primitive/1.0.2:

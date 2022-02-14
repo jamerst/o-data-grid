@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react"
 import { useTheme, Breakpoint, Theme } from "@mui/material/styles"
-import { findLast } from "ramda"
 
 export type ResponsiveValues<P> = Partial<Record<Breakpoint, P>>
 
@@ -10,11 +9,12 @@ export const useResponsive = () => {
   const matches = useBreakpoints();
 
   return function <P>(responsiveValues: ResponsiveValues<P>) {
-    const match = findLast(
-      (breakpoint) =>
-        matches[breakpoint]! && responsiveValues[breakpoint] != null,
-      theme.breakpoints.keys
-    )
+    let match: Breakpoint | undefined;
+    theme.breakpoints.keys.forEach((breakpoint) => {
+      if (matches[breakpoint] && responsiveValues[breakpoint] != null) {
+        match = breakpoint;
+      }
+    })
 
     return match && responsiveValues[match]
   }

@@ -24,7 +24,7 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <ODataGridPro
-          url="/api/odata/job"
+          url="http://0.0.0.0:5000/api/odata/job"
           columns={columns}
           columnVisibilityModel={columnVisibility}
           getRowId={(row) => row.Id}
@@ -87,7 +87,7 @@ const columns: ODataGridColDef[] = [
     ),
     getCustomQueryString: (_, v) => {
       const filter = v as LocationFilter;
-      let result: QueryStringCollection = {};
+      const result: QueryStringCollection = {};
       if (filter.location) {
         result["location"] = filter.location!;
         result["distance"] = (filter.distance ?? 15).toString();
@@ -210,7 +210,7 @@ const columns: ODataGridColDef[] = [
 const columnVisibility: ODataColumnVisibilityModel = {
   "Company/Name": { xs: false, md: true },
   "Salary": { xs: false, lg: true },
-  "Status": true,
+  "Status": false,
   "JobCategories": { xs: false, xl: true },
   "Source/DisplayName": true,
   "Posted": { xs: false, sm: true },

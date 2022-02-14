@@ -1,7 +1,7 @@
 # ODataGrid
 ODataGrid is an extension to the [MUI DataGrid](https://github.com/mui-org/material-ui-x) React component which implements features such as sorting, pagination, column selection, and filtering using the [OData Standard](https://www.odata.org/). This allows you to quickly create a powerful interface for browsing data with minimal back-end code.
 
-![ODataGrid in action](../../images/o-data-grid.png)
+![ODataGrid in action](https://raw.githubusercontent.com/jamerst/o-data-grid/main/images/o-data-grid.png)
 
 ## Features
 - Supports DataGrid and DataGridPro
@@ -81,6 +81,7 @@ _* = required property_
 | `disableHistory` | `boolean` | | Disable the browser history integration for sorting and pagination if set to `true`. <br/> **Note: this does not disable history integration for the filter builder.** |
 | `$filter` | `string` | | Static value to use for the `$filter` clause of the query.<br/><br/>**Note: this also has the effect of setting `disableFilterBuilder` to `true`**. |
 | `filterBuilderProps` | [`FilterBuilderProps`](#FilterBuilderProps) | | Props to be passed to the FilterBuilder. |
+| `requestOptions` | `RequestInit` | | Options to use in `fetch()` call to OData endpoint. |
 
 ### <a id="ODataGridColDef">ODataGridColDef</a>
 The column definition is again similar to the standard [GridColDef](https://mui.com/components/data-grid/columns/).

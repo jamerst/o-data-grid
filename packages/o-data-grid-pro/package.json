@@ -1,10 +1,11 @@
 {
   "name": "o-data-grid-pro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A React Data Grid and Query Builder for OData APIs. Based on the Material-UI DataGridPro.",
   "main": "build/o-data-grid-pro-cjs.js",
   "module": "build/o-data-grid-pro-esm.js",
   "types": "build/o-data-grid-pro.d.ts",
+  "sideEffects": false,
   "scripts": {
     "build": "cd ../ && node_modules/.bin/rollup -c ./rollup.o-data-grid-pro.config.js",
     "start": "cd ../ && node_modules/.bin/webpack-dev-server --mode development --open --hot -c ./webpack.o-data-grid-pro.config.js",
@@ -45,8 +46,6 @@
   },
   "dependencies": {
     "immutable": "^4.0.0",
-    "odata": "^1.3.1",
-    "ramda": "^0.27.1",
     "recoil": "^0.5.2",
     "tss-react": "^3.2.4",
     "uuid": "^8.3.2"

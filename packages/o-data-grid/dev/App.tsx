@@ -1,7 +1,7 @@
 import React from "react"
 import { CssBaseline, Typography, Grid, TextField, Slider, Chip } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { GridSortModel, GridOverlay } from "@mui/x-data-grid"
+import { GridSortModel } from "@mui/x-data-grid"
 import { ODataGridColDef, QueryStringCollection, ODataColumnVisibilityModel } from "../src/index";
 import ODataGrid from "../src/ODataGrid";
 import { CacheProvider } from "@emotion/react";
@@ -87,7 +87,7 @@ const columns: ODataGridColDef[] = [
     ),
     getCustomQueryString: (_, v) => {
       const filter = v as LocationFilter;
-      let result: QueryStringCollection = {};
+      const result: QueryStringCollection = {};
       if (filter.location) {
         result["location"] = filter.location!;
         result["distance"] = (filter.distance ?? 15).toString();

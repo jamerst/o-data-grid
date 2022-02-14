@@ -1,6 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Box } from "@mui/system";
-import { o, OdataQuery } from "odata"
 
 import { ResponsiveValues, useResponsive } from "../hooks";
 
@@ -86,40 +85,37 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       });
     });
 
-    const $select = Array.from(fields).join(",");
-    const $expand = expands.map(e => ExpandToQuery(e)).join(",");
-    const $top = pageSize;
-    const $skip = pageNumber * pageSize;
+    const query = new URLSearchParams();
+    query.append("$select", Array.from(fields).join(","));
+    query.append("$expand", expands.map(e => ExpandToQuery(e)).join(","));
+    query.append("$top", pageSize.toString());
+    query.append("$skip", (pageNumber * pageSize).toString());
 
-    const query: OdataQuery = {
-      $select,
-      $expand,
-      $top,
-      $skip,
-      $count: fetchCount.current,
-      ...queryString
+    if (fetchCount.current) {
+      query.append("$count", "true");
+    }
+
+    if (queryString) {
+      for (const key in queryString) {
+        query.append(key, queryString[key]);
+      }
     }
 
     if (filter) {
-      query.$filter = filter;
+      query.append("$filter", filter);
     } else if (props.$filter) {
-      query.$filter = props.$filter;
+      query.append("$filter", props.$filter);
     }
 
     if (sortModel && sortModel.length > 0) {
-      query.$orderby = sortModel.map(s => {
+      query.append("$orderby", sortModel.map(s => {
         const sortCol = props.columns.find(c => c.field === s.field);
         return `${sortCol!.sortField ?? sortCol!.field}${s.sort === "desc" ? " desc" : ""}`;
-      }).join(",");
+      }).join(","));
     }
 
-    const rawResponse = await o(props.url)
-      .get()
-      .fetch(query);
-
-    const response = rawResponse as Response;
-
-    if (response?.ok ?? false) {
+    const response = await fetch(props.url + "?" + query.toString(), props.requestOptions);
+    if (response.ok) {
       const data = await response.json() as ODataResponse;
 
       // flatten object so that the DataGrid can access all the properties
@@ -151,7 +147,8 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       props.columns,
       props.$filter,
       props.disableFilterBuilder,
-      props.filterBuilderProps?.disableHistory
+      props.filterBuilderProps?.disableHistory,
+      props.requestOptions
     ]
   );
 
