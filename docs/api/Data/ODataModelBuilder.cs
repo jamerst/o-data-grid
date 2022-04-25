@@ -1,12 +1,15 @@
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OData.Edm;
 
-namespace Api.Data {
-    public static class ODataModelBuilder {
-        public static IEdmModel Build() {
-            var builder = new ODataConventionModelBuilder();
+using Api.Models;
 
-            return builder.GetEdmModel();
-        }
+namespace Api.Data;
+public static class ODataModelBuilder {
+    public static IEdmModel Build() {
+        var builder = new ODataConventionModelBuilder();
+
+        builder.EntitySet<Customer>("Customer");
+
+        return builder.GetEdmModel();
     }
 }
