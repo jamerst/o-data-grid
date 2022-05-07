@@ -104,14 +104,17 @@ _* = not applicable to collection fields_
 | `collectionFields` | `ODataGridColDef` | | Column definitions for the subfields of the collection. Any properties marked with * are not supported. |
 | `datePickerProps` | [`DatePickerProps`](https://mui.com/api/date-picker/) | | Props to pass to the `DatePicker` component for columns with type `date` |
 | `dateTimePickerProps` | [`DateTimePickerProps`](https://mui.com/api/date-time-picker/) | | Props to pass to the `DateTimePicker` component for columns with type `datetime` |
+| `expand` | `Expand` | | Include related entities using the `$expand` clause. |
 | `filterable` | `boolean` | | Hides the field and does not allow filtering in the FilterBuilder when set to `false`. |
 | `filterField` | `string` | | If the field name is different to the field which should be used for filtering, provide the field for filtering here. See also: `filterType`. |
+| `filterOnly` | `boolean` | `false` | Set to true if the field is for filtering only and cannot be displayed as a column in the datagrid. |
 | `filterOperators` | `Operation[]` | `["eq", "ne", "gt", "lt", "ge", "le", "contains", "null", "notnull"]` | Array of supported filter operations for the field. |
 | `filterType` | `string` | | If the type of the field to be filtered is different to that of the displayed field, provide the type here. See also: `filterField`. |
-| `getCustomFilterString` | `(op: Operation, value: any) => string` | | Function to generate a custom filter string for use in the `$filter` clause. |
-| `getCustomQueryString` | `(op: Operation, value: any) => ({ [key: string]: string })` | | Function to generate a custom set of query string values to add to the OData request. Allows custom filtering to be performed which is not supported by OData. |
+| `getCustomFilterString` | `(op: Operation, value: any) => string \| FilterCompute \| boolean` | | Function to generate a custom filter string for use in the `$filter` clause. Return `false` to skip and not add it to the `$filter` clause.<br/><br/>Also supports the use of the `$compute` clause by returning a `FilterCompute`. The computed property/properties can also be added to `$select` by returning a `ComputeSelect`. |
+| `getCustomQueryString` | `(op: Operation, value: any) => ({ [key: string]: string })` | | Function to generate a custom set of query string values to add to the OData request. |
 | `label` | `string` | Defaults to the same value as `headerName` or `field` | Text to be displayed in the field selection dropdown. |
 | `nullable` | `boolean` | | Adds an "Unknown" option to the value dropdown for columns with type `boolean` if set to `true`. |
+| `select` | `string` | | Additional fields to add to the `$select` clause. |
 | `selectProps` | `{ selectProps?: SelectProps, formControlProps?: FormControlProps, label?: string }` | | Props to pass to the `Select`, `FormControl` and `Label` components for this column in the filter. See also: `textFieldProps`. |
 | `sortField` | `string` | | If the name of the field to sort by is different to that of the displayed field, provide the name for sorting by here. |
 | `textFieldProps` | [`TextFieldProps`](https://mui.com/api/text-field/) | | Props to pass to the `TextField` component in the filter for this column. See also: `selectProps`. |
@@ -129,8 +132,8 @@ _* = not applicable to collection fields_
 | `filter` | `SerialisedGroup` | | Allows setting the state of the FilterBuilder using a `SerialisedGroup`. You could use this to implement filter saving and restoring.<br/><br/>Changing the value of this property will cause `restoreState` to be called, but with the `state` property undefined. |
 | `localeText` | [`FilterBuilderLocaleText`](#FilterBuilderLocaleText) | | Localization strings for `FilterBuilder` (see [Localization](#localization) section) |
 | `localizationProviderProps` | [`LocalizationProviderProps`](https://mui.com/components/date-picker/#localization) | | Props to pass to the `LocalizationProvider` component for the `DatePicker` and `DateTimePicker` components |
-| `onSubmit` | `(filter: string, serialised: SerialisedGroup \| undefined, queryString: QueryStringCollection \| undefined) => (void \| any)` | | Function called when FilterBuilder is submitted (e.g. when the search button is clicked). You should use this to trigger the OData request.<br/><br/>`filter` is the OData filter string, `serialised` is a serialised form of the query which can be used to load the query back into the filter builder. |
-| `onRestoreState` | `(filter: string, serialised: SerialisedGroup \| undefined, queryString: QueryStringCollection \| undefined, state?: any) => void` | | Function called when the state of the FilterBuilder is restored (e.g. from history navigation). You should also use this to trigger the OData request alongside the `onSubmit` callback.<br/><br/>`state` is the the value of `history.state` that the query was restored from. `state` will be undefined if the call is as a result of the `filter` property changing. |
+| `onSubmit` | `(params: FilterParameters) => (void \| any)` | | Function called when FilterBuilder is submitted (e.g. when the search button is clicked). You should use this to trigger the OData request.<br/><br/>`params.filter` is the OData filter string, `params.serialised` is a serialised form of the query which can be used to load the query back into the filter builder. |
+| `onRestoreState` | `(params: FilterParameters, state?: any) => void` | | Function called when the state of the FilterBuilder is restored (e.g. from history navigation). You should also use this to trigger the OData request alongside the `onSubmit` callback.<br/><br/>`state` is the the value of `history.state` that the query was restored from. `state` will be undefined if the call is as a result of the `filter` property changing. |
 | `searchMenuItems` | `({ label: string, onClick: () => void })[]` | | Array of entries to add to the dropdown menu next to the Search button of the `FilterBuilder` |
 
 ## Localization

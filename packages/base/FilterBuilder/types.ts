@@ -6,8 +6,8 @@ import { ValueOption } from "../types";
 
 export type ExternalBuilderProps = {
   searchMenuItems?: ({ label: string, onClick: () => void })[],
-  onSubmit?: (filter: string, serialised: SerialisedGroup | undefined, queryString: QueryStringCollection | undefined) => (void | any),
-  onRestoreState?: (filter: string, serialised: SerialisedGroup | undefined, queryString: QueryStringCollection | undefined, state?: any) => void,
+  onSubmit?: (params: FilterParameters) => (void | any),
+  onRestoreState?: (params: FilterParameters, state?: any) => void,
   localeText?: FilterBuilderLocaleText,
 
   autocompleteGroups?: string[],
@@ -22,6 +22,14 @@ export type ExternalBuilderProps = {
   disableHistory?: boolean,
 
   filter?: SerialisedGroup
+}
+
+export type FilterParameters = {
+  compute?: string,
+  filter: string,
+  queryString?: QueryStringCollection,
+  select?: string[],
+  serialised?: SerialisedGroup,
 }
 
 export type FilterBuilderLocaleText = {
@@ -68,7 +76,7 @@ export type BaseFieldDef = {
   filterOperators?: Operation[],
   filterType?: string,
 
-  getCustomFilterString?: (op: Operation, value: any) => string,
+  getCustomFilterString?: (op: Operation, value: any) => string | FilterCompute | boolean,
   getCustomQueryString?: (op: Operation, value: any) => QueryStringCollection,
 
   label?: string,
@@ -93,9 +101,25 @@ export type FieldDef = BaseFieldDef & {
 
 export type CollectionFieldDef = BaseFieldDef;
 
+export type FilterCompute = {
+  filter: string,
+  compute: string | ComputeSelect
+}
+
+export type ComputeSelect = {
+  compute: string,
+  select: string[]
+}
+
 export type QueryStringCollection = {
   [key: string]: string
 }
+
+export type FilterTranslatorCollection = {
+  [key in Operation | "default"]?: FilterTranslator
+}
+
+export type FilterTranslator = (schema: BaseFieldDef, field: string, op: Operation, value: any) => string | boolean;
 
 export type Connective = "and" | "or"
 

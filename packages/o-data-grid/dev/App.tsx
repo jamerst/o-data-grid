@@ -2,7 +2,7 @@ import React from "react"
 import { CssBaseline, Typography, Grid, TextField, Slider, Chip } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { GridSortModel } from "@mui/x-data-grid"
-import { ODataGridColDef, QueryStringCollection, ODataColumnVisibilityModel } from "../src/index";
+import { ODataGridColDef, ODataColumnVisibilityModel, escapeODataString } from "../src/index";
 import ODataGrid from "../src/ODataGrid";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
@@ -30,7 +30,6 @@ const App = () => {
           getRowId={(row) => row.Id}
           defaultSortModel={defaultSort}
           filterBuilderProps={filterBuilderProps}
-          defaultPageSize={15}
           alwaysSelect={alwaysFetch}
         />
       </ThemeProvider>
@@ -85,16 +84,17 @@ const columns: ODataGridColDef[] = [
         </Grid>
       </Grid>
     ),
-    getCustomQueryString: (_, v) => {
+    getCustomFilterString: (_, v) => {
       const filter = v as LocationFilter;
-      const result: QueryStringCollection = {};
-      if (filter.location) {
-        result["location"] = filter.location!;
-        result["distance"] = (filter.distance ?? 15).toString();
-      }
-
-      return result;
+      return {
+        filter: `Latitude ne null and Longitude ne null and Distance le ${filter.distance ?? 15}`,
+        compute: {
+          compute: `geocode('${escapeODataString(filter.location ?? "")}', Latitude, Longitude) as Distance`,
+          select: ["Distance"]
+        }
+      };
     },
+    valueGetter: (params) => `${params.row.Location}${params.row.Distance ? ` (${params.row.Distance.toFixed(1)} mi away)` : ""}`,
     autocompleteGroup: "Job"
   },
   {

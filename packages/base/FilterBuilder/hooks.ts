@@ -2,7 +2,8 @@ import { useCallback } from "react";
 import { useRecoilValue, waitForAll } from "recoil"
 import { rootGroupUuid } from "./constants";
 import { clauseState, schemaState, treeState } from "./state"
-import { BaseFieldDef, SerialisedCondition, ConditionClause, FieldDef, SerialisedGroup, GroupClause, Operation, QueryStringCollection, StateClause, StateTree, TreeGroup } from "./types";
+import { defaultTranslators } from "./translation";
+import { BaseFieldDef, SerialisedCondition, ConditionClause, FieldDef, SerialisedGroup, GroupClause, Operation, QueryStringCollection, StateClause, StateTree, TreeGroup, FilterCompute, FilterTranslator } from "./types";
 
 export const UseODataFilter = () => {
   const schema = useRecoilValue(schemaState);
@@ -23,6 +24,8 @@ export const UseODataFilterWithState = () => {
 
 type BuiltInnerQuery = {
   filter?: string,
+  compute?: string,
+  select?: string[],
   queryString?: QueryStringCollection
 }
 
@@ -53,12 +56,16 @@ const buildGroup = (schema: FieldDef[], clauses: StateClause, tree: StateTree, i
   if (childClauses.length > 1) {
     return {
       filter: `(${childClauses.filter(c => c.filter).map(c => c.filter).join(` ${clause.connective} `)})`,
+      compute: `${childClauses.filter(c => c.compute).map(c => c.compute).join(",")}`,
+      select: childClauses.filter(c => c.select).flatMap(c => c.select!),
       serialised: { connective: clause.connective, children: childClauses.map(c => c.serialised) },
       queryString: childClauses.reduce((x, c) => ({ ...x, ...c.queryString }), {})
     };
   } else if (childClauses.length === 1) {
     return {
       filter: childClauses[0].filter,
+      compute: childClauses[0].compute,
+      select: childClauses[0].select,
       serialised: { connective: clause.connective, children: [childClauses[0].serialised] },
       queryString: childClauses[0].queryString
     }
@@ -109,60 +116,71 @@ const buildCondition = (schema: FieldDef[], clauses: StateClause, id: string): (
   }
 
   if (typeof innerResult !== "boolean") {
-    if (typeof innerResult === "string") {
+    if (innerResult.filter) {
       return {
-        filter: innerResult,
+        filter: innerResult.filter,
+        compute: innerResult.compute,
+        select: innerResult.select,
         serialised: condition
-      };
+      }
     } else {
       return {
         serialised: condition,
-        queryString: innerResult
-      }
+        queryString: innerResult.queryString
+      };
     }
   } else {
     return false;
   }
 }
 
-const buildInnerCondition = (schema: BaseFieldDef, field: string, op: Operation, value: any): string | QueryStringCollection | boolean => {
+const buildInnerCondition = (schema: BaseFieldDef, field: string, op: Operation, value: any): BuiltInnerQuery | boolean => {
   if (schema.getCustomQueryString) {
-    return schema.getCustomQueryString(op, value);
+    return {
+      queryString: schema.getCustomQueryString(op, value)
+    };
   }
 
   if (schema.getCustomFilterString) {
-    return schema.getCustomFilterString(op, value)
-  }
+    const result = schema.getCustomFilterString(op, value);
 
-  if (op === "contains") {
-    if ((schema.type && schema.type !== "string") || typeof value !== "string") {
-      console.warn(`Warning: operation "contains" is only supported for fields of type "string"`);
-      return false;
-    }
-    if (schema.caseSensitive === true) {
-      return `contains(${field}, '${value}')`;
-    } else {
-      return `contains(tolower(${field}), tolower('${value}'))`;
-    }
-  } else if (op === "null") {
-    return `${field} eq null`;
-  } else if (op === "notnull") {
-    return `${field} ne null`;
-  } else {
-    if (schema.type === "date") {
-      return `date(${field}) ${op} ${value}`;
-    } else if (schema.type === "datetime") {
-      return `${field} ${op} ${value}`;
-    } else if (schema.type === "boolean") {
-      return `${field} ${op} ${value}`;
-    } else if (!schema.type || schema.type === "string" || typeof value === "string") {
-      if (schema.caseSensitive === true) {
-        return `${field} ${op} '${value}'`;
+    if (typeof result === "string") {
+      return {
+        filter: result
+      }
+    } else if (typeof result !== "boolean") {
+      const compute = result.compute;
+      if (typeof compute === "string") {
+        return {
+          filter: result.filter,
+          compute: compute
+        };
       } else {
-        return `tolower(${field}) ${op} tolower('${value}')`;
+        return {
+          filter: result.filter,
+          compute: compute.compute,
+          select: compute.select
+        };
       }
     } else {
-      return `${field} ${op} ${value}`;
+      return result;
     }
+  }
+
+  let translator: FilterTranslator;
+  if (op in defaultTranslators) {
+    translator = defaultTranslators[op]!;
+  } else {
+    translator = defaultTranslators["default"]!;
+  }
+
+  const result = translator(schema, field, op, value);
+
+  if (typeof result === "string") {
+    return {
+      filter: result
+    };
+  } else {
+    return result;
   }
 }

@@ -74,3 +74,5 @@ const groupObjToMap = (obj: SerialisedGroup, id: string, clauses?: StateClause):
 
   return [{ id: id, children: children }, clauses]
 }
+
+export const escapeODataString = (val: string) => val.replace("'", "''");

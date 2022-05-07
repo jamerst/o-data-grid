@@ -19,11 +19,16 @@ export type { SelectOption, ValueOption, ODataColumnVisibilityModel } from "../.
 export type {
   CollectionFieldDef,
   CollectionOperation,
+  ComputeSelect,
   Connective,
   FilterBuilderLocaleText,
+  FilterCompute,
+  FilterParameters,
   FieldDef,
   QueryStringCollection,
   SerialisedGroup,
   SerialisedCondition,
 } from "../../base/FilterBuilder/types";
 export type { FilterBuilderProps } from "../../base/FilterBuilder/components/FilterBuilder";
+
+export { escapeODataString } from "../../base/FilterBuilder/utils"

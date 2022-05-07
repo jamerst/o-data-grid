@@ -10,7 +10,7 @@ import { Expand, ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, 
 import { ExpandToQuery, Flatten, GroupArrayBy, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
 import { defaultPageSize } from "../constants";
-import { SerialisedGroup, QueryStringCollection } from "../FilterBuilder/types";
+import { SerialisedGroup, QueryStringCollection, FilterParameters } from "../FilterBuilder/types";
 
 const ODataGridBase = <ComponentProps extends IGridProps,
   SortModel extends IGridSortModel,
@@ -24,6 +24,8 @@ const ODataGridBase = <ComponentProps extends IGridProps,
   const [sortModel, setSortModel] = useState<SortModel | undefined>(props.defaultSortModel);
 
   const [filter, setFilter] = useState<string>("");
+  const [filterSelects, setFilterSelects] = useState<string[] | undefined>();
+  const [compute, setCompute] = useState<string | undefined>();
   const [queryString, setQueryString] = useState<QueryStringCollection | undefined>();
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(props.columns
@@ -63,6 +65,10 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
     if (props.alwaysSelect) {
       props.alwaysSelect.forEach((c) => fields.add(c));
+    }
+
+    if (filterSelects) {
+      filterSelects.forEach((s) => fields.add(s));
     }
 
     // group all expands by the navigation field
@@ -107,6 +113,10 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       query.append("$filter", props.$filter);
     }
 
+    if (compute) {
+      query.append("$compute", compute);
+    }
+
     if (sortModel && sortModel.length > 0) {
       query.append("$orderby", sortModel.map(s => {
         const sortCol = props.columns.find(c => c.field === s.field);
@@ -141,6 +151,8 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       visibleColumns,
       sortModel,
       filter,
+      filterSelects,
+      compute,
       queryString,
       props.url,
       props.alwaysSelect,
@@ -153,26 +165,28 @@ const ODataGridBase = <ComponentProps extends IGridProps,
   );
 
 
-  const handleBuilderSubmit = useCallback((f: string, s: SerialisedGroup | undefined, q: QueryStringCollection | undefined) => {
+  const handleBuilderSubmit = useCallback((params: FilterParameters) => {
     pendingFilter.current = true;
     fetchCount.current = true;
 
     if (props.filterBuilderProps?.onSubmit) {
-      props.filterBuilderProps.onSubmit(f, s, q);
+      props.filterBuilderProps.onSubmit(params);
     }
 
-    setFilter(f);
-    setQueryString(q);
+    setCompute(params.compute);
+    setFilter(params.filter);
+    setFilterSelects(params.select);
+    setQueryString(params.queryString);
     setPageNumber(0);
 
     return { oDataGrid: { sortModel: sortModel } };
   }, [props.filterBuilderProps, sortModel]);
 
-  const handleBuilderRestore = useCallback((f: string, s: SerialisedGroup | undefined, q: QueryStringCollection | undefined, state: any) => {
+  const handleBuilderRestore = useCallback((params: FilterParameters, state: any) => {
     fetchCount.current = true;
 
     if (props.filterBuilderProps?.onRestoreState) {
-      props.filterBuilderProps.onRestoreState(f, s, q, state);
+      props.filterBuilderProps.onRestoreState(params, state);
     }
 
     if (props.disableHistory !== true) {
@@ -183,8 +197,10 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       }
     }
 
-    setFilter(f);
-    setQueryString(q);
+    setCompute(params.compute);
+    setFilter(params.filter);
+    setFilterSelects(params.select);
+    setQueryString(params.queryString);
   }, [props.filterBuilderProps, props.disableHistory, props.defaultSortModel]);
 
   useEffect(() => {

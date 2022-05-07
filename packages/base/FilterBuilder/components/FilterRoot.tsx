@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from "react"
+import React, { Fragment, useCallback, useEffect, useState } from "react"
 import { useSetRecoilState } from "recoil";
 import { ArrowDropDown } from "@mui/icons-material";
 import { Button, ButtonGroup, Grid, MenuItem, MenuList, Paper, Popover } from "@mui/material";
@@ -26,7 +26,6 @@ const FilterRoot = ({ props }: FilterRootProps) => {
 
   const odataFilter = UseODataFilter();
   const odataFilterWithState = UseODataFilterWithState();
-  const currentFilter = useRef("");
 
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
@@ -37,9 +36,7 @@ const FilterRoot = ({ props }: FilterRootProps) => {
       const result = odataFilter();
 
       if (result.filter) {
-        currentFilter.current = result.filter;
-
-        const returned = onSubmit(result.filter, result.serialised, result.queryString);
+        const returned = onSubmit({ ...result, filter: result.filter });
 
         if (disableHistory !== true) {
           window.history.pushState(
@@ -48,6 +45,8 @@ const FilterRoot = ({ props }: FilterRootProps) => {
               ...returned,
               filterBuilder: {
                 filter: result.filter,
+                compute: result.compute,
+                select: result.select,
                 serialised: result.serialised,
                 queryString: result.queryString
               }
@@ -60,13 +59,11 @@ const FilterRoot = ({ props }: FilterRootProps) => {
   }, [onSubmit, odataFilter, disableHistory]);
 
   const reset = useCallback(() => {
-    currentFilter.current = "";
-
     setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
     setTree(initialTree);
 
     if (onSubmit) {
-      onSubmit("", undefined, undefined);
+      onSubmit({ filter: "" });
     }
 
     if (disableHistory !== true) {
@@ -91,31 +88,31 @@ const FilterRoot = ({ props }: FilterRootProps) => {
   }, [props.schema, setClauses, setTree]);
 
   const restoreState = useCallback((state: any, isPopstate: boolean) => {
-    let filter = "", obj, queryString;
+    let filter = "", serialised, queryString, compute, select;
 
     if (state?.filterBuilder) {
       if (state.filterBuilder.reset === true && isPopstate === true) {
         restoreDefault();
       }
 
+      compute = state.filterBuilder.compute as string;
       filter = state.filterBuilder.filter as string;
-      obj = state.filterBuilder.serialised as SerialisedGroup;
+      select = state.filterBuilder.select as string[];
+      serialised = state.filterBuilder.serialised as SerialisedGroup;
       queryString = state.filterBuilder.queryString as QueryStringCollection;
     } else {
       restoreDefault();
     }
 
-    if (filter && obj) {
-      currentFilter.current = filter;
-
-      const [tree, clauses] = deserialise(obj);
+    if (filter && serialised) {
+      const [tree, clauses] = deserialise(serialised);
 
       setClauses(clauses);
       setTree(tree);
     }
 
     if (onRestoreState) {
-      onRestoreState(filter, obj, queryString, state);
+      onRestoreState({ compute, filter, queryString, select, serialised}, state);
     }
   }, [onRestoreState, restoreDefault, setClauses, setTree]);
 
@@ -128,7 +125,7 @@ const FilterRoot = ({ props }: FilterRootProps) => {
     if (onRestoreState) {
       const result = odataFilterWithState(clauses, tree);
 
-      onRestoreState(result.filter ?? "", result.serialised, result.queryString);
+      onRestoreState({ ...result, filter: result.filter ?? "" });
     }
   }, [setClauses, setTree, onRestoreState, odataFilterWithState]);
 
