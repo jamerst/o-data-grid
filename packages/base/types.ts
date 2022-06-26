@@ -83,7 +83,7 @@ export type IGridSortModel = ({ field: string, sort: 'asc' | 'desc' | null | und
 export type IGridRowModel<T = { [key: string]: any }> = T;
 
 export type IGridProps = {
-  onColumnVisibilityChange?: any,
+  onColumnVisibilityModelChange?: any,
   columnVisibilityModel?: ColumnVisibilityModel,
   onSortModelChange?: any
 }

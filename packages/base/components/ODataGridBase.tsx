@@ -11,6 +11,7 @@ import { ExpandToQuery, Flatten, GroupArrayBy, GetPageNumber, GetPageSizeOrDefau
 
 import { defaultPageSize } from "../constants";
 import { SerialisedGroup, QueryStringCollection, FilterParameters } from "../FilterBuilder/types";
+import { GridColumnVisibilityModel } from "@mui/x-data-grid";
 
 const ODataGridBase = <ComponentProps extends IGridProps,
   SortModel extends IGridSortModel,
@@ -207,21 +208,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     fetchData()
   }, [fetchData]);
 
-  const { onColumnVisibilityChange, onSortModelChange } = props;
-
-  const handleColumnVisibility = useCallback((params: any, event, details) => {
-    if (onColumnVisibilityChange) {
-      onColumnVisibilityChange(params, event, details);
-    }
-
-    setColumnVisibilityOverride((visibility) => ({ ...visibility, [params.field]: params.isVisible }));
-
-    if (params.isVisible) {
-      setVisibleColumns((visible) => [...visible, params.field]);
-    } else {
-      setVisibleColumns((visible) => visible.filter(c => c !== params.field));
-    }
-  }, [onColumnVisibilityChange]);
+  const { onColumnVisibilityModelChange, onSortModelChange } = props;
 
   const handleSortModelChange = useCallback((model: SortModel, details) => {
     if (onSortModelChange) {
@@ -373,6 +360,28 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     [props.columnVisibilityModel, r, props.columns, columnVisibilityOverride]
   );
 
+  const handleColumnVisibilityModelChange = useCallback((model: GridColumnVisibilityModel, details) => {
+    if (onColumnVisibilityModelChange) {
+      onColumnVisibilityModelChange(model, details);
+    }
+
+    // find the field which has been changed
+    const column = Object.keys(model).find((key) => visibility[key] !== model[key]);
+    if (column) {
+      const visible = model[column];
+
+      setColumnVisibilityOverride((v) => ({ ...v, [column]: visible }));
+      if (visible) {
+        setVisibleColumns((v) => [...v, column]);
+      }
+      else {
+        setVisibleColumns((v) => v.filter(c => c !== column));
+      }
+    }
+  }, [onColumnVisibilityModelChange, visibility]);
+
+  const gridColumns = useMemo(() => props.columns.filter(c => c.filterOnly !== true), [props.columns]);
+
   const GridComponent = props.component;
 
   return (
@@ -395,7 +404,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
         {...props}
 
-        columns={props.columns}
+        columns={gridColumns}
 
         rows={rows}
         rowCount={rowCount}
@@ -411,7 +420,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
         loading={loading}
 
         columnVisibilityModel={visibility}
-        onColumnVisibilityChange={handleColumnVisibility}
+        onColumnVisibilityModelChange={handleColumnVisibilityModelChange}
 
         sortingMode="server"
         sortModel={sortModel}
