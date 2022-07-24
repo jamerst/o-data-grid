@@ -6,6 +6,7 @@ import { ODataGridColDef, ODataColumnVisibilityModel, escapeODataString } from "
 import ODataGrid from "../src/ODataGrid";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
+import { ExpandToQuery } from "../../base/utils";
 
 const theme = createTheme({
   palette: {
@@ -19,6 +20,18 @@ export const muiCache = createCache({
 });
 
 const App = () => {
+  console.debug(ExpandToQuery({
+    navigationField: "jobCategories",
+    expand: {
+      navigationField: "category",
+      select: "name",
+      expand: {
+        navigationField: "job",
+        select: "title"
+      }
+    }
+  }));
+
   return (
     <CacheProvider value={muiCache}>
       <ThemeProvider theme={theme}>
@@ -27,7 +40,6 @@ const App = () => {
           url="http://0.0.0.0:5000/api/odata/job"
           columns={columns}
           columnVisibilityModel={columnVisibility}
-          getRowId={(row) => row.Id}
           defaultSortModel={defaultSort}
           filterBuilderProps={filterBuilderProps}
           alwaysSelect={alwaysFetch}
@@ -47,13 +59,13 @@ const filterBuilderProps = { autocompleteGroups: ["Job", "Company"] };
 const alwaysFetch = ["Id", "Archived"];
 const columns: ODataGridColDef[] = [
   {
-    field: "Title",
+    field: "title",
     headerName: "Job Title",
     flex: 2,
     autocompleteGroup: "Job"
   },
   {
-    field: "Location",
+    field: "location",
     headerName: "Location",
     flex: 1,
     renderCustomFilter: (value, setValue) => (
@@ -94,11 +106,11 @@ const columns: ODataGridColDef[] = [
         }
       };
     },
-    valueGetter: (params) => `${params.row.Location}${params.row.Distance ? ` (${params.row.Distance.toFixed(1)} mi away)` : ""}`,
+    valueGetter: (params) => `${params.row.location}${params.row.distance ? ` (${params.row.distance.toFixed(1)} mi away)` : ""}`,
     autocompleteGroup: "Job"
   },
   {
-    field: "Company/Name",
+    field: "company/name",
     headerName: "Company",
     flex: 2,
     renderCell: (params) => (
@@ -106,18 +118,19 @@ const columns: ODataGridColDef[] = [
         <Grid item>
           {params.value}
         </Grid>
-        {params.row["Company/Recruiter"] && <Grid item><Chip sx={{ cursor: "pointer" }} label="Recruiter" size="small" /></Grid>}
-        {params.row["Company/Blacklisted"] && <Grid item><Chip sx={{ cursor: "pointer" }} label="Blacklisted" size="small" color="error" /></Grid>}
+        {params.row["company/recruiter"] && <Grid item><Chip sx={{ cursor: "pointer" }} label="Recruiter" size="small" /></Grid>}
+        {params.row["company/blacklisted"] && <Grid item><Chip sx={{ cursor: "pointer" }} label="Blacklisted" size="small" color="error" /></Grid>}
       </Grid>
     ),
-    expand: { navigationField: "Company", select: "Id,Name,Recruiter,Blacklisted,Watched" },
+    expand: { navigationField: "company", select: "id,name,recruiter,blacklisted,watched" },
     autocompleteGroup: "Company"
   },
   {
-    field: "Salary",
+    field: "salary",
+    headerName: "Salary",
     type: "number",
-    filterField: "AvgYearlySalary",
-    sortField: "AvgYearlySalary",
+    filterField: "avgYearlySalary",
+    sortField: "avgYearlySalary",
     label: "Median Annual Salary",
     filterType: "number",
     filterOperators: ["eq", "ne", "gt", "lt", "ge", "le", "null", "notnull"],
@@ -125,29 +138,47 @@ const columns: ODataGridColDef[] = [
     autocompleteGroup: "Job"
   },
   {
-    field: "Status",
+    field: "status",
+    headerName: "Status",
     type: "singleSelect",
     valueOptions: ["Not Applied", "Awaiting Response", "In Progress", "Rejected", "Dropped Out"],
     filterOperators: ["eq", "ne"],
     autocompleteGroup: "Job"
   },
   {
-    field: "JobCategories",
+    field: "jobCategories",
     headerName: "Categories",
     label: "Category",
     expand: {
-      navigationField: "JobCategories/Category",
-      select: "Name"
+      navigationField: "jobCategories",
+      expand: {
+        navigationField: "category",
+        select: "name",
+        expand: [
+          {
+            navigationField: "companyCategories",
+            count: true
+          },
+          {
+            navigationField: "companyCategories",
+            count: true
+          },
+          {
+            navigationField: "jobCategories",
+            count: true
+          },
+        ]
+      }
     },
     sortable: false,
     filterable: false,
     flex: 1,
-    renderCell: (params) => params.row.JobCategories.map((c: any) => c["Category/Name"]).join(", "),
+    renderCell: (params) => params.row.jobCategories.map((c: any) => c["category/name"]).join(", "),
     autocompleteGroup: "Job"
   },
   {
-    field: "Source/DisplayName",
-    expand: { navigationField: "Source", select: "DisplayName" },
+    field: "source/displayName",
+    expand: { navigationField: "source", select: "displayName" },
     headerName: "Source",
     filterable: false,
     sortable: false,
@@ -156,8 +187,8 @@ const columns: ODataGridColDef[] = [
     autocompleteGroup: "Job"
   },
   {
-    field: "Posted",
-    select: "Posted,Seen,Archived",
+    field: "posted",
+    select: "posted,seen,archived",
     headerName: "Posted",
     type: "date",
     flex: .9,

@@ -61,7 +61,7 @@ export type ODataResponse = {
 export type Expand = {
   navigationField: string,
   select?: string,
-  expand?: Expand,
+  expand?: Expand[] | Expand,
   orderBy?: string,
   top?: number,
   count?: boolean

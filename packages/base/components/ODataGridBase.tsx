@@ -72,29 +72,34 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       filterSelects.forEach((s) => fields.add(s));
     }
 
-    // group all expands by the navigation field
-    const groupedExpands = GroupArrayBy(
-      props.columns
-        .filter(c => visibleColumns.includes(c.field) && !!c.expand)
-        .map(c => c.expand!),
-      (e) => e.navigationField
-    );
+    const expands = props.columns
+      .filter(c => visibleColumns.includes(c.field) && c.expand)
+      .map(c => c.expand!);
 
-    // construct a single expand for each navigation field, combining nested query options
-    const expands: Expand[] = [];
-    groupedExpands.forEach((e, k) => {
-      expands.push({
-        navigationField: k,
-        top: e[0].top,
-        orderBy: e[0].orderBy,
-        count: e.some(e2 => e2.count),
-        select: Array.from(new Set(e.filter(e2 => e2.select).map(e2 => e2.select))).join(","),
-      });
-    });
+    // group all expands by the navigation field
+    // const groupedExpands = GroupArrayBy(
+    //   props.columns
+    //     .filter(c => visibleColumns.includes(c.field) && !!c.expand)
+    //     .map(c => c.expand!),
+    //   (e) => e.navigationField
+    // );
+
+    // // construct a single expand for each navigation field, combining nested query options
+    // const expands: Expand[] = [];
+    // groupedExpands.forEach((e, k) => {
+    //   expands.push({
+    //     navigationField: k,
+    //     top: e.find(e2 => e2.top)?.top,
+    //     orderBy: e.find(e2 => e2.orderBy)?.orderBy,
+    //     count: e.some(e2 => e2.count),
+    //     select: Array.from(new Set(e.filter(e2 => e2.select).map(e2 => e2.select))).join(","),
+    //     expand: e.find(e2 => e2.expand)
+    //   });
+    // });
 
     const query = new URLSearchParams();
     query.append("$select", Array.from(fields).join(","));
-    query.append("$expand", expands.map(e => ExpandToQuery(e)).join(","));
+    query.append("$expand", ExpandToQuery(expands));
     query.append("$top", pageSize.toString());
     query.append("$skip", (pageNumber * pageSize).toString());
 

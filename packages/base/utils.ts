@@ -7,26 +7,51 @@ import { defaultPageSize } from "./constants";
  * @param e Expand to convert
  * @returns OData expand clause string
  */
-export const ExpandToQuery = (e?: Expand) => {
-  if (e === undefined) {
+export const ExpandToQuery = (expand?: Expand[] | Expand): string => {
+  if (expand === undefined) {
     return "";
   }
 
-  let result = `${e.navigationField}`;
-
-  const options = [
-    { type: "select", value: e.select },
-    { type: "expand", value: ExpandToQuery(e.expand) },
-    { type: "orderby", value: e.orderBy },
-    { type: "top", value: e.top },
-    { type: "count", value: e.count }
-  ];
-
-  if (options.some(o => o.value)) {
-    result += `(${options.filter(o => o.value).map(o => `$${o.type}=${o.value}`).join(";")})`
+  if (!Array.isArray(expand)) {
+    return ExpandToQuery([expand]);
   }
 
-  return result;
+  // group all expands by the navigation field
+  const groupedExpands = GroupArrayBy(expand, (e) => e.navigationField);
+
+  // construct a single expand for each navigation field, combining nested query options (where possible)
+  const expands: Expand[] = [];
+  groupedExpands.forEach((e, k) => {
+    expands.push({
+      navigationField: k,
+      top: e.find(e2 => e2.top)?.top,
+      orderBy: e.find(e2 => e2.orderBy)?.orderBy,
+      count: e.some(e2 => e2.count),
+      select: Array.from(new Set(e.filter(e2 => e2.select).map(e2 => e2.select))).join(","),
+      expand: e.filter(e2 => e2.expand)
+        .map(e2 => e2.expand!)
+        .reduce((a: Expand[], b) => Array.isArray(b) ? a.concat(b) : [...a, b], [])
+    });
+  });
+
+  return expands.map(e => {
+    let result = `${e.navigationField}`;
+
+    const options = [
+      { type: "select", value: e.select },
+      { type: "expand", value: ExpandToQuery(e.expand) },
+      { type: "orderby", value: e.orderBy },
+      { type: "top", value: e.top },
+      { type: "count", value: e.count }
+    ];
+
+    if (options.some(o => o.value)) {
+      result += `(${options.filter(o => o.value).map(o => `$${o.type}=${o.value}`).join(";")})`
+    }
+
+    return result;
+
+  }).join(",")
 }
 
 /**
