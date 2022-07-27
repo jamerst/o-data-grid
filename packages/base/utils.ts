@@ -3,8 +3,8 @@ import { Expand } from "./types";
 import { defaultPageSize } from "./constants";
 
 /**
- * Convert an Expand object to a clause to use in an OData $expand query parameter
- * @param e Expand to convert
+ * Convert an Expand object (or array of objects) to a clause to use in an OData $expand query parameter
+ * @param e Expand(s) to convert
  * @returns OData expand clause string
  */
 export const ExpandToQuery = (expand?: Expand[] | Expand): string => {

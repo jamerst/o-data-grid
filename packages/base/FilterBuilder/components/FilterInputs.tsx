@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo } from "react"
 import { useRecoilValue } from "recoil";
 import { Autocomplete, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { DatePicker, DateTimePicker, LocalizationProvider } from "@mui/lab";
+import { DatePicker, DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 
 import { CollectionFieldDef, CollectionOperation, FieldDef, Operation } from "../types";
 
@@ -25,7 +25,7 @@ type FilterInputsProps = {
   onCollectionFieldChange: (field: string, oldField: string | undefined, currentOp: Operation, newField: string | undefined) => void,
 }
 
-const FilterInputs = React.memo(({
+const FilterInputs = <TDate,>({
   clauseId,
   field,
   onFieldChange,
@@ -49,7 +49,7 @@ const FilterInputs = React.memo(({
       return null;
     }
 
-    let f: FieldDef;
+    let f: FieldDef<TDate>;
     if (field) {
       f = schema.find(c => c.field === field) ?? schema[0];
     } else {
@@ -61,7 +61,7 @@ const FilterInputs = React.memo(({
     }
 
     let filterField = field;
-    let colField: CollectionFieldDef | undefined;
+    let colField: CollectionFieldDef<TDate> | undefined;
     let type = f.filterType ?? f.type;
     let options = f.valueOptions;
     let ops = f.filterOperators ?? allOperators;
@@ -266,7 +266,7 @@ const FilterInputs = React.memo(({
                   {...builderProps.textFieldProps}
                   {...fieldDef.textFieldProps}
                   value={value ?? ""}
-                  onChange={(e) => onValueChange(fieldDef.type === "number" ? parseFloat(e.target.value) : e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onValueChange(fieldDef.type === "number" ? parseFloat(e.target.value) : e.target.value)}
                   type={fieldDef.type === "number" ? "number" : "text"}
                 />
               }
@@ -276,6 +276,6 @@ const FilterInputs = React.memo(({
       }
     </Fragment>
   )
-});
+};
 
-export default FilterInputs;
+export default React.memo(FilterInputs);

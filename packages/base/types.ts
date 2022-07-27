@@ -6,14 +6,15 @@ import React from "react";
 export type ODataGridBaseProps<
   ComponentProps extends IGridProps,
   SortModel extends IGridSortModel,
-  ColDef
+  ColDef,
+  TDate
 > =
   OmitGridProps<ComponentProps>
   &
   {
     url: string,
     alwaysSelect?: string[],
-    columns: ODataGridBaseColDef<ColDef>[],
+    columns: ODataGridBaseColDef<ColDef, TDate>[],
     columnVisibilityModel?: ODataColumnVisibilityModel,
     component: React.ElementType,
     defaultPageSize?: number,
@@ -21,7 +22,7 @@ export type ODataGridBaseProps<
     disableFilterBuilder?: boolean,
     disableHistory?: boolean,
     $filter?: string,
-    filterBuilderProps?: ExternalBuilderProps,
+    filterBuilderProps?: ExternalBuilderProps<TDate>,
     requestOptions?: RequestInit
   };
 
@@ -46,7 +47,7 @@ type OmitGridProps<T> = Omit<T,
   | "sortModel"
 >
 
-export type ODataGridBaseColDef<ColDef> = Omit<ColDef, "filterOperators" | "hide" | "sortComparator"> & FieldDef & {
+export type ODataGridBaseColDef<ColDef, TDate> = Omit<ColDef, "filterOperators" | "hide" | "sortComparator"> & FieldDef<TDate> & {
   select?: string,
   expand?: Expand,
   hide?: ResponsiveValues<boolean> | boolean,

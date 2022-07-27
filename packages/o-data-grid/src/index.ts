@@ -13,7 +13,7 @@ export {
 }
 
 export type { ODataGridProps } from "./ODataGridProps";
-export type ODataGridColDef = ODataGridBaseColDef<GridColDef>
+export type ODataGridColDef<TDate = any> = ODataGridBaseColDef<GridColDef, TDate>
 
 export type { SelectOption, ValueOption, ODataColumnVisibilityModel } from "../../base/types";
 export type {
@@ -21,6 +21,7 @@ export type {
   CollectionOperation,
   ComputeSelect,
   Connective,
+  ExternalBuilderProps,
   FilterBuilderLocaleText,
   FilterCompute,
   FilterParameters,

@@ -28,7 +28,7 @@ export const useBreakpoints = ():Partial<Record<Breakpoint, boolean>> => {
   const [matches, setMatches] = useState<Partial<Record<Breakpoint, boolean>>>(getMatches(theme.breakpoints.keys, theme));
 
   useEffect(() => {
-    const queries = getQueries(theme.breakpoints.keys, theme);
+    const queries: Partial<Record<Breakpoint, MediaQueryList>> = getQueries(theme.breakpoints.keys, theme);
     const listeners: Partial<Record<Breakpoint, () => void>> = {};
 
     const updateMatch = (b: Breakpoint) => {

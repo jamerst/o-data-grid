@@ -1,10 +1,10 @@
 import React from "react";
-import { DatePickerProps, DateTimePickerProps, LocalizationProviderProps } from "@mui/lab";
+import { DatePickerProps, DateTimePickerProps, LocalizationProviderProps } from "@mui/x-date-pickers";
 import { AutocompleteProps, FormControlProps, SelectProps, TextFieldProps } from "@mui/material";
 import { GridValueOptionsParams } from "@mui/x-data-grid";
 import { ValueOption } from "../types";
 
-export type ExternalBuilderProps = {
+export type ExternalBuilderProps<TDate = any> = {
   searchMenuItems?: ({ label: string, onClick: () => void })[],
   onSubmit?: (params: FilterParameters) => (void | any),
   onRestoreState?: (params: FilterParameters, state?: any) => void,
@@ -13,8 +13,8 @@ export type ExternalBuilderProps = {
   autocompleteGroups?: string[],
 
   autocompleteProps?: AutocompleteProps<any, any, any, any>,
-  datePickerProps?: DatePickerProps,
-  dateTimePickerProps?: DateTimePickerProps,
+  datePickerProps?: DatePickerProps<string, TDate>,
+  dateTimePickerProps?: DateTimePickerProps<string, TDate>,
   localizationProviderProps?: LocalizationProviderProps,
   selectProps?: SelectProps,
   textFieldProps?: TextFieldProps,
@@ -63,13 +63,13 @@ export type FilterBuilderLocaleText = {
   opNotNull?: string
 }
 
-export type BaseFieldDef = {
+export type BaseFieldDef<TDate> = {
   field: string,
   autocompleteGroup?: string,
   caseSensitive?: boolean,
 
-  datePickerProps?: DatePickerProps,
-  dateTimePickerProps?: DateTimePickerProps,
+  datePickerProps?: DatePickerProps<string, TDate>,
+  dateTimePickerProps?: DateTimePickerProps<string, TDate>,
 
   filterable?: boolean,
   filterField?: string,
@@ -93,13 +93,13 @@ export type BaseFieldDef = {
   valueOptions?: ValueOption[] | ((params: GridValueOptionsParams) => ValueOption[]),
 }
 
-export type FieldDef = BaseFieldDef & {
+export type FieldDef<TDate = any> = BaseFieldDef<TDate> & {
   headerName?: string,
   collection?: boolean,
-  collectionFields?: CollectionFieldDef[],
+  collectionFields?: CollectionFieldDef<TDate>[],
 }
 
-export type CollectionFieldDef = BaseFieldDef;
+export type CollectionFieldDef<TDate = any> = BaseFieldDef<TDate>;
 
 export type FilterCompute = {
   filter: string,
@@ -115,11 +115,11 @@ export type QueryStringCollection = {
   [key: string]: string
 }
 
-export type FilterTranslatorCollection = {
-  [key in Operation | "default"]?: FilterTranslator
+export type FilterTranslatorCollection<TDate> = {
+  [key in Operation | "default"]?: FilterTranslator<TDate>
 }
 
-export type FilterTranslator = (schema: BaseFieldDef, field: string, op: Operation, value: any) => string | boolean;
+export type FilterTranslator<TDate> = (schema: BaseFieldDef<TDate>, field: string, op: Operation, value: any) => string | boolean;
 
 export type Connective = "and" | "or"
 

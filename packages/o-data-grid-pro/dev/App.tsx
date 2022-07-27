@@ -6,6 +6,9 @@ import { ODataGridColDef, ODataColumnVisibilityModel, escapeODataString } from "
 import ODataGridPro from "../src/ODataGridPro";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Dayjs } from "dayjs";
+import { ExternalBuilderProps } from "../../base/FilterBuilder/types";
 
 const theme = createTheme({
   palette: {
@@ -42,7 +45,7 @@ type LocationFilter = {
   distance?: number
 }
 
-const filterBuilderProps = { autocompleteGroups: ["Job", "Company"] };
+const filterBuilderProps: ExternalBuilderProps<Dayjs> = { autocompleteGroups: ["Job", "Company"], localizationProviderProps: { dateAdapter: AdapterDayjs } };
 
 const alwaysFetch = ["Id", "Archived"];
 const columns: ODataGridColDef[] = [

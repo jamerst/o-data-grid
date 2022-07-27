@@ -1,7 +1,7 @@
 import { FilterTranslatorCollection } from "./types";
 import { escapeODataString } from "./utils";
 
-export const defaultTranslators: FilterTranslatorCollection = {
+export const defaultTranslators: FilterTranslatorCollection<any> = {
   "contains": (schema, field, op, value) => {
     if ((schema.type && schema.type !== "string") || typeof value !== "string") {
       console.warn(`Warning: operation "contains" is only supported for fields of type "string"`);

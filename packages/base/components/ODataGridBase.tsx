@@ -5,17 +5,18 @@ import { ResponsiveValues, useResponsive } from "../hooks";
 
 import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 
-import { Expand, ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridRowModel, ColumnVisibilityModel } from "../types";
+import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridRowModel, ColumnVisibilityModel } from "../types";
 
-import { ExpandToQuery, Flatten, GroupArrayBy, GetPageNumber, GetPageSizeOrDefault } from "../utils";
+import { ExpandToQuery, Flatten, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
 import { defaultPageSize } from "../constants";
-import { SerialisedGroup, QueryStringCollection, FilterParameters } from "../FilterBuilder/types";
+import { QueryStringCollection, FilterParameters } from "../FilterBuilder/types";
 import { GridColumnVisibilityModel } from "@mui/x-data-grid";
 
 const ODataGridBase = <ComponentProps extends IGridProps,
   SortModel extends IGridSortModel,
-  ColDef,>(props: ODataGridBaseProps<ComponentProps, SortModel, ColDef>) => {
+  ColDef,
+  TDate,>(props: ODataGridBaseProps<ComponentProps, SortModel, ColDef, TDate>) => {
 
   const [pageNumber, setPageNumber] = useState<number>(GetPageNumber());
   const [pageSize, setPageSize] = useState<number>(GetPageSizeOrDefault(props.defaultPageSize));
@@ -75,27 +76,6 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     const expands = props.columns
       .filter(c => visibleColumns.includes(c.field) && c.expand)
       .map(c => c.expand!);
-
-    // group all expands by the navigation field
-    // const groupedExpands = GroupArrayBy(
-    //   props.columns
-    //     .filter(c => visibleColumns.includes(c.field) && !!c.expand)
-    //     .map(c => c.expand!),
-    //   (e) => e.navigationField
-    // );
-
-    // // construct a single expand for each navigation field, combining nested query options
-    // const expands: Expand[] = [];
-    // groupedExpands.forEach((e, k) => {
-    //   expands.push({
-    //     navigationField: k,
-    //     top: e.find(e2 => e2.top)?.top,
-    //     orderBy: e.find(e2 => e2.orderBy)?.orderBy,
-    //     count: e.some(e2 => e2.count),
-    //     select: Array.from(new Set(e.filter(e2 => e2.select).map(e2 => e2.select))).join(","),
-    //     expand: e.find(e2 => e2.expand)
-    //   });
-    // });
 
     const query = new URLSearchParams();
     query.append("$select", Array.from(fields).join(","));

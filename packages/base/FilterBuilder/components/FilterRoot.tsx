@@ -14,11 +14,11 @@ import { useMountEffect } from "../../hooks";
 import { ConditionClause, SerialisedGroup, QueryStringCollection } from "../types";
 import { deserialise } from "../utils";
 
-type FilterRootProps = {
-  props: FilterBuilderProps
+type FilterRootProps<TDate> = {
+  props: FilterBuilderProps<TDate>
 }
 
-const FilterRoot = ({ props }: FilterRootProps) => {
+const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
   const setClauses = useSetRecoilState(clauseState);
   const setProps = useSetRecoilState(propsState);
   const setSchema = useSetRecoilState(schemaState);
@@ -176,7 +176,7 @@ const FilterRoot = ({ props }: FilterRootProps) => {
                 props.searchMenuItems &&
                 <Button
                   size="small"
-                  onClick={(e) => setAnchor(e.currentTarget)}
+                  onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => setAnchor(e.currentTarget)}
                   aria-controls={anchor !== null ? "search-menu": undefined}
                   aria-expanded={anchor !== null ? "true": undefined}
                   aria-haspopup="menu"
