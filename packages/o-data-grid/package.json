@@ -1,6 +1,6 @@
 {
   "name": "o-data-grid",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A React Data Grid and Query Builder for OData APIs. Based on the Material-UI DataGrid.",
   "main": "build/o-data-grid-cjs.js",
   "module": "build/o-data-grid-esm.js",

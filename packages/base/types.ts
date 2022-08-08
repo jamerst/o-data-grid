@@ -49,7 +49,7 @@ type OmitGridProps<T> = Omit<T,
 
 export type ODataGridBaseColDef<ColDef, TDate> = Omit<ColDef, "filterOperators" | "hide" | "sortComparator"> & FieldDef<TDate> & {
   select?: string,
-  expand?: Expand,
+  expand?: Expand | Expand[],
   hide?: ResponsiveValues<boolean> | boolean,
   filterOnly?: boolean
 }

@@ -5,7 +5,7 @@ import { ResponsiveValues, useResponsive } from "../hooks";
 
 import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 
-import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridRowModel, ColumnVisibilityModel } from "../types";
+import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridRowModel, ColumnVisibilityModel, Expand } from "../types";
 
 import { ExpandToQuery, Flatten, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
@@ -75,7 +75,8 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
     const expands = props.columns
       .filter(c => visibleColumns.includes(c.field) && c.expand)
-      .map(c => c.expand!);
+      .map(c => c.expand!)
+      .reduce((a: Expand[], b) => Array.isArray(b) ? a.concat(b) : [...a, b], []);
 
     const query = new URLSearchParams();
     query.append("$select", Array.from(fields).join(","));

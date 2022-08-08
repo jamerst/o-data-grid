@@ -1,4 +1,9 @@
 # ODataGrid
+
+[![NPM Version](https://img.shields.io/npm/v/o-data-grid.svg)](https://www.npmjs.com/package/o-data-grid)
+[![NPM Downloads](https://img.shields.io/npm/dt/o-data-grid.svg)](https://www.npmjs.com/package/o-data-grid)
+[![NPM Bundle Size](https://img.shields.io/bundlephobia/minzip/o-data-grid)](https://www.npmjs.com/package/o-data-grid)
+
 ODataGrid is an extension to the [MUI DataGrid](https://github.com/mui-org/material-ui-x) React component which implements features such as sorting, pagination, column selection, and filtering using the [OData Standard](https://www.odata.org/). This allows you to quickly create a powerful interface for browsing data with minimal back-end code.
 
 ![ODataGrid in action](https://raw.githubusercontent.com/jamerst/o-data-grid/main/images/o-data-grid.png)
@@ -21,6 +26,17 @@ Coming soon!
 ODataGrid is still in the fairly early stages of development. I'm not aware of any issues currently, but it hasn't been battle-tested. It also utilises [Recoil](https://github.com/facebookexperimental/Recoil) for state management in the filter builder, which is still considered experimental by Facebook.
 
 Please report any issues that you find, and feel free to make feature requests. This will help to make ODataGrid better.
+
+## Installation
+ODataGrid can be installed using the appropriate npm package ([`o-data-grid`](https://www.npmjs.com/package/o-data-grid) or [`o-data-grid-pro`](https://www.npmjs.com/package/o-data-grid-pro)).
+
+The following material-ui packages must also be installed. I recommend using the latest versions where possible, but they must be v5.x.x. **These are peer dependencies so won't be installed automatically.**
+- `@mui/system`
+- `@mui/material`
+- `@mui/x-date-pickers`
+- `@mui/x-data-grid` for `o-data-grid`
+- `@mui/x-data-grid-pro` for `o-data-grid-pro`
+- `@mui/icons-material`
 
 ## Usage
 Usage is very similar to the regular DataGrid. For the most basic scenario simply change the `DataGrid`/`DataGridPro` to the corresponding `ODataGrid`/`ODataGridPro` component, add the `url` property, and remove any unsupported properties.
@@ -104,7 +120,7 @@ _* = not applicable to collection fields_
 | `collectionFields` | `ODataGridColDef` | | Column definitions for the subfields of the collection. Any properties marked with * are not supported. |
 | `datePickerProps` | [`DatePickerProps`](https://mui.com/api/date-picker/) | | Props to pass to the `DatePicker` component for columns with type `date` |
 | `dateTimePickerProps` | [`DateTimePickerProps`](https://mui.com/api/date-time-picker/) | | Props to pass to the `DateTimePicker` component for columns with type `datetime` |
-| `expand` | `Expand` | | Include related entities using the `$expand` clause. |
+| `expand` | `Expand \| Expand[]` | | Include related entities using the `$expand` clause. |
 | `filterable` | `boolean` | | Hides the field and does not allow filtering in the FilterBuilder when set to `false`. |
 | `filterField` | `string` | | If the field name is different to the field which should be used for filtering, provide the field for filtering here. See also: `filterType`. |
 | `filterOnly` | `boolean` | `false` | Set to true if the field is for filtering only and cannot be displayed as a column in the datagrid. |
