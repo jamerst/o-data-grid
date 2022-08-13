@@ -2,7 +2,7 @@ import { FilterTranslatorCollection } from "./types";
 import { escapeODataString } from "./utils";
 
 export const defaultTranslators: FilterTranslatorCollection<any> = {
-  "contains": (schema, field, op, value) => {
+  "contains": ({ schema, field, value }) => {
     if ((schema.type && schema.type !== "string") || typeof value !== "string") {
       console.warn(`Warning: operation "contains" is only supported for fields of type "string"`);
       return false;
@@ -14,15 +14,15 @@ export const defaultTranslators: FilterTranslatorCollection<any> = {
     }
   },
 
-  "null": (schema, field, op, value) => {
+  "null": ({ field }) => {
     return `${field} eq null`;
   },
 
-  "notnull": (schema, field, op, value) => {
+  "notnull": ({ field }) => {
     return `${field} ne null`;
   },
 
-  "default": (schema, field, op, value) => {
+  "default": ({ schema, field, op, value }) => {
     if (schema.type === "date") {
       return `date(${field}) ${op} ${value}`;
     } else if (schema.type === "datetime") {

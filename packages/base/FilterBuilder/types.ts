@@ -119,7 +119,14 @@ export type FilterTranslatorCollection<TDate> = {
   [key in Operation | "default"]?: FilterTranslator<TDate>
 }
 
-export type FilterTranslator<TDate> = (schema: BaseFieldDef<TDate>, field: string, op: Operation, value: any) => string | boolean;
+export type FilterTranslator<TDate> = (params: FilterTranslatorParams<TDate>) => string | boolean;
+
+export type FilterTranslatorParams<TDate> = {
+  schema: BaseFieldDef<TDate>,
+  field: string,
+  op: Operation,
+  value: any
+}
 
 export type Connective = "and" | "or"
 

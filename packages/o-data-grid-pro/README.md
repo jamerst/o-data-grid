@@ -30,12 +30,14 @@ Please report any issues that you find, and feel free to make feature requests. 
 ## Installation
 ODataGrid can be installed using the appropriate npm package ([`o-data-grid`](https://www.npmjs.com/package/o-data-grid) or [`o-data-grid-pro`](https://www.npmjs.com/package/o-data-grid-pro)).
 
-The following material-ui packages must also be installed. I recommend using the latest versions where possible, but they must be v5.x.x. **These are peer dependencies so won't be installed automatically.**
+The following mui packages must also be installed. I recommend using the latest versions where possible, the minimum required version for the data-grid packages is **v5.8.0**, but any of the other mui packages must be v5.x.x.
+
+**These are peer dependencies so won't be installed automatically.**
 - `@mui/system`
 - `@mui/material`
 - `@mui/x-date-pickers`
-- `@mui/x-data-grid` for `o-data-grid`
-- `@mui/x-data-grid-pro` for `o-data-grid-pro`
+- `@mui/x-data-grid` (minimum `v5.8.0`) for `o-data-grid`
+- `@mui/x-data-grid-pro` (minimum `v5.8.0`) for `o-data-grid-pro`
 - `@mui/icons-material`
 
 ## Usage
@@ -48,7 +50,7 @@ From there you can start to customise the grid to your needs using the propertie
 If the same reference is not kept, this may trigger duplicate OData requests.
 
 ### Helpful Tips
-- Nested properties are supported, to define a column for a nested property flatten it as you would for the query string. E.g. to access `Child` from `{ Parent: { Child: "foo" } }`, use `Parent/Child` as the value for `field` in the column definition.
+- Nested properties are supported, to define a column for a nested property flatten it as you would for the query string. E.g. to access `Child` from `{ Parent: { Child: "foo" } }`, use `Parent/Child` as the value for `field` in the column definition. Strong typing is still supported through the `result` property of the row.
 
 ### Examples
 The demo site isn't ready yet, but you can see some examples of usage here on my GitHub:
@@ -101,6 +103,10 @@ _* = required property_
 
 ### <a id="ODataGridColDef">ODataGridColDef</a>
 The column definition is again similar to the standard [GridColDef](https://mui.com/components/data-grid/columns/).
+
+Strong typing is supported through the `TRow` generic type. The original unflattened type can be accessed using the `result` property of the grid row parameters. Action columns are also supported using the `ODataGridColumns<T>` type.
+
+The `TDate` generic type is also available to specify the date provider type for dateTime columns with a date picker filter.
 
 #### Modifications
 | Name | Change | Description |

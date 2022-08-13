@@ -1,8 +1,8 @@
 import React from "react"
 import { CssBaseline, Typography, Grid, TextField, Slider, Chip } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { GridSortModel } from "@mui/x-data-grid"
-import { ODataGridColDef, ODataColumnVisibilityModel, escapeODataString } from "../src/index";
+import { GridActionsCellItem, GridSortModel } from "@mui/x-data-grid"
+import { ODataColumnVisibilityModel, escapeODataString, ODataGridColumns } from "../src/index";
 import ODataGrid from "../src/ODataGrid";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
@@ -44,10 +44,67 @@ type LocationFilter = {
   distance?: number
 }
 
+
+type Job = {
+  id: number,
+  title: string,
+  description: string,
+  salary?: string,
+  avgYearlySalary?: number,
+  location: string,
+  latitude?: number,
+  longitude?: number,
+  url?: string,
+  companyId?: number,
+  posted: string,
+  notes: string,
+  seen: boolean,
+  archived: boolean,
+  status: string,
+  dateApplied: string,
+  provider?: string,
+  providerId?: string,
+  sourceId?: number,
+  duplicateJobId?: number,
+  actualCompanyId?: number,
+
+  company: Company,
+  jobCategories: JobCategory[],
+}
+
+type Company = {
+  id: number,
+  name: string,
+  location: string,
+  latitude?: number,
+  longitude?: number,
+  notes?: string,
+  watched: boolean,
+  blacklisted: boolean,
+  website?: string,
+  rating?: number,
+  glassdoor?: string,
+  linkedIn?: string,
+  endole?: string,
+  recruiter: boolean
+}
+
+type JobCategory = {
+  jobId: number,
+  categoryId: number,
+  category: Category
+}
+
+type Category = {
+  id: number,
+  name: string
+}
+
+
 const filterBuilderProps: ExternalBuilderProps<Dayjs> = { autocompleteGroups: ["Job", "Company"], localizationProviderProps: { dateAdapter: AdapterDayjs } };
 
 const alwaysFetch = ["Id", "Archived"];
-const columns: ODataGridColDef[] = [
+const columns: ODataGridColumns<Job> = [
   {
     field: "title",
     headerName: "Job Title",
@@ -96,7 +153,7 @@ const columns: ODataGridColDef[] = [
         }
       };
     },
-    valueGetter: (params) => `${params.row.location}${params.row.distance ? ` (${params.row.distance.toFixed(1)} mi away)` : ""}`,
+    valueGetter: (params) => `${params.row["location"]}${params.row["distance"] ? ` (${params.row["distance"].toFixed(1)} mi away)` : ""}`,
     autocompleteGroup: "Job"
   },
   {
@@ -109,7 +166,7 @@ const columns: ODataGridColDef[] = [
           {params.value}
         </Grid>
         {params.row["company/recruiter"] && <Grid item><Chip sx={{ cursor: "pointer" }} label="Recruiter" size="small" /></Grid>}
-        {params.row["company/blacklisted"] && <Grid item><Chip sx={{ cursor: "pointer" }} label="Blacklisted" size="small" color="error" /></Grid>}
+        {params.row.result.company?.blacklisted && <Grid item><Chip sx={{ cursor: "pointer" }} label="Blacklisted" size="small" color="error" /></Grid>}
       </Grid>
     ),
     expand: { navigationField: "company", select: "id,name,recruiter,blacklisted,watched" },
@@ -163,19 +220,19 @@ const columns: ODataGridColDef[] = [
     sortable: false,
     filterable: false,
     flex: 1,
-    renderCell: (params) => params.row.jobCategories.map((c: any) => c["category/name"]).join(", "),
+    renderCell: (params) => params.row.result.jobCategories.map((c) => c.category.name).join(", "),
     autocompleteGroup: "Job"
   },
-  {
-    field: "source/displayName",
-    expand: { navigationField: "source", select: "displayName" },
-    headerName: "Source",
-    filterable: false,
-    sortable: false,
-    flex: 1,
-    valueGetter: (params) => params.row[params.field] ? params.row[params.field] : "Added Manually",
-    autocompleteGroup: "Job"
-  },
+  // {
+  //   field: "source/displayName",
+  //   expand: { navigationField: "source", select: "displayName" },
+  //   headerName: "Source",
+  //   filterable: false,
+  //   sortable: false,
+  //   flex: 1,
+  //   valueGetter: (params) => params.row[params.field] ? params.row[params.field] : "Added Manually",
+  //   autocompleteGroup: "Job"
+  // },
   {
     field: "posted",
     select: "posted,seen,archived",
@@ -183,6 +240,13 @@ const columns: ODataGridColDef[] = [
     type: "date",
     flex: .9,
     autocompleteGroup: "Job"
+  },
+  {
+    field: "actions",
+    type: "actions",
+    getActions: (params) => [
+      <GridActionsCellItem label="Test" showInMenu onClick={() => console.log(params)} />
+    ]
   },
 
   // filter only

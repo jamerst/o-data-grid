@@ -174,7 +174,7 @@ const buildInnerCondition = <TDate,>(schema: BaseFieldDef<TDate>, field: string,
     translator = defaultTranslators["default"]!;
   }
 
-  const result = translator(schema, field, op, value);
+  const result = translator({ schema, field, op, value });
 
   if (typeof result === "string") {
     return {

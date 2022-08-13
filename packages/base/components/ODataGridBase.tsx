@@ -5,7 +5,7 @@ import { ResponsiveValues, useResponsive } from "../hooks";
 
 import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 
-import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridRowModel, ColumnVisibilityModel, Expand } from "../types";
+import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, ColumnVisibilityModel, Expand, ODataRowModel } from "../types";
 
 import { ExpandToQuery, Flatten, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
@@ -16,11 +16,12 @@ import { GridColumnVisibilityModel } from "@mui/x-data-grid";
 const ODataGridBase = <ComponentProps extends IGridProps,
   SortModel extends IGridSortModel,
   ColDef,
-  TDate,>(props: ODataGridBaseProps<ComponentProps, SortModel, ColDef, TDate>) => {
+  TRow,
+  TDate,>(props: ODataGridBaseProps<ComponentProps, SortModel, ColDef, TRow, TDate>) => {
 
   const [pageNumber, setPageNumber] = useState<number>(GetPageNumber());
   const [pageSize, setPageSize] = useState<number>(GetPageSizeOrDefault(props.defaultPageSize));
-  const [rows, setRows] = useState<IGridRowModel[]>([])
+  const [rows, setRows] = useState<ODataRowModel<TRow>[]>([])
   const [rowCount, setRowCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [sortModel, setSortModel] = useState<SortModel | undefined>(props.defaultSortModel);
@@ -61,7 +62,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     // select all fields for visible columns
     const fields = new Set(
       props.columns
-        .filter(c => visibleColumns.includes(c.field) && c.expand === undefined && c.filterOnly !== true)
+        .filter(c => visibleColumns.includes(c.field) && c.expand === undefined && c.filterOnly !== true && c.type !== "actions")
         .map(c => c.select ?? c.field)
     );
 
@@ -105,19 +106,24 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     }
 
     if (sortModel && sortModel.length > 0) {
-      query.append("$orderby", sortModel.map(s => {
-        const sortCol = props.columns.find(c => c.field === s.field);
-        return `${sortCol!.sortField ?? sortCol!.field}${s.sort === "desc" ? " desc" : ""}`;
-      }).join(","));
+      const sortCols = sortModel
+        .map(s => ({ col: props.columns.find(c => c.field === s.field), sort: s.sort }))
+        .filter(c => c.col)
+        .map(c => `${c.col!.sortField ?? c.col!.field}${c.sort === "desc" ? " desc" : ""}`);
+
+      if (sortCols.length > 0) {
+        query.append("$orderby", sortCols.join(","));
+      }
     }
 
     const response = await fetch(props.url + "?" + query.toString(), props.requestOptions);
     if (response.ok) {
-      const data = await response.json() as ODataResponse;
+      const data = await response.json() as ODataResponse<TRow>;
 
       // flatten object so that the DataGrid can access all the properties
       // i.e. { Person: { name: "John" } } becomes { "Person/name": "John" }
-      const rows = data.value.map(v => Flatten(v, "/"));
+      // keep the original object in the "result" property so that it can still be accessed via strong typing
+      const rows: ODataRowModel<TRow>[] = data.value.map((v) => ({ result: v, ...Flatten(v, "/") }));
 
       if (data["@odata.count"]) {
         setRowCount(data["@odata.count"]);

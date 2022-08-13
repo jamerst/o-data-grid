@@ -7,6 +7,7 @@ export type ODataGridBaseProps<
   ComponentProps extends IGridProps,
   SortModel extends IGridSortModel,
   ColDef,
+  TRow,
   TDate
 > =
   OmitGridProps<ComponentProps>
@@ -45,18 +46,32 @@ type OmitGridProps<T> = Omit<T,
   | "rowCount"
   | "sortingMode"
   | "sortModel"
->
+  >
 
-export type ODataGridBaseColDef<ColDef, TDate> = Omit<ColDef, "filterOperators" | "hide" | "sortComparator"> & FieldDef<TDate> & {
+type ODataColumn<T, TDate> = Omit<T, "filterOperators" | "hide" | "sortComparator"> & FieldDef<TDate> & {
   select?: string,
   expand?: Expand | Expand[],
   hide?: ResponsiveValues<boolean> | boolean,
   filterOnly?: boolean
 }
 
-export type ODataResponse = {
+// type for rows when displayed in datagrid
+// allows object to be flattened for convenience, but still allows strong typing through "result" property
+export type ODataRowModel<T> = {
+  result: T,
+  [key: string]: any
+}
+
+export type ODataGridBaseColDef<ColDef, TDate> = ODataColumn<ColDef, TDate>
+export type ODataGridBaseEnrichedColDef<ColDef, ActionsColDef, TDate> =
+  | ODataColumn<ColDef, TDate>
+  | ODataColumn<ActionsColDef, TDate>;
+
+export type ODataBaseGridColumns<EnrichedColDef, ActionsColDef, TDate> = ODataGridBaseEnrichedColDef<EnrichedColDef, ActionsColDef, TDate>[]
+
+export type ODataResponse<T> = {
   "@odata.count"?: number,
-  value: IGridRowModel[]
+  value: T[]
 }
 
 export type Expand = {

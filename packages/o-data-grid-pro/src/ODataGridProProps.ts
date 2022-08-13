@@ -1,7 +1,7 @@
-import { ODataGridBaseProps } from "../../base/types";
+import { ODataGridBaseProps, ODataRowModel } from "../../base/types";
 import { DataGridProProps, GridColDef, GridSortModel } from "@mui/x-data-grid-pro";
 
-export type ODataGridProProps<TDate = any> = Omit<
-  ODataGridBaseProps<DataGridProProps, GridSortModel, GridColDef, TDate>,
+export type ODataGridProProps<TRow = any, TDate = any> = Omit<
+  ODataGridBaseProps<DataGridProProps<ODataRowModel<TRow>>, GridSortModel, GridColDef<ODataRowModel<TRow>>, TRow, TDate>,
   "component"
 >;
