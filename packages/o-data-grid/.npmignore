@@ -1,0 +1,7 @@
+dev/
+dev-build/
+src/
+.eslintrc.json
+pnpm-lock.yaml
+.pnpm-debug.log
+tsconfig.json
