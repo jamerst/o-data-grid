@@ -80,8 +80,14 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       .reduce((a: Expand[], b) => Array.isArray(b) ? a.concat(b) : [...a, b], []);
 
     const query = new URLSearchParams();
-    query.append("$select", Array.from(fields).join(","));
-    query.append("$expand", ExpandToQuery(expands));
+    if (fields.size > 0) {
+      query.append("$select", Array.from(fields).join(","));
+    }
+
+    if (expands.length > 0) {
+      query.append("$expand", ExpandToQuery(expands));
+    }
+
     query.append("$top", pageSize.toString());
     query.append("$skip", (pageNumber * pageSize).toString());
 
