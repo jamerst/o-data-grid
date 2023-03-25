@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Api.Models;
 
 namespace Api.Data;
-public class ApiContext : DbContext {
+public class ApiContext : DbContext
+{
     public ApiContext(DbContextOptions options) : base(options) { }
 
-    protected override void OnModelCreating(ModelBuilder builder) {
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
         base.OnModelCreating(builder);
 
         builder.Entity<Address>()
@@ -25,7 +27,7 @@ public class ApiContext : DbContext {
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<Order>()
-            .HasMany(o => o.Products)
+            .HasMany(o => o.OrderProducts)
             .WithOne(op => op.Order)
             .OnDelete(DeleteBehavior.Cascade);
 

@@ -1,14 +1,15 @@
 namespace Api.Models;
-public class Address {
+public class Address
+{
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public int CustomerId { get; set; }
-    public Customer Customer { get; set; } = null!;
-    public string Line1 { get; set; } = null!;
+    public required Customer Customer { get; set; }
+    public required string Line1 { get; set; }
     public string? Line2 { get; set; }
     public string? Line3 { get; set; }
-    public string Town { get; set; } = null!;
+    public required string Town { get; set; }
     public string? County { get; set; }
-    public string Country { get; set; } = null!;
-    public string PostCode { get; set; } = null!;
+    public required string Country { get; set; }
+    public required string PostCode { get; set; }
 }

@@ -1,12 +1,13 @@
 namespace Api.Models;
-public class Customer {
+public class Customer
+{
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-    public string FirstName { get; set; } = null!;
+    public required string FirstName { get; set; }
     public string? MiddleNames { get; set; }
-    public string Surname { get; set; } = null!;
-    public string EmailAddress { get; set; } = null!;
-    public DateTime CreatedDate { get; set; }
-    public List<Address> Addresses { get; set; } = null!;
-    public List<Order> Orders { get; set; } = null!;
+    public required string Surname { get; set; }
+    public required string EmailAddress { get; set; }
+    public DateTimeOffset CreatedDate { get; set; }
+    public required List<Address> Addresses { get; set; }
+    public required List<Order> Orders { get; set; }
 }
