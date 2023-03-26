@@ -28,7 +28,7 @@ builder.Services
         .Expand()
         .Count()
         .OrderBy()
-        .SetMaxTop(500)
+        .SetMaxTop(250)
     )
     .AddJsonOptions(options =>
     {
@@ -40,15 +40,25 @@ builder.Services.AddHostedService<SeederService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-// app.UseHttpsRedirection();
-
 app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseODataRouteDebug();
+    app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 }
+else
+{
+    app.UseCors(options => options
+        .SetIsOriginAllowed(origin =>
+            Uri.TryCreate(origin, UriKind.Absolute, out Uri? uri)
+            && (uri?.Host == "localhost" || uri?.Host == "o-data-grid.jtattersall.net")
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+    );
+}
+
 
 app.Run();

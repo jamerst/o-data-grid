@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   web-prod:
-    image: "jamerst/o-data-grid-demo:latest"
+    image: "jamerst/o-data-grid.api:latest"
     ports:
       - "80:5000"
     depends_on:
@@ -14,7 +14,7 @@ services:
       TZ: "Europe/London"
       CultureName: "en-GB"
     networks:
-      - o-data-grid-demo
+      - o-data-grid.api
     restart: always
   db:
     image: "postgres:14.2"
@@ -28,7 +28,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./init-data/initdb.d:/docker-entrypoint-initdb.d/
     networks:
-      - o-data-grid-demo
+      - o-data-grid.api
     restart: always
 
 volumes:

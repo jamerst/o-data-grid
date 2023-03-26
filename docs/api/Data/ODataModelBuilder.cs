@@ -10,7 +10,9 @@ public static class ODataModelBuilder
     {
         var builder = new ODataConventionModelBuilder();
 
-        builder.EntitySet<Customer>("Customer");
+        builder.EntitySet<Customer>(nameof(Customer));
+        builder.EntitySet<Order>(nameof(Order));
+        builder.EntitySet<Product>(nameof(Product));
 
         return builder.GetEdmModel();
     }

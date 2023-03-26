@@ -51,7 +51,7 @@ public class Seeder : ISeeder
             .FinishWith((_, _) => token.ThrowIfCancellationRequested());
 
         var orderFaker = new Faker<Order>()
-            .RuleFor(o => o.Date, f => f.Date.PastOffset(5))
+            .RuleFor(o => o.Date, f => f.Date.PastOffset(5).ToUniversalTime())
             .RuleFor(o => o.OrderProducts, _ => orderProductFaker.GenerateBetween(1, 5))
             .FinishWith((_, o) =>
             {
@@ -74,7 +74,7 @@ public class Seeder : ISeeder
                     order.DeliveryAddress = f.PickRandom(c.Addresses);
                 }
 
-                c.CreatedDate = c.Orders.Select(o => o.Date).DefaultIfEmpty(f.Date.PastOffset(5)).Min();
+                c.CreatedDate = c.Orders.Select(o => o.Date).DefaultIfEmpty(f.Date.PastOffset(5).ToUniversalTime()).Min();
             });
 
         List<Customer> customers = customerFaker.GenerateBetween(800, 1200);
