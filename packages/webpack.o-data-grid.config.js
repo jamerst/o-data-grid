@@ -1,5 +1,6 @@
 const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const path = require("path");
 
 module.exports = {
     mode: "development",
@@ -17,7 +18,11 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: [".js", ".ts", ".tsx"]
+        extensions: [".js", ".ts", ".tsx"],
+        alias: {
+            "react": path.resolve('./node_modules/react'),
+            "react-dom": path.resolve('./node_modules/react-dom')
+        }
     },
     plugins: [
         new HtmlWebPackPlugin({

@@ -1,5 +1,5 @@
 import dts from "rollup-plugin-dts"
-import pkg from "./o-data-grid/package.json"
+import pkg from "./o-data-grid/package.json" assert { type: "json" };
 import typescript from "rollup-plugin-typescript2";
 
 export default [

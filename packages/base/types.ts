@@ -51,7 +51,6 @@ type OmitGridProps<T> = Omit<T,
 type ODataColumn<T, TDate> = Omit<T, "filterOperators" | "hide" | "sortComparator"> & FieldDef<TDate> & {
   select?: string,
   expand?: Expand | Expand[],
-  hide?: ResponsiveValues<boolean> | boolean,
   filterOnly?: boolean
 }
 

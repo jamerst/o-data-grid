@@ -115,7 +115,7 @@ const FilterGroup = ({ clauseId, path, root }: FilterGroupProps) => {
     );
   }, [clauses, setClauses, tree, setTree, childrenPath, schema]);
 
-  const handleConnective = useCallback((event, val: Connective | null) => {
+  const handleConnective = useCallback((_: any, val: Connective | null) => {
     if (val) {
       setConnective(val);
     }

@@ -1,4 +1,4 @@
-import { GridActionsColDef, GridColDef, GridEnrichedColDef } from "@mui/x-data-grid";
+import { GridActionsColDef, GridColDef } from "@mui/x-data-grid";
 
 import ODataGrid from "./ODataGrid";
 import { ODataBaseGridColumns, ODataGridBaseColDef, ODataGridBaseEnrichedColDef, ODataRowModel } from "../../base/types";
@@ -16,7 +16,7 @@ export type { ODataGridProps } from "./ODataGridProps";
 export type ODataGridColDef<TRow = any, TDate = any> = ODataGridBaseColDef<GridColDef<ODataRowModel<TRow>>, TDate>;
 
 export type ODataGridEnrichedColDef<TRow = any, V = any, F = any, TDate = any> = ODataGridBaseEnrichedColDef<GridColDef<ODataRowModel<TRow>, V, F>, GridActionsColDef<ODataRowModel<TRow>>, TDate>;
-export type ODataGridColumns<TRow = any, TDate = any> = ODataBaseGridColumns<GridEnrichedColDef<ODataRowModel<TRow>>, GridActionsColDef<ODataRowModel<TRow>>, TDate>;
+export type ODataGridColumns<TRow = any, TDate = any> = ODataBaseGridColumns<GridColDef<ODataRowModel<TRow>>, GridActionsColDef<ODataRowModel<TRow>>, TDate>;
 
 export type { SelectOption, ValueOption, ODataColumnVisibilityModel } from "../../base/types";
 export type {
@@ -24,7 +24,7 @@ export type {
   CollectionOperation,
   ComputeSelect,
   Connective,
-  ExternalBuilderProps,
+  ExternalBuilderProps as FilterBuilderProps,
   FilterBuilderLocaleText,
   FilterCompute,
   FilterParameters,
@@ -33,7 +33,6 @@ export type {
   SerialisedGroup,
   SerialisedCondition,
 } from "../../base/FilterBuilder/types";
-export type { FilterBuilderProps } from "../../base/FilterBuilder/components/FilterBuilder";
 
 export { escapeODataString } from "../../base/FilterBuilder/utils";
 export { defaultTranslators } from "../../base/FilterBuilder/translation";

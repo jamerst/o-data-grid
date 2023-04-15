@@ -7,7 +7,7 @@
   "types": "build/o-data-grid.d.ts",
   "sideEffects": false,
   "scripts": {
-    "build": "cd ../ && node_modules/.bin/rollup -c ./rollup.o-data-grid.config.js",
+    "build": "cd ../ && node_modules/.bin/rollup -c ./rollup.o-data-grid.config.mjs",
     "start": "cd ../ && node_modules/.bin/webpack-dev-server --mode development --open --hot -c ./webpack.o-data-grid.config.js",
     "build-dev": "cd ../ && node_modules/.bin/webpack -c ./webpack.o-data-grid.config.js",
     "lint": "cd ../ && node_modules/.bin/eslint ./o-data-grid"
@@ -37,12 +37,12 @@
   },
   "homepage": "https://github.com/jamerst/o-data-grid#readme",
   "peerDependencies": {
-    "@mui/icons-material": "^5.2.5",
-    "@mui/material": "^5.2.8",
-    "@mui/system": "^5.2.8",
-    "@mui/x-data-grid": "^5.8.0",
-    "@mui/x-date-pickers": "^5.0.0-beta.2",
-    "react": "^17.0.2"
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.12.0",
+    "@mui/x-data-grid": "^6.0.0",
+    "@mui/x-date-pickers": "^6.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "dependencies": {
     "immutable": "^4.0.0",

@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo } from "react"
 import { useRecoilValue } from "recoil";
 import { Autocomplete, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { DatePicker, DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DatePicker, DatePickerSlotsComponentsProps, DateTimePicker, DateTimePickerSlotsComponentsProps, LocalizationProvider } from "@mui/x-date-pickers";
 
 import { CollectionFieldDef, CollectionOperation, FieldDef, Operation } from "../types";
 
@@ -111,6 +111,22 @@ const FilterInputs = <TDate,>({
     [schema, builderProps]
   );
 
+  const dateValue = useMemo(() => {
+    if (fieldDef && (fieldDef.type === "date" || fieldDef.type === "datetime")) {
+      if (typeof value === "string") {
+        return new dateAdapter!().date(value);
+      } else {
+        return value as TDate;
+      }
+    } else {
+      return null;
+    }
+  }, [fieldDef, value, dateAdapter]);
+
+  const datePickerSlotProps = useMemo(() => ({
+    textField: { fullWidth: true, size: "small", ...builderProps.textFieldProps, ...fieldDef?.textFieldProps }
+  }), [builderProps, fieldDef]);
+
   if (schema.length < 1 || !fieldDef) {
     return null;
   }
@@ -205,8 +221,8 @@ const FilterInputs = <TDate,>({
                     label={getLocaleText("value", builderProps.localeText)}
                     {...builderProps.datePickerProps}
                     {...fieldDef.datePickerProps}
-                    value={value ?? ""}
-                    renderInput={(params) => <TextField fullWidth size="small" {...builderProps.textFieldProps} {...fieldDef.textFieldProps} {...params} />}
+                    value={dateValue}
+                    slotProps={datePickerSlotProps as DatePickerSlotsComponentsProps<TDate>}
                     onChange={(date) => onValueChange(new dateAdapter!().formatByString(date, "YYYY-MM-DD"))}
                   />
                 </LocalizationProvider>
@@ -217,8 +233,8 @@ const FilterInputs = <TDate,>({
                   <DateTimePicker
                     label={getLocaleText("value", builderProps.localeText)}
                     {...fieldDef.dateTimePickerProps}
-                    value={value ?? ""}
-                    renderInput={(params) => <TextField fullWidth size="small" {...builderProps.textFieldProps} {...fieldDef.textFieldProps} {...params} />}
+                    value={dateValue}
+                    slotProps={datePickerSlotProps as DateTimePickerSlotsComponentsProps<TDate>}
                     onChange={(date) => onValueChange(new dateAdapter!().toISO(date))}
                   />
                 </LocalizationProvider>

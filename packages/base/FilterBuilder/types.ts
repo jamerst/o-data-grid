@@ -13,9 +13,9 @@ export type ExternalBuilderProps<TDate = any> = {
   autocompleteGroups?: string[],
 
   autocompleteProps?: AutocompleteProps<any, any, any, any>,
-  datePickerProps?: DatePickerProps<string, TDate>,
-  dateTimePickerProps?: DateTimePickerProps<string, TDate>,
-  localizationProviderProps?: LocalizationProviderProps,
+  datePickerProps?: DatePickerProps<TDate>,
+  dateTimePickerProps?: DateTimePickerProps<TDate>,
+  localizationProviderProps?: LocalizationProviderProps<TDate>,
   selectProps?: SelectProps,
   textFieldProps?: TextFieldProps,
 
@@ -68,8 +68,8 @@ export type BaseFieldDef<TDate> = {
   autocompleteGroup?: string,
   caseSensitive?: boolean,
 
-  datePickerProps?: DatePickerProps<string, TDate>,
-  dateTimePickerProps?: DateTimePickerProps<string, TDate>,
+  datePickerProps?: DatePickerProps<TDate>,
+  dateTimePickerProps?: DateTimePickerProps<TDate>,
 
   filterable?: boolean,
   filterField?: string,

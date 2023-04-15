@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Box } from "@mui/system";
+import { Box } from "@mui/material";
 
 import { ResponsiveValues, useResponsive } from "../hooks";
 
@@ -32,7 +32,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
   const [queryString, setQueryString] = useState<QueryStringCollection | undefined>();
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(props.columns
-    .filter(c => (props.columnVisibilityModel && props.columnVisibilityModel[c.field] !== false) || c.hide !== true)
+    .filter(c => !props.columnVisibilityModel || props.columnVisibilityModel[c.field] !== false)
     .map(c => c.field)
   );
   const [columnVisibilityOverride, setColumnVisibilityOverride] = useState<ColumnVisibilityModel>({});
@@ -208,7 +208,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
   const { onColumnVisibilityModelChange, onSortModelChange } = props;
 
-  const handleSortModelChange = useCallback((model: SortModel, details) => {
+  const handleSortModelChange = useCallback((model: SortModel, details: unknown) => {
     if (onSortModelChange) {
       onSortModelChange(model, details);
     }
@@ -334,31 +334,27 @@ const ODataGridBase = <ComponentProps extends IGridProps,
           } else if (typeof props.columnVisibilityModel[field] === "boolean") {
             v[field] = props.columnVisibilityModel[field] as boolean;
           } else {
-            v[field] = r(props.columnVisibilityModel[field] as ResponsiveValues<boolean>) as boolean;
+            v[field] = r(props.columnVisibilityModel[field] as ResponsiveValues<boolean>)!;
           }
         }
       } else {
         props.columns.filter(c => c.filterOnly !== true).forEach(c => {
           if (c.field in columnVisibilityOverride) {
             v[c.field] = columnVisibilityOverride[c.field];
-          } else if (typeof c.hide === "boolean") {
-            v[c.field] = !(c.hide as boolean);
-          } else if (c.hide) {
-            v[c.field] = !r(c.hide as ResponsiveValues<boolean>);
           }
-        })
+        });
       }
 
       props.columns.filter(c => c.filterOnly === true).forEach(c => {
         v[c.field] = false;
-      })
+      });
 
       return v;
     },
     [props.columnVisibilityModel, r, props.columns, columnVisibilityOverride]
   );
 
-  const handleColumnVisibilityModelChange = useCallback((model: GridColumnVisibilityModel, details) => {
+  const handleColumnVisibilityModelChange = useCallback((model: GridColumnVisibilityModel, details: unknown) => {
     if (onColumnVisibilityModelChange) {
       onColumnVisibilityModelChange(model, details);
     }
