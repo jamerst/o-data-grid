@@ -8,8 +8,8 @@ dependencies:
     specifier: ^5.12.0
     version: 5.12.0(@emotion/react@11.10.6)(react-dom@18.2.0)(react@18.2.0)
   '@mui/x-data-grid':
-    specifier: ^6.0.0
-    version: 6.0.0(@mui/material@5.12.0)(@mui/system@5.12.0)(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^6.2.0
+    version: 6.2.0(@mui/material@5.12.0)(@mui/system@5.12.0)(react-dom@18.2.0)(react@18.2.0)
   '@mui/x-date-pickers':
     specifier: ^6.0.0
     version: 6.0.0(@emotion/react@11.10.6)(@mui/material@5.12.0)(@mui/system@5.12.0)(react-dom@18.2.0)(react@18.2.0)
@@ -427,8 +427,8 @@ packages:
       react-is: 18.2.0
     dev: false
 
-  /@mui/x-data-grid@6.0.0(@mui/material@5.12.0)(@mui/system@5.12.0)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-jkvDbe8OKOh/4YH7DnM20X6TbDerfaeVCOa6J+PXfDk/GDoNkcSAwIYtn15+hCY3SNWXuTXmJNiNTHxwxLfYBQ==}
+  /@mui/x-data-grid@6.2.0(@mui/material@5.12.0)(@mui/system@5.12.0)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-0SSnzpAtSOsrw/zqm+Nn5HwhwhWsbIYpzHB20is1FuH+hQnrAduHf1Twx9h+86a2n61C8qaDBcRyYZSXR1WBnw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@mui/material': ^5.4.1

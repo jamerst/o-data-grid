@@ -1,30 +1,30 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Box } from "@mui/material";
 
 import { ResponsiveValues, useResponsive } from "../hooks";
 
 import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 
-import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, ColumnVisibilityModel, Expand, ODataRowModel } from "../types";
+import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridColumnVisibilityModel, Expand, ODataRowModel, IGridPaginationModel } from "../types";
 
 import { ExpandToQuery, Flatten, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
 import { defaultPageSize } from "../constants";
 import { QueryStringCollection, FilterParameters } from "../FilterBuilder/types";
-import { GridColumnVisibilityModel } from "@mui/x-data-grid";
 
-const ODataGridBase = <ComponentProps extends IGridProps,
-  SortModel extends IGridSortModel,
-  ColDef,
+const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel, TPaginationModel, TSortModel>,
   TRow,
-  TDate,>(props: ODataGridBaseProps<ComponentProps, SortModel, ColDef, TRow, TDate>) => {
+  ColDef,
+  TDate,
+  TColumnVisibilityModel extends IGridColumnVisibilityModel,
+  TPaginationModel extends IGridPaginationModel,
+  TSortModel extends IGridSortModel,>(props: ODataGridBaseProps<ComponentProps, ColDef, TDate, TColumnVisibilityModel, TPaginationModel, TSortModel>) => {
 
-  const [pageNumber, setPageNumber] = useState<number>(GetPageNumber());
-  const [pageSize, setPageSize] = useState<number>(GetPageSizeOrDefault(props.defaultPageSize));
   const [rows, setRows] = useState<ODataRowModel<TRow>[]>([])
   const [rowCount, setRowCount] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [sortModel, setSortModel] = useState<SortModel | undefined>(props.defaultSortModel);
+
+  const [paginationModel, setPaginationModel] = useState<IGridPaginationModel>({ page: GetPageNumber(), pageSize: GetPageSizeOrDefault(props.defaultPageSize) });
+  const [sortModel, setSortModel] = useState<TSortModel | undefined>(props.defaultSortModel);
 
   const [filter, setFilter] = useState<string>("");
   const [filterSelects, setFilterSelects] = useState<string[] | undefined>();
@@ -34,15 +34,17 @@ const ODataGridBase = <ComponentProps extends IGridProps,
   const [visibleColumns, setVisibleColumns] = useState<string[]>(props.columns
     .filter(c => !props.columnVisibilityModel || props.columnVisibilityModel[c.field] !== false)
     .map(c => c.field)
-  );
-  const [columnVisibilityOverride, setColumnVisibilityOverride] = useState<ColumnVisibilityModel>({});
+    );
+  const [columnVisibilityOverride, setColumnVisibilityOverride] = useState<IGridColumnVisibilityModel>({});
 
+  const [loading, setLoading] = useState<boolean>(true);
   const firstLoad = useRef<boolean>(true);
   const fetchCount = useRef<boolean>(true);
   const pendingFilter = useRef<boolean>(false);
 
   const r = useResponsive();
 
+  // #region OData Requests
   const fetchData = useCallback(async () => {
     if (
       !filter
@@ -88,8 +90,8 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       query.append("$expand", ExpandToQuery(expands));
     }
 
-    query.append("$top", pageSize.toString());
-    query.append("$skip", (pageNumber * pageSize).toString());
+    query.append("$top", paginationModel.pageSize.toString());
+    query.append("$skip", (paginationModel.page * paginationModel.pageSize).toString());
 
     if (fetchCount.current) {
       query.append("$count", "true");
@@ -145,8 +147,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     }
   },
     [
-      pageNumber,
-      pageSize,
+      paginationModel,
       visibleColumns,
       sortModel,
       filter,
@@ -162,8 +163,9 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       props.requestOptions
     ]
   );
+  // #endregion
 
-
+  // #region Filter Builder events
   const handleBuilderSubmit = useCallback((params: FilterParameters) => {
     pendingFilter.current = true;
     fetchCount.current = true;
@@ -176,7 +178,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     setFilter(params.filter);
     setFilterSelects(params.select);
     setQueryString(params.queryString);
-    setPageNumber(0);
+    setPaginationModel((model) => ({ ...model, page: 0 }));
 
     return { oDataGrid: { sortModel: sortModel } };
   }, [props.filterBuilderProps, sortModel]);
@@ -190,7 +192,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
     if (props.disableHistory !== true) {
       if (state?.oDataGrid?.sortModel) {
-        setSortModel(state.oDataGrid.sortModel as SortModel);
+        setSortModel(state.oDataGrid.sortModel as TSortModel);
       } else {
         setSortModel(props.defaultSortModel);
       }
@@ -205,10 +207,12 @@ const ODataGridBase = <ComponentProps extends IGridProps,
   useEffect(() => {
     fetchData()
   }, [fetchData]);
+  // #endregion
 
-  const { onColumnVisibilityModelChange, onSortModelChange } = props;
+  const { onColumnVisibilityModelChange, onPaginationModelChange, onSortModelChange } = props;
 
-  const handleSortModelChange = useCallback((model: SortModel, details: unknown) => {
+  // #region Sorting
+  const handleSortModelChange = useCallback((model: TSortModel, details: any) => {
     if (onSortModelChange) {
       onSortModelChange(model, details);
     }
@@ -219,7 +223,9 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       window.history.pushState({ ...window.history.state, oDataGrid: { sortModel: model } }, "");
     }
   }, [onSortModelChange, props.disableHistory]);
+  // #endregion
 
+  // #region Pagination
   useEffect(() => {
     let changed = false;
 
@@ -230,9 +236,9 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     if (pageStr) {
       const page = parseInt(pageStr, 10) - 1;
       // update if already exists and is different to settings
-      if (page !== pageNumber) {
-        if (pageNumber !== 0) {
-          params.set("page", (pageNumber + 1).toString());
+      if (page !== paginationModel.page) {
+        if (paginationModel.page !== 0) {
+          params.set("page", (paginationModel.page + 1).toString());
         } else {
           // remove if first page
           params.delete("page");
@@ -240,9 +246,9 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
         changed = true;
       }
-    } else if (pageNumber !== 0) {
+    } else if (paginationModel.page !== 0) {
       // add if doesn't already exist and not on first page
-      params.set("page", (pageNumber + 1).toString());
+      params.set("page", (paginationModel.page + 1).toString());
       changed = true;
     }
 
@@ -250,17 +256,17 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     const sizeStr = params.get("page-size");
     if (sizeStr) {
       const size = parseInt(sizeStr, 10);
-      if (size !== pageSize) {
-        if (pageSize !== (props.defaultPageSize ?? defaultPageSize)) {
-          params.set("page-size", pageSize.toString());
+      if (size !== paginationModel.pageSize) {
+        if (paginationModel.pageSize !== (props.defaultPageSize ?? defaultPageSize)) {
+          params.set("page-size", paginationModel.pageSize.toString());
         } else {
           params.delete("page-size");
         }
 
         changed = true;
       }
-    } else if (pageSize !== (props.defaultPageSize ?? defaultPageSize)) {
-      params.set("page-size", pageSize.toString());
+    } else if (paginationModel.pageSize !== (props.defaultPageSize ?? defaultPageSize)) {
+      params.set("page-size", paginationModel.pageSize.toString());
       changed = true;
     }
 
@@ -276,7 +282,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
         window.history.pushState(window.history.state, "", url);
       }
     }
-  }, [pageNumber, pageSize, props.defaultPageSize]);
+  }, [paginationModel, props.defaultPageSize]);
 
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
@@ -285,26 +291,26 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       const pageVal = params.get("page");
       if (pageVal) {
         const page = parseInt(pageVal, 10) - 1;
-        setPageNumber(page);
-      } else if (pageNumber !== 0) {
+        setPaginationModel((model) => ({ ...model, page: page }));
+      } else if (paginationModel.page !== 0) {
         // reset to first page if not provided and not already on first page
-        setPageNumber(0);
+        setPaginationModel((model) => ({ ...model, page: 0 }));
       }
 
       const sizeVal = params.get("page-size");
       if (sizeVal) {
         const size = parseInt(sizeVal, 10) - 1;
-        setPageSize(size);
-      } else if (pageSize !== props.defaultPageSize ?? defaultPageSize) {
+        setPaginationModel((model) => ({ ...model, pageSize: size }));
+      } else if (paginationModel.pageSize !== props.defaultPageSize ?? defaultPageSize) {
         // reset to default if not provided and not already default
-        setPageSize(props.defaultPageSize ?? defaultPageSize);
+        setPaginationModel((model) => ({ ...model, pageSize: props.defaultPageSize ?? defaultPageSize }));
       }
 
       if (props.disableHistory !== true && props.disableFilterBuilder === true) {
         // only restore sort model from history if history is enabled and FilterBuilder is disabled
         // if FilterBuilder is enabled sort model restoration is handled in handleBuilderRestore
         if (e.state?.oDataGrid?.sortModel) {
-          setSortModel(e.state.oDataGrid.sortModel as SortModel);
+          setSortModel(e.state.oDataGrid.sortModel as TSortModel);
         } else {
           setSortModel(props.defaultSortModel);
         }
@@ -313,20 +319,21 @@ const ODataGridBase = <ComponentProps extends IGridProps,
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [pageNumber, pageSize, props.defaultPageSize, props.defaultSortModel, props.disableHistory, props.disableFilterBuilder]);
+  }, [paginationModel, props.defaultPageSize, props.defaultSortModel, props.disableHistory, props.disableFilterBuilder]);
 
-  const handlePageChange = useCallback((page: number) => {
-    setPageNumber(page);
-  }, []);
+  const handlePaginationModelChange = useCallback((model: TPaginationModel, details: any) => {
+    if (onPaginationModelChange) {
+      onPaginationModelChange(model, details);
+    }
 
-  const handlePageSizeChange = useCallback((size: number) => {
-    setPageSize(size);
-  }, []);
+    setPaginationModel(model);
+  }, [onPaginationModelChange]);
+  // #endregion
 
-
+  // #region Column Visibility
   const visibility = useMemo(
     () => {
-      const v: ColumnVisibilityModel = {};
+      const v: IGridColumnVisibilityModel = {};
       if (props.columnVisibilityModel) {
         for (const field in props.columnVisibilityModel) {
           if (field in columnVisibilityOverride) {
@@ -354,7 +361,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
     [props.columnVisibilityModel, r, props.columns, columnVisibilityOverride]
   );
 
-  const handleColumnVisibilityModelChange = useCallback((model: GridColumnVisibilityModel, details: unknown) => {
+  const handleColumnVisibilityModelChange = useCallback((model: TColumnVisibilityModel, details: any) => {
     if (onColumnVisibilityModelChange) {
       onColumnVisibilityModelChange(model, details);
     }
@@ -373,13 +380,14 @@ const ODataGridBase = <ComponentProps extends IGridProps,
       }
     }
   }, [onColumnVisibilityModelChange, visibility]);
+  // #endregion
 
   const gridColumns = useMemo(() => props.columns.filter(c => c.filterOnly !== true), [props.columns]);
 
   const GridComponent = props.component;
 
   return (
-    <Fragment>
+    <>
       {
         props.$filter === undefined && props.disableFilterBuilder !== true &&
         <Box mb={2}>
@@ -399,17 +407,15 @@ const ODataGridBase = <ComponentProps extends IGridProps,
         {...props}
 
         columns={gridColumns}
+        disableColumnFilter
 
         rows={rows}
         rowCount={rowCount}
 
         pagination
         paginationMode="server"
-        page={pageNumber}
-        pageSize={pageSize}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        disableColumnFilter
+        paginationModel={paginationModel}
+        onPaginationModelChange={handlePaginationModelChange}
 
         loading={loading}
 
@@ -420,7 +426,7 @@ const ODataGridBase = <ComponentProps extends IGridProps,
         sortModel={sortModel}
         onSortModelChange={handleSortModelChange}
       />
-    </Fragment>
+    </>
   )
 };
 

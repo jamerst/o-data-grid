@@ -39,7 +39,7 @@
   "peerDependencies": {
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.12.0",
-    "@mui/x-data-grid": "^6.0.0",
+    "@mui/x-data-grid": "^6.2.0",
     "@mui/x-date-pickers": "^6.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

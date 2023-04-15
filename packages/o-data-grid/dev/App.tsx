@@ -1,10 +1,11 @@
 import React from "react"
 import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { GridSortModel } from "@mui/x-data-grid"
-import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, ODataGridColumns, FilterBuilderProps } from "../src";
+import { GridActionsCellItem, GridSortModel } from "@mui/x-data-grid"
+import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, FilterBuilderProps, ODataGridColDef } from "../src";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
+import { Edit } from "@mui/icons-material";
 
 const theme = createTheme({
   palette: {
@@ -26,16 +27,18 @@ const App = () => {
         filterBuilderProps={filterBuilderProps}
         alwaysSelect={alwaysFetch}
         getRowId={getRowId}
+        pageSizeOptions={pageSizeOptions}
       />
     </ThemeProvider>
   );
 }
 
+const pageSizeOptions = [10, 25, 50, 100];
 
 const filterBuilderProps: FilterBuilderProps<Dayjs> = { autocompleteGroups: ["Customer", "Order"], localizationProviderProps: { dateAdapter: AdapterDayjs } };
 
 const alwaysFetch = ["Id"];
-const columns: ODataGridColumns = [
+const columns: ODataGridColDef[] = [
   {
     field: "Customer/Name",
     headerName: "Name",
@@ -69,7 +72,7 @@ const columns: ODataGridColumns = [
   },
   {
     field: "Date",
-    type: "date",
+    type: "datetime",
     flex: .9,
     autocompleteGroup: "Order",
     valueGetter: (params) => new Date(params.value)
@@ -78,6 +81,14 @@ const columns: ODataGridColumns = [
     field: "Total",
     type: "number",
     autocompleteGroup: "Order",
+  },
+  {
+    field: "actions",
+    type: "actions",
+    flex: .7,
+    getActions: (params) => [
+      <GridActionsCellItem label="Edit" icon={<Edit/>} onClick={() => console.log(params.id)} key="Action1"/>
+    ],
   }
 ];
 
