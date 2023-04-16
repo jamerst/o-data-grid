@@ -138,13 +138,13 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
     }
   }, [disableHistory, restoreState]);
 
-  useEffect(() => {
-    if (propsFilter) {
-      restoreFilter(propsFilter);
-    } else {
-      restoreDefault();
-    }
-  }, [propsFilter, restoreFilter, restoreDefault]);
+  // useEffect(() => {
+  //   if (propsFilter) {
+  //     restoreFilter(propsFilter);
+  //   } else {
+  //     restoreDefault(3);
+  //   }
+  // }, [propsFilter, restoreFilter, restoreDefault]);
 
   useMountEffect(() => {
     setProps(props);
@@ -152,8 +152,8 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
     // restore query from history state if enabled
     if (disableHistory !== true && window.history.state && window.history.state.filterBuilder) {
       restoreState(window.history.state, false);
-    } else if (propsFilter) {
-      restoreFilter(propsFilter);
+    // } else if (propsFilter) {
+    //   restoreFilter(propsFilter);
     } else {
       restoreDefault();
     }
