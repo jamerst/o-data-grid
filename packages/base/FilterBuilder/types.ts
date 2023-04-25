@@ -21,7 +21,7 @@ export type ExternalBuilderProps<TDate = any> = {
 
   disableHistory?: boolean,
 
-  filter?: SerialisedGroup
+  apiRef?: React.MutableRefObject<FilterBuilderApi>
 }
 
 export type FilterParameters = {
@@ -165,3 +165,8 @@ export type SerialisedGroup = Omit<GroupClause, "id"> & {
 }
 
 export type SerialisedCondition = Omit<ConditionClause, "id" | "default">;
+
+export interface FilterBuilderApi {
+  filter?: SerialisedGroup,
+  setFilter?: (filter: SerialisedGroup) => void
+}

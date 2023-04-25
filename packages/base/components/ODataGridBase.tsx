@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 
 import { ResponsiveValues, useResponsive } from "../hooks";
 
@@ -10,7 +10,18 @@ import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridCol
 import { ExpandToQuery, Flatten, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
 import { defaultPageSize } from "../constants";
-import { QueryStringCollection, FilterParameters } from "../FilterBuilder/types";
+import { QueryStringCollection, FilterParameters, FilterBuilderApi, SerialisedGroup } from "../FilterBuilder/types";
+
+const test: SerialisedGroup = {
+  connective: "and",
+  children: [
+    {
+      field: "Customer/Name",
+      op: "contains",
+      value: "a"
+    }
+  ]
+};
 
 const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel, TPaginationModel, TSortModel>,
   TRow,
@@ -43,6 +54,15 @@ const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel,
   const pendingFilter = useRef<boolean>(false);
 
   const r = useResponsive();
+
+  const filterApiRef = useRef({}) as React.MutableRefObject<FilterBuilderApi>;
+  console.debug(filterApiRef.current);
+
+  const onClick = useCallback(() => {
+    if (filterApiRef.current.setFilter) {
+      filterApiRef.current.setFilter(test);
+    }
+  }, []);
 
   // #region OData Requests
   const fetchData = useCallback(async () => {
@@ -396,10 +416,11 @@ const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel,
             schema={props.columns}
             onSubmit={handleBuilderSubmit}
             onRestoreState={handleBuilderRestore}
+            apiRef={filterApiRef}
           />
         </Box>
       }
-
+      <Button onClick={onClick}>Set Filter</Button>
       <GridComponent
         autoHeight
         ref={React.createRef()}

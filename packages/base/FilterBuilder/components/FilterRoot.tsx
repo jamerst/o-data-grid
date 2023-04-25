@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react"
+import React, { Fragment, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react"
 import { useSetRecoilState } from "recoil";
 import { ArrowDropDown } from "@mui/icons-material";
 import { Button, ButtonGroup, Grid, MenuItem, MenuList, Paper, Popover } from "@mui/material";
@@ -11,7 +11,7 @@ import { initialClauses, initialTree, rootConditionUuid, rootGroupUuid } from ".
 import { FilterBuilderProps } from "./FilterBuilder";
 import { UseODataFilter, UseODataFilterWithState } from "../hooks";
 import { useMountEffect } from "../../hooks";
-import { ConditionClause, SerialisedGroup, QueryStringCollection } from "../types";
+import { ConditionClause, SerialisedGroup, QueryStringCollection, FilterBuilderApi } from "../types";
 import { deserialise } from "../utils";
 
 type FilterRootProps<TDate> = {
@@ -29,13 +29,24 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
 
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
-  const { onSubmit, onRestoreState, disableHistory, filter: propsFilter } = props;
+  const { onSubmit, onRestoreState, disableHistory, apiRef: inputApiRef } = props;
+
+  const apiRef = useRef() as React.MutableRefObject<FilterBuilderApi>;
+  console.debug("FilterRoot", apiRef.current);
+  if (apiRef.current === undefined) {
+    console.debug("setting");
+    apiRef.current = {};
+  }
+
+  useImperativeHandle(inputApiRef, () => apiRef.current, [apiRef]);
+
   const submit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSubmit) {
       const result = odataFilter();
 
       if (result.filter) {
+        apiRef.current.filter = result.serialised;
         const returned = onSubmit({ ...result, filter: result.filter });
 
         if (disableHistory !== true) {
@@ -137,6 +148,10 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
       return () => window.removeEventListener("popstate", handlePopState);
     }
   }, [disableHistory, restoreState]);
+
+  useEffect(() => {
+    apiRef.current.setFilter = restoreFilter;
+  }, [restoreFilter]);
 
   // useEffect(() => {
   //   if (propsFilter) {
