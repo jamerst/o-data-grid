@@ -18,6 +18,17 @@ type FilterRootProps<TDate> = {
   props: FilterBuilderProps<TDate>
 }
 
+const useFilterBuilderApiInitialization = (inputApiRef: React.MutableRefObject<FilterBuilderApi> | undefined) => {
+  const apiRef = useRef() as React.MutableRefObject<FilterBuilderApi>;
+  if (apiRef.current === undefined) {
+    apiRef.current = {};
+  }
+
+  useImperativeHandle(inputApiRef, () => apiRef.current, [apiRef]);
+
+  return apiRef;
+}
+
 const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
   const setClauses = useSetRecoilState(clauseState);
   const setProps = useSetRecoilState(propsState);
@@ -29,16 +40,18 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
 
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
-  const { onSubmit, onRestoreState, disableHistory, apiRef: inputApiRef } = props;
+  const { onSubmit, onRestoreState, disableHistory } = props;
 
-  const apiRef = useRef() as React.MutableRefObject<FilterBuilderApi>;
-  console.debug("FilterRoot", apiRef.current);
-  if (apiRef.current === undefined) {
-    console.debug("setting");
-    apiRef.current = {};
-  }
+  const apiRef = useFilterBuilderApiInitialization(props.apiRef);
 
-  useImperativeHandle(inputApiRef, () => apiRef.current, [apiRef]);
+  // const apiRef = useRef() as React.MutableRefObject<FilterBuilderApi>;
+  // console.debug("FilterRoot", apiRef.current);
+  // if (apiRef.current === undefined) {
+  //   console.debug("setting");
+  //   apiRef.current = {};
+  // }
+
+  // useImperativeHandle(props.apiRef, () => apiRef.current, [apiRef]);
 
   const submit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,7 +80,7 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
         }
       }
     }
-  }, [onSubmit, odataFilter, disableHistory]);
+  }, [onSubmit, odataFilter, disableHistory, apiRef]);
 
   const reset = useCallback(() => {
     setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
@@ -151,7 +164,7 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
 
   useEffect(() => {
     apiRef.current.setFilter = restoreFilter;
-  }, [restoreFilter]);
+  }, [restoreFilter, apiRef]);
 
   // useEffect(() => {
   //   if (propsFilter) {
