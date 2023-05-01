@@ -1,0 +1,1 @@
+export type Connective = "and" | "or"

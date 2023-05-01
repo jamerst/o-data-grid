@@ -19,9 +19,7 @@ export type ExternalBuilderProps<TDate = any> = {
   selectProps?: SelectProps,
   textFieldProps?: TextFieldProps,
 
-  disableHistory?: boolean,
-
-  apiRef?: React.MutableRefObject<FilterBuilderApi>
+  disableHistory?: boolean
 }
 
 export type FilterParameters = {
@@ -169,4 +167,12 @@ export type SerialisedCondition = Omit<ConditionClause, "id" | "default">;
 export interface FilterBuilderApi {
   filter?: SerialisedGroup,
   setFilter?: (filter: SerialisedGroup) => void
+}
+
+// Redeclare forwardRef to support generic components
+// Sourced from https://stackoverflow.com/a/58473012/6725789
+declare module "react" {
+  function forwardRef<T, P = unknown>(
+    render: (props: P, ref: React.Ref<T>) => React.ReactElement | null
+  ): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 }

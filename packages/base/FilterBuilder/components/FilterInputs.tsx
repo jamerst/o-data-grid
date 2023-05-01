@@ -1,14 +1,15 @@
 import React, { Fragment, useMemo } from "react"
 import { useRecoilValue } from "recoil";
-import { Autocomplete, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { DatePicker, DatePickerSlotsComponentsProps, DateTimePicker, DateTimePickerSlotsComponentsProps, LocalizationProvider } from "@mui/x-date-pickers";
-
-import { CollectionFieldDef, CollectionOperation, FieldDef, Operation } from "../types";
+import { Autocomplete, FormControl, Grid, InputLabel, MenuItem, Select, TextField, TextFieldProps } from "@mui/material";
+import { ValueOptions } from "@mui/x-data-grid";
+import { DatePicker, DatePickerProps, DatePickerSlotsComponentsProps, DateTimePicker, DateTimePickerProps, DateTimePickerSlotsComponentsProps, LocalizationProvider } from "@mui/x-date-pickers";
 
 import { propsState, schemaState } from "../state"
-import { SelectOption, ValueOption } from "../../types";
-import { getLocaleText, getSelectOption } from "../utils";
+import { getLocaleText } from "../utils";
 import { allOperators, numericOperators } from "../constants";
+
+import { FieldDef, CollectionFieldDef, SingleSelectFieldDef, DateFieldDef, DateTimeFieldDef, TextFieldDef, SelectControlProps, BooleanFieldDef } from "../models/fields";
+import { CollectionOperation, Operation } from "../models/filters";
 
 
 type FilterInputsProps = {
@@ -39,67 +40,37 @@ const FilterInputs = <TDate,>({
   onCollectionFieldChange
 }: FilterInputsProps) => {
 
-  const schema = useRecoilValue(schemaState);
+  const schema = useRecoilValue(schemaState) as FieldDef<TDate>[];
   const builderProps = useRecoilValue(propsState);
 
   const dateAdapter = useMemo(() => builderProps.localizationProviderProps?.dateAdapter, [builderProps]);
 
+  // create augmented fieldDef with pre-computed data (e.g. extract props for form components based on field type)
   const fieldDef = useMemo(() => {
     if (!field && schema.length < 1) {
       return null;
     }
 
-    let f: FieldDef<TDate>;
-    if (field) {
-      f = schema.find(c => c.field === field) ?? schema[0];
-    } else {
-      f = schema[0]
-    }
+    const f = findFieldDef(field, schema);
 
-    if (!f) {
-      return null;
-    }
+    const fieldDef = getAugmentedFieldDef(f);
+    fieldDef.colField = f.collection === true && collectionField && f.collectionFields?.length
+      ? getAugmentedFieldDef(findFieldDef(collectionField, f.collectionFields))
+      : undefined;
 
-    let filterField = field;
-    let colField: CollectionFieldDef<TDate> | undefined;
-    let type = f.filterType ?? f.type;
-    let options = f.valueOptions;
-    let ops = f.filterOperators ?? allOperators;
-    if (f.collection === true && f.collectionFields) {
-      if (collectionField) {
-        colField = f.collectionFields.find(c => c.field === collectionField) ?? f.collectionFields[0];
-      } else {
-        colField = f.collectionFields[0];
-      }
-
-      filterField = colField.field;
-      type = colField.type;
-      options = colField.valueOptions;
+    if (fieldDef.colField) {
+      fieldDef.type = fieldDef.colField.type;
+      fieldDef.options = fieldDef.colField.options;
 
       if (collectionOp !== "count") {
-        ops = colField.filterOperators ?? allOperators;
+        fieldDef.ops = fieldDef.colField.filterOperators ?? allOperators;
       } else {
-        ops = numericOperators;
-        type = "number"
+        fieldDef.ops = numericOperators;
+        fieldDef.type = "number";
       }
     }
 
-    // get value options into a single type
-    let valueOptions: SelectOption[] | undefined;
-    if (type === "singleSelect" && typeof options === "function") {
-      valueOptions = options({ field: filterField }).map((v) => getSelectOption(v));
-    } else if (type === "singleSelect" && options) {
-      valueOptions = (options as ValueOption[]).map((v) => getSelectOption(v));
-    }
-
-    return {
-      ...f,
-      fieldLabel: f.label ?? f.headerName ?? f.field,
-      type: type,
-      ops: ops,
-      valueOptions: valueOptions,
-      colField: colField
-    };
+    return fieldDef;
   }, [field, collectionField, collectionOp, schema]);
 
   const fieldOptions = useMemo(() => schema
@@ -181,10 +152,9 @@ const FilterInputs = <TDate,>({
         </Grid>
       }
       {
-        fieldDef.renderCustomFilter ?
-          fieldDef.renderCustomFilter(value, onValueChange)
-          :
-          <Grid item xs={12} md>
+        fieldDef.renderCustomFilter
+          ? fieldDef.renderCustomFilter(value, onValueChange)
+          : <Grid item xs={12} md>
             <FormControl fullWidth size="small">
               <InputLabel id={`${clauseId}_label-op`}>Operation</InputLabel>
               <Select
@@ -258,7 +228,7 @@ const FilterInputs = <TDate,>({
                 </FormControl>
               }
               {
-                fieldDef.type === "singleSelect" && fieldDef.valueOptions &&
+                fieldDef.type === "singleSelect" && fieldDef.options &&
                 <FormControl fullWidth size="small" {...fieldDef.selectProps?.formControlProps}>
                   <InputLabel id={`${clauseId}_label-select-value`}>{fieldDef.selectProps?.label ?? getLocaleText("value", builderProps.localeText)}</InputLabel>
                   <Select
@@ -267,8 +237,8 @@ const FilterInputs = <TDate,>({
                     onChange={(e) => onValueChange(e.target.value)}
                     labelId={`${clauseId}_label-select-value`}
                   >
-                    {fieldDef.valueOptions!.map((o, i) =>
-                      (<MenuItem value={o.value} key={`${clauseId}_${field}_select_${i}`}>{o.label}</MenuItem>)
+                    {fieldDef.options!.map((o, i) =>
+                      (<MenuItem value={getOptionValue(o)} key={`${clauseId}_${field}_select_${i}`}>{getOptionLabel(o)}</MenuItem>)
                     )}
                   </Select>
                 </FormControl>
@@ -293,5 +263,88 @@ const FilterInputs = <TDate,>({
     </Fragment>
   )
 };
-
 export default React.memo(FilterInputs);
+
+const getOptions = (fieldDef: SingleSelectFieldDef<unknown>) => {
+  const _options = typeof fieldDef.valueOptions === "function"
+    ? fieldDef.valueOptions({ field: fieldDef.field })
+    : fieldDef.valueOptions;
+
+  if (_options) {
+    if (fieldDef.getOptionValue || fieldDef.getOptionLabel) {
+      return _options.map(o => {
+        if (typeof o === "object") {
+          return {
+            value: fieldDef.getOptionValue
+              ? fieldDef.getOptionValue(o)
+              : o.value,
+            label: fieldDef.getOptionLabel
+              ? fieldDef.getOptionLabel(o)
+              : o.label
+          }
+        } else {
+          return o;
+        }
+      });
+    } else {
+      return _options;
+    }
+  } else {
+    return [];
+  }
+}
+
+type AugmentedFieldDef<T extends FieldDef<TDate>, TDate> = T & {
+  fieldLabel: string,
+  type?: string,
+  ops: Operation[],
+
+  colField?: AugmentedFieldDef<CollectionFieldDef<TDate>, TDate>,
+
+  textFieldProps?: TextFieldProps,
+
+  options?: ValueOptions[],
+  selectProps?: SelectControlProps,
+
+  datePickerProps?: DatePickerProps<TDate>,
+  dateTimePickerProps?: DateTimePickerProps<TDate>
+}
+
+const getAugmentedFieldDef = <T extends FieldDef<TDate>, TDate,>(fieldDef: T): AugmentedFieldDef<T, TDate> => {
+  const result: AugmentedFieldDef<T, TDate> = {
+    ...fieldDef,
+    fieldLabel: fieldDef.label ?? fieldDef.headerName ?? fieldDef.field,
+    type: fieldDef.filterType ?? fieldDef.type,
+    ops: fieldDef.filterOperators ?? allOperators,
+  };
+
+  if (fieldDef.type === "singleSelect") {
+    result.options = getOptions(fieldDef as SingleSelectFieldDef<TDate>);
+    result.selectProps = (fieldDef as SingleSelectFieldDef<TDate>).selectProps;
+  } else if (fieldDef.type === "date") {
+    result.datePickerProps = (fieldDef as DateFieldDef<TDate>).datePickerProps;
+  } else if (fieldDef.type === "dateTime") {
+    result.dateTimePickerProps = (fieldDef as DateTimeFieldDef<TDate>).dateTimePickerProps;
+  } else if (fieldDef.type === "boolean") {
+    result.selectProps = (fieldDef as BooleanFieldDef<TDate>).selectProps;
+  } else {
+    result.textFieldProps = (fieldDef as TextFieldDef<TDate>).textFieldProps;
+  }
+
+  return result;
+}
+
+const findFieldDef = <TDate,>(field: string | undefined, fieldDefs: FieldDef<TDate>[]) =>
+  field
+    ? fieldDefs.find(f => f.field === field) ?? fieldDefs[0]
+    : fieldDefs[0];
+
+const getOptionValue = (option: ValueOptions) =>
+  typeof option === "object"
+    ? option.value
+    : option;
+
+const getOptionLabel = (option: ValueOptions) =>
+typeof option === "object"
+  ? option.label
+  : option;

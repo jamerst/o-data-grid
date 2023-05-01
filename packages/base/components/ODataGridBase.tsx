@@ -56,10 +56,9 @@ const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel,
   const r = useResponsive();
 
   const filterApiRef = useRef({}) as React.MutableRefObject<FilterBuilderApi>;
-  console.debug(filterApiRef.current);
 
   const onClick = useCallback(() => {
-    if (filterApiRef.current.setFilter) {
+    if (filterApiRef.current?.setFilter) {
       filterApiRef.current.setFilter(test);
     }
   }, []);
@@ -416,7 +415,7 @@ const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel,
             schema={props.columns}
             onSubmit={handleBuilderSubmit}
             onRestoreState={handleBuilderRestore}
-            apiRef={filterApiRef}
+            ref={filterApiRef}
           />
         </Box>
       }

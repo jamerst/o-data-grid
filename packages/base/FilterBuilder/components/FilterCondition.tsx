@@ -5,11 +5,10 @@ import { Remove } from "@mui/icons-material";
 
 import FilterInputs from "./FilterInputs";
 
-import { CollectionOperation, ConditionClause, Operation, TreeGroup } from "../types"
-
 import { clauseState, schemaState, treeState } from "../state"
-
 import { numericOperators } from "../constants";
+
+import { CollectionOperation, ConditionClause, Operation, TreeGroup } from "../models/filters"
 
 
 type FilterConditionProps = {

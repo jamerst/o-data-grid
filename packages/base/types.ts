@@ -1,6 +1,7 @@
 
+import { FilterBuilderProps } from "./FilterBuilder/models/FilterBuilderProps";
+import { FieldDef } from "./FilterBuilder/models/fields";
 import { ResponsiveValues } from "./hooks"
-import { ExternalBuilderProps, FieldDef } from "./FilterBuilder/types"
 import React from "react";
 
 export type ODataGridBaseProps<
@@ -24,7 +25,7 @@ export type ODataGridBaseProps<
     disableFilterBuilder?: boolean,
     disableHistory?: boolean,
     $filter?: string,
-    filterBuilderProps?: ExternalBuilderProps<TDate>,
+    filterBuilderProps?: Omit<FilterBuilderProps<TDate>, "schema">,
     requestOptions?: RequestInit
   };
 

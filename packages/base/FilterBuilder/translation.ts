@@ -1,4 +1,4 @@
-import { FilterTranslatorCollection } from "./types";
+import { FilterTranslatorCollection } from "./models/filters/translation";
 import { escapeODataString } from "./utils";
 
 export const defaultTranslators: FilterTranslatorCollection<any> = {

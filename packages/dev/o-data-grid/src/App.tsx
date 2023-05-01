@@ -1,7 +1,7 @@
 import React from "react"
 import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { GridActionsCellItem, GridSortModel } from "@mui/x-data-grid"
+import { GridActionsCellItem, GridSortModel, useGridApiRef } from "@mui/x-data-grid"
 import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, FilterBuilderProps, ODataGridColDef } from "../../../o-data-grid/src"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
@@ -16,6 +16,11 @@ const theme = createTheme({
 const getRowId = (row: any) => row.Id;
 
 const App = () => {
+  const apiRef = useGridApiRef();
+  if (typeof apiRef.current.getRowsCount === "function") {
+    console.debug("gridApiRef", apiRef.current.getRowsCount());
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -28,6 +33,7 @@ const App = () => {
         alwaysSelect={alwaysFetch}
         getRowId={getRowId}
         pageSizeOptions={pageSizeOptions}
+        apiRef={apiRef}
       />
     </ThemeProvider>
   );

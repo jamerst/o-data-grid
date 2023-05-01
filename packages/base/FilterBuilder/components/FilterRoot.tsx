@@ -8,19 +8,21 @@ import FilterGroup from "./FilterGroup";
 import { clauseState, propsState, schemaState, treeState } from "../state"
 
 import { initialClauses, initialTree, rootConditionUuid, rootGroupUuid } from "../constants"
-import { FilterBuilderProps } from "./FilterBuilder";
 import { UseODataFilter, UseODataFilterWithState } from "../hooks";
 import { useMountEffect } from "../../hooks";
-import { ConditionClause, SerialisedGroup, QueryStringCollection, FilterBuilderApi } from "../types";
 import { deserialise } from "../utils";
+
+import { FilterBuilderApi, FilterBuilderProps } from "../models";
+import { ConditionClause, SerialisedGroup } from "../models/filters";
+import { QueryStringCollection } from "../models/filters/translation";
 
 type FilterRootProps<TDate> = {
   props: FilterBuilderProps<TDate>
 }
 
-const useFilterBuilderApiInitialization = (inputApiRef: React.MutableRefObject<FilterBuilderApi> | undefined) => {
+const useFilterBuilderApiInitialization = (inputApiRef: React.Ref<FilterBuilderApi> | undefined) => {
   const apiRef = useRef() as React.MutableRefObject<FilterBuilderApi>;
-  if (apiRef.current === undefined) {
+  if (!apiRef.current) {
     apiRef.current = {};
   }
 
@@ -29,7 +31,7 @@ const useFilterBuilderApiInitialization = (inputApiRef: React.MutableRefObject<F
   return apiRef;
 }
 
-const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
+const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.ForwardedRef<FilterBuilderApi>) => {
   const setClauses = useSetRecoilState(clauseState);
   const setProps = useSetRecoilState(propsState);
   const setSchema = useSetRecoilState(schemaState);
@@ -42,16 +44,7 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
 
   const { onSubmit, onRestoreState, disableHistory } = props;
 
-  const apiRef = useFilterBuilderApiInitialization(props.apiRef);
-
-  // const apiRef = useRef() as React.MutableRefObject<FilterBuilderApi>;
-  // console.debug("FilterRoot", apiRef.current);
-  // if (apiRef.current === undefined) {
-  //   console.debug("setting");
-  //   apiRef.current = {};
-  // }
-
-  // useImperativeHandle(props.apiRef, () => apiRef.current, [apiRef]);
+  const apiRef = useFilterBuilderApiInitialization(ref);
 
   const submit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -87,7 +80,7 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
     setTree(initialTree);
 
     if (onSubmit) {
-      onSubmit({ filter: "" });
+      onSubmit(null);
     }
 
     if (disableHistory !== true) {
@@ -136,7 +129,11 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
     }
 
     if (onRestoreState) {
-      onRestoreState({ compute, filter, queryString, select, serialised}, state);
+      if (serialised) {
+        onRestoreState({ compute, filter, queryString, select, serialised }, state);
+      } else {
+        onRestoreState(null, state);
+      }
     }
   }, [onRestoreState, restoreDefault, setClauses, setTree]);
 
@@ -165,14 +162,6 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
   useEffect(() => {
     apiRef.current.setFilter = restoreFilter;
   }, [restoreFilter, apiRef]);
-
-  // useEffect(() => {
-  //   if (propsFilter) {
-  //     restoreFilter(propsFilter);
-  //   } else {
-  //     restoreDefault(3);
-  //   }
-  // }, [propsFilter, restoreFilter, restoreDefault]);
 
   useMountEffect(() => {
     setProps(props);
@@ -246,4 +235,5 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
   );
 }
 
+const FilterRoot = React.forwardRef(FilterRootInner);
 export default FilterRoot;

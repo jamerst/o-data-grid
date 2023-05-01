@@ -3,18 +3,16 @@ import { RecoilRoot } from "recoil";
 
 import FilterRoot from "./FilterRoot";
 
-import { ExternalBuilderProps, FieldDef } from "../types"
+import { FilterBuilderApi, FilterBuilderProps } from "../models";
 
-export type FilterBuilderProps<TDate = any> = ExternalBuilderProps<TDate> & {
-  schema: FieldDef<TDate>[]
-}
-
-const FilterBuilder = <TDate,>(props: FilterBuilderProps<TDate>) => {
+const FilterBuilderInner = <TDate,>(props: FilterBuilderProps<TDate>, ref?: React.ForwardedRef<FilterBuilderApi>) => {
   return (
     <RecoilRoot override>
-      <FilterRoot props={props}/>
+      <FilterRoot props={props} ref={ref} />
     </RecoilRoot>
   );
 }
+
+const FilterBuilder = React.forwardRef(FilterBuilderInner);
 
 export default FilterBuilder;

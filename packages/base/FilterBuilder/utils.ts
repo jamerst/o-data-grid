@@ -1,10 +1,10 @@
 import Immutable from "immutable";
-import { SelectOption, ValueOption } from "../types";
 import { v4 as uuid } from "uuid";
-import { defaultLocale, rootGroupUuid } from "./constants";
-import { SerialisedGroup, StateTree, StateClause, TreeGroup } from "./types";
 
-import { GroupClause, ConditionClause, FilterBuilderLocaleText } from "./types"
+import { defaultLocale, rootGroupUuid } from "./constants";
+
+import { ConditionClause, GroupClause, SerialisedGroup, StateTree, StateClause, TreeGroup } from "./models/filters";
+import { FilterBuilderLocaleText } from "./models"
 
 export const getDefaultCondition = (field: string): ConditionClause => ({
   field: field,
@@ -17,16 +17,6 @@ export const getDefaultGroup = (): GroupClause => ({
   connective: "and",
   id: uuid()
 });
-
-export const getSelectOption = (option: ValueOption): SelectOption => {
-  if (typeof option === "string") {
-    return { value: option, label: option };
-  } else if (typeof option === "number") {
-    return { value: option.toString(), label: option.toString() }
-  } else {
-    return option;
-  }
-}
 
 export const getLocaleText = (key: keyof FilterBuilderLocaleText, locale: FilterBuilderLocaleText | undefined) =>
   locale !== undefined && locale[key] ? locale[key]! : defaultLocale[key];

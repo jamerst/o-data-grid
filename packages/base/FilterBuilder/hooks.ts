@@ -1,9 +1,13 @@
 import { useCallback } from "react";
 import { useRecoilValue, waitForAll } from "recoil"
+
 import { rootGroupUuid } from "./constants";
 import { clauseState, schemaState, treeState } from "./state"
 import { defaultTranslators } from "./translation";
-import { BaseFieldDef, SerialisedCondition, ConditionClause, FieldDef, SerialisedGroup, GroupClause, Operation, QueryStringCollection, StateClause, StateTree, TreeGroup, FilterTranslator } from "./types";
+
+import { FieldDef } from "./models/fields";
+import { ConditionClause, GroupClause, Operation, SerialisedCondition, SerialisedGroup, StateClause, StateTree, TreeGroup } from "./models/filters";
+import { BuiltInnerQuery, BuiltQuery, FilterTranslator } from "./models/filters/translation";
 
 export const UseODataFilter = <TDate,>() => {
   const schema = useRecoilValue(schemaState);
@@ -20,17 +24,6 @@ export const UseODataFilterWithState = <TDate,>() => {
   return useCallback((clauses: StateClause, tree: StateTree) => {
     return buildGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as BuiltQuery<SerialisedGroup>;
   }, [schema])
-}
-
-type BuiltInnerQuery = {
-  filter?: string,
-  compute?: string,
-  select?: string[],
-  queryString?: QueryStringCollection
-}
-
-type BuiltQuery<T> = BuiltInnerQuery & {
-  serialised: T
 }
 
 const buildGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (BuiltQuery<SerialisedGroup> | boolean) => {
@@ -134,7 +127,7 @@ const buildCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
   }
 }
 
-const buildInnerCondition = <TDate,>(schema: BaseFieldDef<TDate>, field: string, op: Operation, value: any): BuiltInnerQuery | boolean => {
+const buildInnerCondition = <TDate,>(schema: FieldDef<TDate>, field: string, op: Operation, value: any): BuiltInnerQuery | boolean => {
   if (schema.getCustomQueryString) {
     return {
       queryString: schema.getCustomQueryString(op, value)
