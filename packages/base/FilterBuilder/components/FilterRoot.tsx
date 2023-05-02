@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react"
+import React, { Fragment, useCallback, useEffect, useState } from "react"
 import { useSetRecoilState } from "recoil";
 import { ArrowDropDown } from "@mui/icons-material";
 import { Button, ButtonGroup, Grid, MenuItem, MenuList, Paper, Popover } from "@mui/material";
@@ -8,9 +8,10 @@ import FilterGroup from "./FilterGroup";
 import { clauseState, propsState, schemaState, treeState } from "../state"
 
 import { initialClauses, initialTree, rootConditionUuid, rootGroupUuid } from "../constants"
-import { UseODataFilter, UseODataFilterWithState } from "../hooks";
-import { useMountEffect } from "../../hooks";
 import { deserialise } from "../utils";
+
+import { useMountEffect } from "../../hooks";
+import { useFilterBuilderApiInitialization, UseODataFilter, UseODataFilterWithState } from "../hooks";
 
 import { FilterBuilderApi, FilterBuilderProps } from "../models";
 import { ConditionClause, SerialisedGroup } from "../models/filters";
@@ -18,17 +19,6 @@ import { QueryStringCollection } from "../models/filters/translation";
 
 type FilterRootProps<TDate> = {
   props: FilterBuilderProps<TDate>
-}
-
-const useFilterBuilderApiInitialization = (inputApiRef: React.Ref<FilterBuilderApi> | undefined) => {
-  const apiRef = useRef() as React.MutableRefObject<FilterBuilderApi>;
-  if (!apiRef.current) {
-    apiRef.current = {};
-  }
-
-  useImperativeHandle(inputApiRef, () => apiRef.current, [apiRef]);
-
-  return apiRef;
 }
 
 const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.ForwardedRef<FilterBuilderApi>) => {
@@ -169,8 +159,6 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     // restore query from history state if enabled
     if (disableHistory !== true && window.history.state && window.history.state.filterBuilder) {
       restoreState(window.history.state, false);
-    // } else if (propsFilter) {
-    //   restoreFilter(propsFilter);
     } else {
       restoreDefault();
     }

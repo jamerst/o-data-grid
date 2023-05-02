@@ -6,15 +6,12 @@ import { Add } from "@mui/icons-material";
 
 import FilterCondition from "./FilterCondition";
 
-import { Connective, GroupClause, TreeChildren, TreeGroup } from "../types"
-
+import { useResponsive } from "../../hooks";
+import makeStyles from "../../makeStyles";
 import { clauseState, propsState, schemaState, treeState } from "../state"
-
 import { getDefaultCondition, getDefaultGroup, getLocaleText } from "../utils";
 
-import makeStyles from "../../makeStyles";
-import { useResponsive } from "../../hooks";
-
+import { Connective, GroupClause, TreeChildren, TreeGroup } from "../models/filters";
 
 const useStyles = makeStyles()((theme) => ({
   group: {

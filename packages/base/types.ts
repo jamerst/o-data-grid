@@ -25,9 +25,11 @@ export type ODataGridBaseProps<
     disableFilterBuilder?: boolean,
     disableHistory?: boolean,
     $filter?: string,
-    filterBuilderProps?: Omit<FilterBuilderProps<TDate>, "schema">,
+    filterBuilderProps?: DataGridFilterBuilderProps<TDate>,
     requestOptions?: RequestInit
   };
+
+export type DataGridFilterBuilderProps<TDate> = Omit<FilterBuilderProps<TDate>, "schema">
 
 // remove properties which should not be used - these are handled internally or overridden
 type OmitGridProps<T> = Omit<T,

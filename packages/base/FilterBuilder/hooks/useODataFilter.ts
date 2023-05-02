@@ -1,20 +1,20 @@
 import { useCallback } from "react";
 import { useRecoilValue, waitForAll } from "recoil"
 
-import { rootGroupUuid } from "./constants";
-import { clauseState, schemaState, treeState } from "./state"
-import { defaultTranslators } from "./translation";
+import { rootGroupUuid } from "../constants";
+import { clauseState, schemaState, treeState } from "../state"
+import { defaultTranslators } from "../translation";
 
-import { FieldDef } from "./models/fields";
-import { ConditionClause, GroupClause, Operation, SerialisedCondition, SerialisedGroup, StateClause, StateTree, TreeGroup } from "./models/filters";
-import { BuiltInnerQuery, BuiltQuery, FilterTranslator } from "./models/filters/translation";
+import { FieldDef } from "../models/fields";
+import { ConditionClause, GroupClause, Operation, SerialisedCondition, SerialisedGroup, StateClause, StateTree, TreeGroup } from "../models/filters";
+import { TranslatedInnerQuery, TranslatedQuery, FilterTranslator } from "../models/filters/translation";
 
 export const UseODataFilter = <TDate,>() => {
   const schema = useRecoilValue(schemaState);
   const [clauses, tree] = useRecoilValue(waitForAll([clauseState, treeState]));
 
   return useCallback(() => {
-    return buildGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as BuiltQuery<SerialisedGroup>;
+    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup>;
   }, [schema, clauses, tree]);
 }
 
@@ -22,11 +22,11 @@ export const UseODataFilterWithState = <TDate,>() => {
   const schema = useRecoilValue(schemaState);
 
   return useCallback((clauses: StateClause, tree: StateTree) => {
-    return buildGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as BuiltQuery<SerialisedGroup>;
+    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup>;
   }, [schema])
 }
 
-const buildGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (BuiltQuery<SerialisedGroup> | boolean) => {
+const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (TranslatedQuery<SerialisedGroup> | boolean) => {
   const clause = clauses.get(id) as GroupClause;
   const treeNode = tree.getIn([...path, id]) as TreeGroup;
 
@@ -39,12 +39,12 @@ const buildGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tre
     .toArray()
     .map((c) => {
       if (typeof c[1] === "string") {
-        return buildCondition(schema, clauses, c[0]);
+        return translateCondition(schema, clauses, c[0]);
       } else {
-        return buildGroup(schema, clauses, tree, c[0], [...path, id, "children"]);
+        return translateGroup(schema, clauses, tree, c[0], [...path, id, "children"]);
       }
     })
-    .filter(c => c !== false) as (BuiltQuery<SerialisedGroup> | BuiltQuery<SerialisedCondition>)[];
+    .filter(c => c !== false) as (TranslatedQuery<SerialisedGroup> | TranslatedQuery<SerialisedCondition>)[];
 
   if (childClauses.length > 1) {
     return {
@@ -68,7 +68,7 @@ const buildGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tre
   }
 }
 
-const buildCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, id: string): (BuiltQuery<SerialisedCondition> | boolean) => {
+const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, id: string): (TranslatedQuery<SerialisedCondition> | boolean) => {
   const clause = clauses.get(id) as ConditionClause;
 
   let condition: SerialisedCondition | undefined = undefined;
@@ -102,10 +102,10 @@ const buildCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
       };
     } else {
       const collectionDef = def.collectionFields!.find(d => d.field === clause.collectionField!);
-      innerResult = buildInnerCondition(collectionDef!, "x/" + clause.collectionField!, clause.op, clause.value);
+      innerResult = translateInnerCondition(collectionDef!, "x/" + clause.collectionField!, clause.op, clause.value);
     }
   } else {
-    innerResult = buildInnerCondition(def, filterField, clause.op, clause.value);
+    innerResult = translateInnerCondition(def, filterField, clause.op, clause.value);
   }
 
   if (typeof innerResult !== "boolean") {
@@ -127,7 +127,7 @@ const buildCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
   }
 }
 
-const buildInnerCondition = <TDate,>(schema: FieldDef<TDate>, field: string, op: Operation, value: any): BuiltInnerQuery | boolean => {
+const translateInnerCondition = <TDate,>(schema: FieldDef<TDate>, field: string, op: Operation, value: any): TranslatedInnerQuery | boolean => {
   if (schema.getCustomQueryString) {
     return {
       queryString: schema.getCustomQueryString(op, value)

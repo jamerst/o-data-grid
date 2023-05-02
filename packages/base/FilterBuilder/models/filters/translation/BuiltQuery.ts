@@ -1,12 +1,12 @@
 import { QueryStringCollection } from "./QueryStringCollection"
 
-export type BuiltInnerQuery = {
+export type TranslatedInnerQuery = {
   filter?: string,
   compute?: string,
   select?: string[],
   queryString?: QueryStringCollection
 }
 
-export type BuiltQuery<T> = BuiltInnerQuery & {
+export type TranslatedQuery<T> = TranslatedInnerQuery & {
   serialised: T
 }

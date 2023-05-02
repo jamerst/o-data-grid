@@ -20,20 +20,33 @@ export type ODataGridColDef<TRow = any, V = any, F = any, TDate = any>
     // needed?
 
 export type { SelectOption, ValueOption, ODataColumnVisibilityModel } from "../../base/types";
+
 export type {
-  CollectionFieldDef,
-  CollectionOperation,
-  ComputeSelect,
-  Connective,
-  ExternalBuilderProps as FilterBuilderProps,
   FilterBuilderLocaleText,
-  FilterCompute,
-  FilterParameters,
+  FilterBuilderProps
+} from "../../base/FilterBuilder/models";
+export type {
   FieldDef,
-  QueryStringCollection,
+  BooleanFieldDef,
+  CollectionFieldDef,
+  DateFieldDef,
+  DateTimeFieldDef,
+  SingleSelectFieldDef,
+  TextFieldDef,
+
+} from "../../base/FilterBuilder/models/fields";
+export type {
+  CollectionOperation,
+  Connective,
   SerialisedGroup,
   SerialisedCondition,
-} from "../../base/FilterBuilder/types";
+} from "../../base/FilterBuilder/models/filters";
+export type {
+  TranslatedQuery as BuiltQuery,
+  ComputeSelect,
+  FilterCompute,
+  QueryStringCollection,
+} from "../../base/FilterBuilder/models/filters/translation"
 
 export { escapeODataString } from "../../base/FilterBuilder/utils";
 export { defaultTranslators } from "../../base/FilterBuilder/translation";
