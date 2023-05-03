@@ -3,15 +3,14 @@ import { DatePickerProps, DateTimePickerProps, LocalizationProviderProps } from 
 
 import { FilterBuilderLocaleText } from "."
 import { FieldDef } from "./fields";
-import { SerialisedGroup } from "./filters";
-import { TranslatedQuery } from "./filters/translation";
+import { TranslatedQueryResult } from "./filters/translation";
 
 export type FilterBuilderProps<TDate> = {
   schema: FieldDef<TDate>[],
 
   searchMenuItems?: ({ label: string, onClick: () => void })[],
-  onSubmit?: (query: TranslatedQuery<SerialisedGroup> | null) => (void | any),
-  onRestoreState?: (query: TranslatedQuery<SerialisedGroup> | null, state?: any) => void,
+  onSubmit?: (query: TranslatedQueryResult | null) => (void | any),
+  onRestoreState?: (query: TranslatedQueryResult | null, state?: any) => void,
   localeText?: FilterBuilderLocaleText,
 
   autocompleteGroups?: string[],

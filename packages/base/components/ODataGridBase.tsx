@@ -10,7 +10,10 @@ import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridCol
 import { ExpandToQuery, Flatten, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
 import { defaultPageSize } from "../constants";
-import { QueryStringCollection, FilterParameters, FilterBuilderApi, SerialisedGroup } from "../FilterBuilder/types";
+
+import { useFilterBuilderApiRef } from "../FilterBuilder/hooks";
+import { SerialisedGroup } from "../FilterBuilder/models/filters";
+import { QueryStringCollection, TranslatedQueryResult } from "../FilterBuilder/models/filters/translation";
 
 const test: SerialisedGroup = {
   connective: "and",
@@ -37,10 +40,10 @@ const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel,
   const [paginationModel, setPaginationModel] = useState<IGridPaginationModel>({ page: GetPageNumber(), pageSize: GetPageSizeOrDefault(props.defaultPageSize) });
   const [sortModel, setSortModel] = useState<TSortModel | undefined>(props.defaultSortModel);
 
-  const [filter, setFilter] = useState<string>("");
-  const [filterSelects, setFilterSelects] = useState<string[] | undefined>();
-  const [compute, setCompute] = useState<string | undefined>();
-  const [queryString, setQueryString] = useState<QueryStringCollection | undefined>();
+  const [filter, setFilter] = useState<string>();
+  const [filterSelects, setFilterSelects] = useState<string[]>();
+  const [compute, setCompute] = useState<string>();
+  const [queryString, setQueryString] = useState<QueryStringCollection>();
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(props.columns
     .filter(c => !props.columnVisibilityModel || props.columnVisibilityModel[c.field] !== false)
@@ -55,13 +58,17 @@ const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel,
 
   const r = useResponsive();
 
-  const filterApiRef = useRef({}) as React.MutableRefObject<FilterBuilderApi>;
+  const filterApiRef = useFilterBuilderApiRef();
 
   const onClick = useCallback(() => {
     if (filterApiRef.current?.setFilter) {
       filterApiRef.current.setFilter(test);
     }
-  }, []);
+  }, [filterApiRef]);
+
+  useEffect(() => {
+    filterApiRef.current.onFilterChange.on((x) => console.debug("filter changed", x));
+  }, [filterApiRef]);
 
   // #region OData Requests
   const fetchData = useCallback(async () => {
@@ -185,7 +192,7 @@ const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel,
   // #endregion
 
   // #region Filter Builder events
-  const handleBuilderSubmit = useCallback((params: FilterParameters) => {
+  const handleBuilderSubmit = useCallback((params: TranslatedQueryResult | null) => {
     pendingFilter.current = true;
     fetchCount.current = true;
 
@@ -193,16 +200,16 @@ const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel,
       props.filterBuilderProps.onSubmit(params);
     }
 
-    setCompute(params.compute);
-    setFilter(params.filter);
-    setFilterSelects(params.select);
-    setQueryString(params.queryString);
+    setCompute(params?.compute);
+    setFilter(params?.filter);
+    setFilterSelects(params?.select);
+    setQueryString(params?.queryString);
     setPaginationModel((model) => ({ ...model, page: 0 }));
 
     return { oDataGrid: { sortModel: sortModel } };
   }, [props.filterBuilderProps, sortModel]);
 
-  const handleBuilderRestore = useCallback((params: FilterParameters, state: any) => {
+  const handleBuilderRestore = useCallback((params: TranslatedQueryResult | null, state: any) => {
     fetchCount.current = true;
 
     if (props.filterBuilderProps?.onRestoreState) {
@@ -217,10 +224,10 @@ const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel,
       }
     }
 
-    setCompute(params.compute);
-    setFilter(params.filter);
-    setFilterSelects(params.select);
-    setQueryString(params.queryString);
+    setCompute(params?.compute);
+    setFilter(params?.filter);
+    setFilterSelects(params?.select);
+    setQueryString(params?.queryString);
   }, [props.filterBuilderProps, props.disableHistory, props.defaultSortModel]);
 
   useEffect(() => {

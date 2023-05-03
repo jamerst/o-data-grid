@@ -5,7 +5,7 @@ export type FilterTranslatorCollection<TDate> = {
   [key in Operation | "default"]?: FilterTranslator<TDate>
 }
 
-export type FilterTranslator<TDate> = (params: FilterTranslatorParams<TDate>) => string | boolean;
+export type FilterTranslator<TDate> = (params: FilterTranslatorParams<TDate>) => string | false;
 
 export type FilterTranslatorParams<TDate> = {
   schema: FieldDef<TDate>,

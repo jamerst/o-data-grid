@@ -16,7 +16,7 @@ type FieldDefFromColDef<TDate, T extends GridColDef, K extends keyof T = never> 
     filterOperators?: Operation[],
     filterType?: string,
 
-    getCustomFilterString?: (op: Operation, value: any) => string | FilterCompute | boolean,
+    getCustomFilterString?: (op: Operation, value: any) => string | FilterCompute | false,
     getCustomQueryString?: (op: Operation, value: any) => QueryStringCollection,
 
     label?: string,

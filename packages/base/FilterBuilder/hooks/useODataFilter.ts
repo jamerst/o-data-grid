@@ -26,7 +26,7 @@ export const UseODataFilterWithState = <TDate,>() => {
   }, [schema])
 }
 
-const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (TranslatedQuery<SerialisedGroup> | boolean) => {
+const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (TranslatedQuery<SerialisedGroup> | false) => {
   const clause = clauses.get(id) as GroupClause;
   const treeNode = tree.getIn([...path, id]) as TreeGroup;
 
@@ -68,7 +68,7 @@ const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
   }
 }
 
-const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, id: string): (TranslatedQuery<SerialisedCondition> | boolean) => {
+const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, id: string): (TranslatedQuery<SerialisedCondition> | false) => {
   const clause = clauses.get(id) as ConditionClause;
 
   let condition: SerialisedCondition | undefined = undefined;
@@ -127,7 +127,7 @@ const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateCla
   }
 }
 
-const translateInnerCondition = <TDate,>(schema: FieldDef<TDate>, field: string, op: Operation, value: any): TranslatedInnerQuery | boolean => {
+const translateInnerCondition = <TDate,>(schema: FieldDef<TDate>, field: string, op: Operation, value: any): TranslatedInnerQuery | false => {
   if (schema.getCustomQueryString) {
     return {
       queryString: schema.getCustomQueryString(op, value)

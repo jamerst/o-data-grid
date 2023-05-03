@@ -1,3 +1,4 @@
+import { SerialisedGroup } from "../Group"
 import { QueryStringCollection } from "./QueryStringCollection"
 
 export type TranslatedInnerQuery = {
@@ -10,3 +11,7 @@ export type TranslatedInnerQuery = {
 export type TranslatedQuery<T> = TranslatedInnerQuery & {
   serialised: T
 }
+
+export type TranslatedQueryResult = TranslatedQuery<SerialisedGroup> & {
+  filter: string
+};

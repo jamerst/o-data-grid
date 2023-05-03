@@ -43,6 +43,8 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
 
       if (result.filter) {
         apiRef.current.filter = result.serialised;
+        apiRef.current.onFilterChange.emit(result.serialised);
+
         const returned = onSubmit({ ...result, filter: result.filter });
 
         if (disableHistory !== true) {
@@ -69,6 +71,9 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
     setTree(initialTree);
 
+    apiRef.current.filter = undefined;
+    apiRef.current.onFilterChange.emit(undefined);
+
     if (onSubmit) {
       onSubmit(null);
     }
@@ -81,7 +86,7 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
         }
       }, "");
     }
-  }, [setClauses, setTree, onSubmit, props.schema, disableHistory]);
+  }, [setClauses, setTree, onSubmit, props.schema, disableHistory, apiRef]);
 
   const handleReset = useCallback(() => reset(), [reset]);
 
