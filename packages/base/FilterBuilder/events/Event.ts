@@ -1,15 +1,13 @@
-type EventListener<T> = (args: T) => void;
+type EventListener<TArg, TReturn> = (args: TArg) => TReturn | void;
 
-export class Event<T> {
-  listeners: EventListener<T>[] = [];
+export class Event<TArg, TReturn> {
+  listeners: EventListener<TArg, TReturn>[] = [];
 
-  on(listener: EventListener<T>) {
+  on(listener: EventListener<TArg, TReturn>) {
     this.listeners.push(listener);
   }
 
-  emit(args: T) {
-    for (const listener of this.listeners) {
-      listener(args);
-    }
+  emit(args: TArg) {
+    return this.listeners.map(l => l(args)).filter(r => r !== undefined) as TReturn[];
   }
 }

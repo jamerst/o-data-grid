@@ -1,27 +1,23 @@
 
+import React from "react";
+import { GridColDef, DataGridProps } from "@mui/x-data-grid";
+
 import { FilterBuilderProps } from "./FilterBuilder/models/FilterBuilderProps";
 import { FieldDef } from "./FilterBuilder/models/fields";
 import { ResponsiveValues } from "./hooks"
-import React from "react";
 
 export type ODataGridBaseProps<
-  ComponentProps extends IGridProps<TColumnVisibilityModel, TPaginationModel, TSortModel>,
-  ColDef,
-  TDate,
-  TColumnVisibilityModel extends IGridColumnVisibilityModel,
-  TPaginationModel extends IGridPaginationModel,
-  TSortModel extends IGridSortModel
+  ComponentProps extends DataGridProps,
+  TDate
 > =
   OmitGridProps<ComponentProps>
   &
   {
     url: string,
     alwaysSelect?: string[],
-    columns: ODataGridBaseColDef<ColDef, TDate>[],
+    columns: ODataGridBaseColDef<TDate>[],
     columnVisibilityModel?: ODataColumnVisibilityModel,
     component: React.ElementType,
-    defaultPageSize?: number,
-    defaultSortModel?: TSortModel,
     disableFilterBuilder?: boolean,
     disableHistory?: boolean,
     $filter?: string,
@@ -52,7 +48,7 @@ type OmitGridProps<T> = Omit<T,
   | "sortModel"
   >
 
-export type ODataGridBaseColDef<T, TDate> = Omit<T, "filterOperators" | "sortComparator"> & FieldDef<TDate> & {
+export type ODataGridBaseColDef<TDate> = Omit<GridColDef, "filterOperators" | "sortComparator"> & FieldDef<TDate> & {
   select?: string,
   expand?: Expand | Expand[],
   filterOnly?: boolean
@@ -87,32 +83,3 @@ export type SelectOption = {
 }
 
 export type ODataColumnVisibilityModel = Record<string, boolean | ResponsiveValues<boolean>>;
-
-export type IGridColumnVisibilityModel = Record<string, boolean>;
-
-export type IGridSortModel = ({ field: string, sort: 'asc' | 'desc' | null | undefined })[];
-
-export type IGridRowModel<T = { [key: string]: any }> = T;
-
-export type IGridPaginationModel = {
-  pageSize: number,
-  page: number
-}
-
-export type IGridProps<TColumnVisibilityModel extends IGridColumnVisibilityModel,
-  TPaginationModel extends IGridPaginationModel,
-  TSortModel extends IGridSortModel
-> =
-  {
-    columnVisibilityModel?: TColumnVisibilityModel,
-    onColumnVisibilityModelChange?: (model: TColumnVisibilityModel, details: any) => void,
-    // I have absolutely no idea why, but TypeScript refuses to work if I try typing the details parameter.
-    // I'm fed up of trying to work out why, but it somehow finds a signature which uses unknown as the type instead of
-    // the generic. I can't even begin to understand why, but it does. I don't care any more, we don't even touch the
-    // details parameter.
-
-    paginationModel?: TPaginationModel,
-    onPaginationModelChange?: (model: TPaginationModel, details: any) => void
-
-    onSortModelChange?: (model: TSortModel, details: any) => void
-  }

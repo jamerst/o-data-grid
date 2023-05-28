@@ -29,8 +29,9 @@ export const ExpandToQuery = (expand?: Expand[] | Expand): string => {
       count: e.some(e2 => e2.count),
       select: Array.from(new Set(e.filter(e2 => e2.select).map(e2 => e2.select))).join(","),
       expand: e.filter(e2 => e2.expand)
-        .map(e2 => e2.expand!)
-        .reduce((a: Expand[], b) => Array.isArray(b) ? a.concat(b) : [...a, b], [])
+        // .map(e2 => e2.expand!)
+        // .reduce((a: Expand[], b) => Array.isArray(b) ? a.concat(b) : [...a, b], [])
+        .flatMap(c => Array.isArray(c.expand) ? c.expand! : [c.expand!])
     });
   });
 

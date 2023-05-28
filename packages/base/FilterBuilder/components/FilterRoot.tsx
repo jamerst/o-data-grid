@@ -38,31 +38,34 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
 
   const submit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (onSubmit) {
-      const result = odataFilter();
+    const result = odataFilter();
 
-      if (result.filter) {
-        apiRef.current.filter = result.serialised;
-        apiRef.current.onFilterChange.emit(result.serialised);
+    if (result.filter) {
+      apiRef.current.filter = result;
+      const fromApi = apiRef.current.onFilterChange.emit(result);
 
-        const returned = onSubmit({ ...result, filter: result.filter });
+      let fromSubmit = {};
+      if (onSubmit) {
+        fromSubmit = onSubmit({ ...result, filter: result.filter });
+      }
 
-        if (disableHistory !== true) {
-          window.history.pushState(
-            {
-              ...window.history.state,
-              ...returned,
-              filterBuilder: {
-                filter: result.filter,
-                compute: result.compute,
-                select: result.select,
-                serialised: result.serialised,
-                queryString: result.queryString
-              }
-            },
-            ""
-          );
-        }
+      const returned = fromApi.reduce((a: object, b: object) => ({ ...a, ...b }), fromSubmit);
+
+      if (disableHistory !== true) {
+        window.history.pushState(
+          {
+            ...window.history.state,
+            ...returned,
+            filterBuilder: {
+              filter: result.filter,
+              compute: result.compute,
+              select: result.select,
+              serialised: result.serialised,
+              queryString: result.queryString
+            }
+          },
+          ""
+        );
       }
     }
   }, [onSubmit, odataFilter, disableHistory, apiRef]);

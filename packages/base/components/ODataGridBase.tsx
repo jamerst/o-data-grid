@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Box, Button } from "@mui/material";
+import { DataGridProps } from "@mui/x-data-grid";
 
 import { ResponsiveValues, useResponsive } from "../hooks";
 
 import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 
-import { ODataResponse, ODataGridBaseProps, IGridSortModel, IGridProps, IGridColumnVisibilityModel, Expand, ODataRowModel, IGridPaginationModel } from "../types";
+import { ODataResponse, ODataGridBaseProps, Expand, ODataRowModel } from "../types";
 
 import { ExpandToQuery, Flatten, GetPageNumber, GetPageSizeOrDefault } from "../utils";
 
@@ -26,13 +27,9 @@ const test: SerialisedGroup = {
   ]
 };
 
-const ODataGridBase = <ComponentProps extends IGridProps<TColumnVisibilityModel, TPaginationModel, TSortModel>,
+const ODataGridBase = <ComponentProps extends DataGridProps,
   TRow,
-  ColDef,
-  TDate,
-  TColumnVisibilityModel extends IGridColumnVisibilityModel,
-  TPaginationModel extends IGridPaginationModel,
-  TSortModel extends IGridSortModel,>(props: ODataGridBaseProps<ComponentProps, ColDef, TDate, TColumnVisibilityModel, TPaginationModel, TSortModel>) => {
+  TDate,>(props: ODataGridBaseProps<ComponentProps, TDate>) => {
 
   const [rows, setRows] = useState<ODataRowModel<TRow>[]>([])
   const [rowCount, setRowCount] = useState<number>(0);
