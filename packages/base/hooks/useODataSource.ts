@@ -10,9 +10,9 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
 ) => {
   const fetchCount = useRef(true);
-  const filterChanged = useRef(false);
 
   const [loading, setLoading] = useState(false);
+  const [rows, setRows] = useState<ODataRowModel<TRow>[]>([]);
   const [rowCount, setRowCount] = useState(0);
 
   const { alwaysSelect, columns, $filter, url, requestOptions } = props;
@@ -115,17 +115,26 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
         setRowCount(data["@odata.count"]);
       }
 
-      gridApiRef.current.setRows(rows);
+      setRows(rows);
+      // gridApiRef.current.setRows(rows);
 
       setLoading(false);
-      filterChanged.current = false;
       // firstLoad.current = false;
       // pendingFilter.current = false;
       fetchCount.current = false;
     } else {
       console.error(`API request failed: ${response.url}, HTTP ${response.status}`);
     }
-  }, [filterBuilderApiRef, gridApiRef, filterChanged, alwaysSelect, columns, $filter, requestOptions, url]);
+  }, [filterBuilderApiRef, gridApiRef, alwaysSelect, columns, $filter, requestOptions, url]);
+
+  const timeout = useRef<number | null>(null);
+  const getRowsDebounced = useCallback(() => {
+    if (timeout.current !== null) {
+      clearTimeout(timeout.current);
+    }
+
+    timeout.current = setTimeout(getRows, 50);
+  }, [getRows]);
 
   const getHistoryData = useCallback(() => ({
     oDataGrid: {
@@ -133,29 +142,37 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     }
   }), [gridApiRef]);
 
+
+  const firstRender = useRef(true);
   useEffect(() => {
-    filterBuilderApiRef.current.onFilterChange.on(() => {
-      filterChanged.current = true;
+    const onFilterChange = () => {
+      console.debug("filter changed");
       const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
       if (paginationModel.page !== 0) {
         gridApiRef.current.setPaginationModel({ ...paginationModel, page: 0 });
       }
 
-      getRows();
+      getRowsDebounced();
 
       return getHistoryData();
-    });
-  }, [filterBuilderApiRef, gridApiRef, filterChanged, getRows, getHistoryData]);
+    };
 
-  useEffect(() => {
-    gridApiRef.current.subscribeEvent("columnVisibilityModelChange", () => getRows());
-    gridApiRef.current.subscribeEvent("sortModelChange", () => getRows());
+    const listener = (msg: string) => () => { console.debug(msg); getRowsDebounced() };
 
-    // prevent duplicate request when page is changed at same time as filter changing
-    if (!filterChanged.current) {
-      gridApiRef.current.subscribeEvent("paginationModelChange", () => getRows());
+    const cleanup = [
+      filterBuilderApiRef.current.onFilterChange.on(onFilterChange),
+      gridApiRef.current.subscribeEvent("columnVisibilityModelChange", listener("columnVisibilityModelChange")),
+      gridApiRef.current.subscribeEvent("paginationModelChange", listener("paginationModelChange")),
+      gridApiRef.current.subscribeEvent("sortModelChange", listener("sortModelChange")),
+    ];
+
+    if (firstRender.current) {
+      getRowsDebounced();
+      firstRender.current = false;
     }
-  }, [gridApiRef, getRows]);
 
-  return { loading, rowCount };
+    return () => cleanup.forEach(c => c());
+  }, [filterBuilderApiRef, gridApiRef, getRowsDebounced, getHistoryData]);
+
+  return { loading, rows, rowCount };
 }

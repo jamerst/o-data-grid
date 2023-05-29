@@ -1,9 +1,9 @@
 import { Event } from "../events/Event";
 import { SerialisedGroup } from "./filters";
-import { TranslatedQuery } from "./filters/translation";
+import { TranslatedQueryResult } from "./filters/translation";
 
 export interface FilterBuilderApi {
-  filter?: TranslatedQuery<SerialisedGroup>,
-  setFilter?: (filter: SerialisedGroup) => void,
-  onFilterChange: Event<TranslatedQuery<SerialisedGroup> | undefined, object>
+  filter?: TranslatedQueryResult,
+  setFilter: (filter: SerialisedGroup | undefined) => void,
+  onFilterChange: Event<TranslatedQueryResult | undefined, object>
 }

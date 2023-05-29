@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Box, Button } from "@mui/material";
-import { DataGridProps } from "@mui/x-data-grid";
+import { DataGridProps, GridColumnVisibilityModel, useGridApiRef } from "@mui/x-data-grid";
 
 import { ResponsiveValues, useResponsive } from "../hooks";
 
@@ -15,6 +15,8 @@ import { defaultPageSize } from "../constants";
 import { useFilterBuilderApiRef } from "../FilterBuilder/hooks";
 import { SerialisedGroup } from "../FilterBuilder/models/filters";
 import { QueryStringCollection, TranslatedQueryResult } from "../FilterBuilder/models/filters/translation";
+import { useODataSource } from "../hooks/useODataSource";
+import { useHistoryStates } from "../hooks/useHistoryStates";
 
 const test: SerialisedGroup = {
   connective: "and",
@@ -31,30 +33,31 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
   TRow,
   TDate,>(props: ODataGridBaseProps<ComponentProps, TDate>) => {
 
-  const [rows, setRows] = useState<ODataRowModel<TRow>[]>([])
-  const [rowCount, setRowCount] = useState<number>(0);
+  // const [rows, setRows] = useState<ODataRowModel<TRow>[]>([])
+  // const [rowCount, setRowCount] = useState<number>(0);
 
-  const [paginationModel, setPaginationModel] = useState<IGridPaginationModel>({ page: GetPageNumber(), pageSize: GetPageSizeOrDefault(props.defaultPageSize) });
-  const [sortModel, setSortModel] = useState<TSortModel | undefined>(props.defaultSortModel);
+  // const [paginationModel, setPaginationModel] = useState<IGridPaginationModel>({ page: GetPageNumber(), pageSize: GetPageSizeOrDefault(props.defaultPageSize) });
+  // const [sortModel, setSortModel] = useState<TSortModel | undefined>(props.defaultSortModel);
 
-  const [filter, setFilter] = useState<string>();
-  const [filterSelects, setFilterSelects] = useState<string[]>();
-  const [compute, setCompute] = useState<string>();
-  const [queryString, setQueryString] = useState<QueryStringCollection>();
+  // const [filter, setFilter] = useState<string>();
+  // const [filterSelects, setFilterSelects] = useState<string[]>();
+  // const [compute, setCompute] = useState<string>();
+  // const [queryString, setQueryString] = useState<QueryStringCollection>();
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(props.columns
     .filter(c => !props.columnVisibilityModel || props.columnVisibilityModel[c.field] !== false)
     .map(c => c.field)
     );
-  const [columnVisibilityOverride, setColumnVisibilityOverride] = useState<IGridColumnVisibilityModel>({});
+  const [columnVisibilityOverride, setColumnVisibilityOverride] = useState<GridColumnVisibilityModel>({});
 
-  const [loading, setLoading] = useState<boolean>(true);
-  const firstLoad = useRef<boolean>(true);
-  const fetchCount = useRef<boolean>(true);
-  const pendingFilter = useRef<boolean>(false);
+  // const [loading, setLoading] = useState<boolean>(true);
+  // const firstLoad = useRef<boolean>(true);
+  // const fetchCount = useRef<boolean>(true);
+  // const pendingFilter = useRef<boolean>(false);
 
   const r = useResponsive();
 
+  const gridApiRef = useGridApiRef();
   const filterApiRef = useFilterBuilderApiRef();
 
   const onClick = useCallback(() => {
@@ -67,8 +70,11 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
     filterApiRef.current.onFilterChange.on((x) => console.debug("filter changed", x));
   }, [filterApiRef]);
 
+  const { loading, rows, rowCount } = useODataSource(props, gridApiRef, filterApiRef);
+  useHistoryStates(props, gridApiRef, filterApiRef);
+
   // #region OData Requests
-  const fetchData = useCallback(async () => {
+  /*const fetchData = useCallback(async () => {
     if (
       !filter
       && props.disableFilterBuilder !== true
@@ -185,11 +191,11 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
       props.filterBuilderProps?.disableHistory,
       props.requestOptions
     ]
-  );
+  );*/
   // #endregion
 
   // #region Filter Builder events
-  const handleBuilderSubmit = useCallback((params: TranslatedQueryResult | null) => {
+  /*const handleBuilderSubmit = useCallback((params: TranslatedQueryResult | null) => {
     pendingFilter.current = true;
     fetchCount.current = true;
 
@@ -229,13 +235,13 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
 
   useEffect(() => {
     fetchData()
-  }, [fetchData]);
+  }, [fetchData]);*/
   // #endregion
 
   const { onColumnVisibilityModelChange, onPaginationModelChange, onSortModelChange } = props;
 
   // #region Sorting
-  const handleSortModelChange = useCallback((model: TSortModel, details: any) => {
+  /*const handleSortModelChange = useCallback((model: TSortModel, details: any) => {
     if (onSortModelChange) {
       onSortModelChange(model, details);
     }
@@ -245,11 +251,11 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
     if (props.disableHistory !== true) {
       window.history.pushState({ ...window.history.state, oDataGrid: { sortModel: model } }, "");
     }
-  }, [onSortModelChange, props.disableHistory]);
+  }, [onSortModelChange, props.disableHistory]);*/
   // #endregion
 
   // #region Pagination
-  useEffect(() => {
+  /*useEffect(() => {
     let changed = false;
 
     const params = new URLSearchParams(window.location.search);
@@ -350,13 +356,13 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
     }
 
     setPaginationModel(model);
-  }, [onPaginationModelChange]);
+  }, [onPaginationModelChange]);*/
   // #endregion
 
   // #region Column Visibility
   const visibility = useMemo(
     () => {
-      const v: IGridColumnVisibilityModel = {};
+      const v: GridColumnVisibilityModel = {};
       if (props.columnVisibilityModel) {
         for (const field in props.columnVisibilityModel) {
           if (field in columnVisibilityOverride) {
@@ -384,7 +390,7 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
     [props.columnVisibilityModel, r, props.columns, columnVisibilityOverride]
   );
 
-  const handleColumnVisibilityModelChange = useCallback((model: TColumnVisibilityModel, details: any) => {
+  const handleColumnVisibilityModelChange = useCallback((model: GridColumnVisibilityModel, details: any) => {
     if (onColumnVisibilityModelChange) {
       onColumnVisibilityModelChange(model, details);
     }
@@ -417,8 +423,8 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
           <FilterBuilder
             {...props.filterBuilderProps}
             schema={props.columns}
-            onSubmit={handleBuilderSubmit}
-            onRestoreState={handleBuilderRestore}
+            // onSubmit={handleBuilderSubmit}
+            // onRestoreState={handleBuilderRestore}
             ref={filterApiRef}
           />
         </Box>
@@ -430,6 +436,8 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
 
         {...props}
 
+        apiRef={gridApiRef}
+
         columns={gridColumns}
         disableColumnFilter
 
@@ -438,17 +446,17 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
 
         pagination
         paginationMode="server"
-        paginationModel={paginationModel}
-        onPaginationModelChange={handlePaginationModelChange}
+        // paginationModel={paginationModel}
+        // onPaginationModelChange={handlePaginationModelChange}
 
         loading={loading}
 
-        columnVisibilityModel={visibility}
-        onColumnVisibilityModelChange={handleColumnVisibilityModelChange}
+        // columnVisibilityModel={visibility}
+        // onColumnVisibilityModelChange={handleColumnVisibilityModelChange}
 
         sortingMode="server"
-        sortModel={sortModel}
-        onSortModelChange={handleSortModelChange}
+        // sortModel={sortModel}
+        // onSortModelChange={handleSortModelChange}
       />
     </>
   )

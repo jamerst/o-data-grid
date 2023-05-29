@@ -1,9 +1,10 @@
-import { GridColDef, GridActionsColDef } from "@mui/x-data-grid";
+import { GridColDef, GridActionsColDef, GridValidRowModel } from "@mui/x-data-grid";
 
 import ODataGrid from "./ODataGrid";
 import { ODataGridBaseColDef, ODataRowModel } from "../../base/types";
 import FilterBuilder from "../../base/FilterBuilder/components/FilterBuilder";
 import { allOperators, numericOperators } from "../../base/FilterBuilder/constants";
+import { GridBaseColDef, GridSingleSelectColDef } from "@mui/x-data-grid/internals";
 
 export {
   ODataGrid,
@@ -13,9 +14,11 @@ export {
 }
 
 export type { ODataGridProps } from "./ODataGridProps";
-export type ODataGridColDef<TRow = any, V = any, F = any, TDate = any>
-  = ODataGridBaseColDef<GridColDef<ODataRowModel<TRow>, V, F>, TDate>
-  | ODataGridBaseColDef<GridActionsColDef<ODataRowModel<TRow>, V, F>, TDate>;
+export type ODataGridColDef<TRow extends GridValidRowModel = any, V = any, F = any, TDate = any>
+  = ODataGridBaseColDef<GridBaseColDef<TRow, V, F>, TRow, V, F, TDate>
+  | ODataGridBaseColDef<GridActionsColDef<TRow, V, F>, TRow, V, F, TDate>
+  | ODataGridBaseColDef<GridSingleSelectColDef<TRow, V, F>, TRow, V, F, TDate>;
+  // | ODataGridBaseColDef<GridActionsColDef<ODataRowModel<TRow>, V, F>, TDate>;
     // supposedly GridActionsColDef has been removed according to the migration guide, but it hasn't and is still
     // needed?
 

@@ -5,6 +5,15 @@ export class Event<TArg, TReturn> {
 
   on(listener: EventListener<TArg, TReturn>) {
     this.listeners.push(listener);
+
+    return () => this.off(listener);
+  }
+
+  off(listener: EventListener<TArg, TReturn>) {
+    const index = this.listeners.findIndex(l => l === listener);
+    if (index > -1) {
+      this.listeners.splice(index, 1);
+    }
   }
 
   emit(args: TArg) {

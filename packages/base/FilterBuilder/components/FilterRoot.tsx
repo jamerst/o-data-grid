@@ -15,7 +15,7 @@ import { useFilterBuilderApiInitialization, UseODataFilter, UseODataFilterWithSt
 
 import { FilterBuilderApi, FilterBuilderProps } from "../models";
 import { ConditionClause, SerialisedGroup } from "../models/filters";
-import { QueryStringCollection } from "../models/filters/translation";
+import { QueryStringCollection, TranslatedQueryResult } from "../models/filters/translation";
 
 type FilterRootProps<TDate> = {
   props: FilterBuilderProps<TDate>
@@ -41,12 +41,14 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     const result = odataFilter();
 
     if (result.filter) {
-      apiRef.current.filter = result;
-      const fromApi = apiRef.current.onFilterChange.emit(result);
+      const translatedResult: TranslatedQueryResult = { ...result, filter: result.filter };
+
+      apiRef.current.filter = translatedResult;
+      const fromApi = apiRef.current.onFilterChange.emit(translatedResult);
 
       let fromSubmit = {};
       if (onSubmit) {
-        fromSubmit = onSubmit({ ...result, filter: result.filter });
+        fromSubmit = onSubmit(translatedResult);
       }
 
       const returned = fromApi.reduce((a: object, b: object) => ({ ...a, ...b }), fromSubmit);
@@ -135,7 +137,12 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     }
   }, [onRestoreState, restoreDefault, setClauses, setTree]);
 
-  const restoreFilter = useCallback((serialised: SerialisedGroup) => {
+  const restoreFilter = useCallback((serialised: SerialisedGroup | undefined) => {
+    if (!serialised) {
+      restoreDefault();
+      return;
+    }
+
     const [tree, clauses] = deserialise(serialised);
 
     setClauses(clauses);
@@ -144,9 +151,15 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     if (onRestoreState) {
       const result = odataFilterWithState(clauses, tree);
 
+      if (result.filter) {
+        apiRef.current.onFilterChange.emit(result as TranslatedQueryResult);
+      } else {
+        apiRef.current.onFilterChange.emit(undefined);
+      }
+
       onRestoreState({ ...result, filter: result.filter ?? "" });
     }
-  }, [setClauses, setTree, onRestoreState, odataFilterWithState]);
+  }, [restoreDefault, setClauses, setTree, onRestoreState, odataFilterWithState, apiRef]);
 
   useEffect(() => {
     if (disableHistory !== true) {

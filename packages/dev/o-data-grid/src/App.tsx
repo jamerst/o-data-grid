@@ -1,11 +1,12 @@
 import React from "react"
 import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { GridActionsCellItem, GridSortModel, useGridApiRef } from "@mui/x-data-grid"
+import { GridActionsCellItem, GridSortModel, useGridApiRef, GridActionsColDef } from "@mui/x-data-grid"
 import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, FilterBuilderProps, ODataGridColDef } from "../../../o-data-grid/src"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { Edit } from "@mui/icons-material";
+import { DataGridFilterBuilderProps } from "../../../base/types";
 
 const theme = createTheme({
   palette: {
@@ -16,10 +17,10 @@ const theme = createTheme({
 const getRowId = (row: any) => row.Id;
 
 const App = () => {
-  const apiRef = useGridApiRef();
-  if (typeof apiRef.current.getRowsCount === "function") {
-    console.debug("gridApiRef", apiRef.current.getRowsCount());
-  }
+  // const apiRef = useGridApiRef();
+  // if (typeof apiRef.current.getRowsCount === "function") {
+  //   console.debug("gridApiRef", apiRef.current.getRowsCount());
+  // }
 
   return (
     <ThemeProvider theme={theme}>
@@ -28,12 +29,12 @@ const App = () => {
         url="https://api.o-data-grid.jtattersall.net/order"
         columns={columns}
         columnVisibilityModel={columnVisibility}
-        defaultSortModel={defaultSort}
+        // defaultSortModel={defaultSort}
         filterBuilderProps={filterBuilderProps}
         alwaysSelect={alwaysFetch}
         getRowId={getRowId}
         pageSizeOptions={pageSizeOptions}
-        apiRef={apiRef}
+        // apiRef={apiRef}
       />
     </ThemeProvider>
   );
@@ -41,7 +42,7 @@ const App = () => {
 
 const pageSizeOptions = [10, 25, 50, 100];
 
-const filterBuilderProps: FilterBuilderProps<Dayjs> = { autocompleteGroups: ["Customer", "Order"], localizationProviderProps: { dateAdapter: AdapterDayjs } };
+const filterBuilderProps: DataGridFilterBuilderProps<Dayjs> = { autocompleteGroups: ["Customer", "Order"], localizationProviderProps: { dateAdapter: AdapterDayjs } };
 
 const alwaysFetch = ["Id"];
 const columns: ODataGridColDef[] = [

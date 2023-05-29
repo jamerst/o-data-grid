@@ -1,6 +1,7 @@
 
 import React from "react";
-import { GridColDef, DataGridProps } from "@mui/x-data-grid";
+import { GridColDef, GridValidRowModel, DataGridProps } from "@mui/x-data-grid";
+import { GridBaseColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 
 import { FilterBuilderProps } from "./FilterBuilder/models/FilterBuilderProps";
 import { FieldDef } from "./FilterBuilder/models/fields";
@@ -8,14 +9,15 @@ import { ResponsiveValues } from "./hooks"
 
 export type ODataGridBaseProps<
   ComponentProps extends DataGridProps,
-  TDate
+  TDate,
+  R extends GridValidRowModel = any,
 > =
   OmitGridProps<ComponentProps>
   &
   {
     url: string,
     alwaysSelect?: string[],
-    columns: ODataGridBaseColDef<TDate>[],
+    columns: ODataGridBaseColDef<GridColDef, R, any, any, TDate>[],
     columnVisibilityModel?: ODataColumnVisibilityModel,
     component: React.ElementType,
     disableFilterBuilder?: boolean,
@@ -48,11 +50,13 @@ type OmitGridProps<T> = Omit<T,
   | "sortModel"
   >
 
-export type ODataGridBaseColDef<TDate> = Omit<GridColDef, "filterOperators" | "sortComparator"> & FieldDef<TDate> & {
-  select?: string,
-  expand?: Expand | Expand[],
-  filterOnly?: boolean
-}
+export type ODataGridBaseColDef<C extends GridBaseColDef<R, V, F> = GridColDef, R extends GridValidRowModel = GridValidRowModel, V = any, F = any, TDate = any> = Omit<C, "filterOperators" | "sortComparator">
+  & FieldDef<TDate>
+  & {
+    select?: string,
+    expand?: Expand | Expand[],
+    filterOnly?: boolean
+  }
 
 // type for rows when displayed in datagrid
 // allows object to be flattened for convenience, but still allows strong typing through "result" property
