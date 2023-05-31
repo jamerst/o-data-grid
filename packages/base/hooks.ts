@@ -1,23 +1,26 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { useTheme, Breakpoint, Theme } from "@mui/material/styles"
 
 export type ResponsiveValues<P> = Partial<Record<Breakpoint, P>>
 
 export const useResponsive = () => {
   const theme = useTheme()
+  const keys = theme.breakpoints.keys;
 
   const matches = useBreakpoints();
 
-  return function <P>(responsiveValues: ResponsiveValues<P>) {
+  const getResponsiveValue = useCallback(<P,>(responsiveValues: ResponsiveValues<P>) => {
     let match: Breakpoint | undefined;
-    theme.breakpoints.keys.forEach((breakpoint) => {
+    keys.forEach((breakpoint) => {
       if (matches[breakpoint] && responsiveValues[breakpoint] != null) {
         match = breakpoint;
       }
     })
 
     return match && responsiveValues[match]
-  }
+  }, [matches, keys]);
+
+  return getResponsiveValue;
 }
 
 // eslint-disable-next-line react-hooks/exhaustive-deps

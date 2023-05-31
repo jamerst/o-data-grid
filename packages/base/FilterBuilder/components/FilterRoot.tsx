@@ -53,22 +53,22 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
 
       const returned = fromApi.reduce((a: object, b: object) => ({ ...a, ...b }), fromSubmit);
 
-      if (disableHistory !== true) {
-        window.history.pushState(
-          {
-            ...window.history.state,
-            ...returned,
-            filterBuilder: {
-              filter: result.filter,
-              compute: result.compute,
-              select: result.select,
-              serialised: result.serialised,
-              queryString: result.queryString
-            }
-          },
-          ""
-        );
-      }
+      // if (disableHistory !== true) {
+      //   window.history.pushState(
+      //     {
+      //       ...window.history.state,
+      //       ...returned,
+      //       filterBuilder: {
+      //         filter: result.filter,
+      //         compute: result.compute,
+      //         select: result.select,
+      //         serialised: result.serialised,
+      //         queryString: result.queryString
+      //       }
+      //     },
+      //     ""
+      //   );
+      // }
     }
   }, [onSubmit, odataFilter, disableHistory, apiRef]);
 
@@ -83,14 +83,14 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
       onSubmit(null);
     }
 
-    if (disableHistory !== true) {
-      window.history.pushState({
-        ...window.history.state,
-        filterBuilder: {
-          reset: true
-        }
-      }, "");
-    }
+    // if (disableHistory !== true) {
+    //   window.history.pushState({
+    //     ...window.history.state,
+    //     filterBuilder: {
+    //       reset: true
+    //     }
+    //   }, "");
+    // }
   }, [setClauses, setTree, onSubmit, props.schema, disableHistory, apiRef]);
 
   const handleReset = useCallback(() => reset(), [reset]);
@@ -178,11 +178,11 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     setProps(props);
 
     // restore query from history state if enabled
-    if (disableHistory !== true && window.history.state && window.history.state.filterBuilder) {
-      restoreState(window.history.state, false);
-    } else {
-      restoreDefault();
-    }
+    // if (disableHistory !== true && window.history.state && window.history.state.filterBuilder) {
+    //   restoreState(window.history.state, false);
+    // } else {
+    //   restoreDefault();
+    // }
   });
 
   return (

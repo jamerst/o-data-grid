@@ -74,7 +74,7 @@ const FilterInputs = <TDate,>({
   }, [field, collectionField, collectionOp, schema]);
 
   const fieldOptions = useMemo(() => schema
-    .filter(c => c.filterable !== false)
+    .filter(c => c.filterable !== false && c.type !== "actions")
     .map(c => ({ label: c.label ?? c.headerName ?? c.field, field: c.field, group: c.autocompleteGroup ?? "" }))
     .sort((a, b) => builderProps.autocompleteGroups ?
       builderProps.autocompleteGroups.indexOf(a.group) - builderProps.autocompleteGroups.indexOf(b.group)

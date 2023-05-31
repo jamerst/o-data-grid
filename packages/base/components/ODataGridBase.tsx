@@ -17,6 +17,7 @@ import { SerialisedGroup } from "../FilterBuilder/models/filters";
 import { QueryStringCollection, TranslatedQueryResult } from "../FilterBuilder/models/filters/translation";
 import { useODataSource } from "../hooks/useODataSource";
 import { useHistoryStates } from "../hooks/useHistoryStates";
+import { useResponsiveColumns } from "../hooks/useResponsiveColumns";
 
 const test: SerialisedGroup = {
   connective: "and",
@@ -360,7 +361,7 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
   // #endregion
 
   // #region Column Visibility
-  const visibility = useMemo(
+  /*const visibility = useMemo(
     () => {
       const v: GridColumnVisibilityModel = {};
       if (props.columnVisibilityModel) {
@@ -408,8 +409,10 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
         setVisibleColumns((v) => v.filter(c => c !== column));
       }
     }
-  }, [onColumnVisibilityModelChange, visibility]);
+  }, [onColumnVisibilityModelChange, visibility]);*/
   // #endregion
+
+  const [columnVisibilityModel, handleColumnVisibilityModelChange] = useResponsiveColumns(props);
 
   const gridColumns = useMemo(() => props.columns.filter(c => c.filterOnly !== true), [props.columns]);
 
@@ -451,8 +454,8 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
 
         loading={loading}
 
-        // columnVisibilityModel={visibility}
-        // onColumnVisibilityModelChange={handleColumnVisibilityModelChange}
+        columnVisibilityModel={columnVisibilityModel}
+        onColumnVisibilityModelChange={handleColumnVisibilityModelChange}
 
         sortingMode="server"
         // sortModel={sortModel}

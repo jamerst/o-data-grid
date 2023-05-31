@@ -1,15 +1,16 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef } from "react"
 import { DataGridProps, GridApiCommon, GridSortModel, gridPaginationModelSelector, gridSortModelSelector } from "@mui/x-data-grid"
 
 import { FilterBuilderApi } from "../FilterBuilder/models"
-import { ODataGridBaseProps, ODataResponse, ODataRowModel } from "../types";
-import { ExpandToQuery, Flatten } from "../utils";
+import { ODataGridBaseProps } from "../types";
 import { defaultPageSize } from "../constants";
 
 export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(props: ODataGridBaseProps<ComponentProps, TDate>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
 ) => {
+  const stateRestored = useRef(false);
+
   //#region Create history states
   const getHistoryState = useCallback(() => ({
     filterBuilder: filterBuilderApiRef.current.filter,
@@ -21,6 +22,12 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
   const _defaultPageSize = props.initialState?.pagination?.paginationModel?.pageSize ?? defaultPageSize;
 
   const pushState = useCallback(() => {
+    // prevent state being overwritten straight after restoring
+    if (stateRestored.current) {
+      stateRestored.current = false;
+      return;
+    }
+
     const params = new URLSearchParams(window.location.search);
     const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
 
@@ -41,8 +48,6 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
       params.set("page", (paginationModel.page + 1).toString());
     }
 
-
-
     const sizeStr = params.get("page-size");
     if (sizeStr) {
       const size = parseInt(sizeStr, 10);
@@ -61,8 +66,9 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
     const url = search
       ? `${window.location.pathname}?${search}${window.location.hash}`
       : `${window.location.pathname}${window.location.hash}`;
+    const state = getHistoryState();
 
-    window.history.pushState(getHistoryState(), "", url);
+    window.history.pushState(state, "", url);
   }, [gridApiRef, _defaultPageSize, getHistoryState]);
 
   const timeout = useRef<number | null>(null);
@@ -96,6 +102,8 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
 
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
+      stateRestored.current = true;
+
       const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
       const sortModel = gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
 

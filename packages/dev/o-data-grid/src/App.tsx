@@ -1,7 +1,7 @@
 import React from "react"
 import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { GridActionsCellItem, GridSortModel, useGridApiRef, GridActionsColDef } from "@mui/x-data-grid"
+import { GridActionsCellItem, GridSortModel, useGridApiRef, GridActionsColDef, GridInitialState } from "@mui/x-data-grid"
 import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, FilterBuilderProps, ODataGridColDef } from "../../../o-data-grid/src"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
@@ -34,12 +34,22 @@ const App = () => {
         alwaysSelect={alwaysFetch}
         getRowId={getRowId}
         pageSizeOptions={pageSizeOptions}
+        initialState={initialState}
         // apiRef={apiRef}
       />
     </ThemeProvider>
   );
 }
-
+const initialState: GridInitialState = {
+  pagination: {
+    paginationModel: {
+      pageSize: 10
+    }
+  },
+  sorting: {
+    sortModel: [{ field: "Date", sort: "desc" }]
+  }
+}
 const pageSizeOptions = [10, 25, 50, 100];
 
 const filterBuilderProps: DataGridFilterBuilderProps<Dayjs> = { autocompleteGroups: ["Customer", "Order"], localizationProviderProps: { dateAdapter: AdapterDayjs } };
@@ -102,7 +112,5 @@ const columns: ODataGridColDef[] = [
 const columnVisibility: ODataColumnVisibilityModel = {
   "Customer/EmailAddress": { xs: false, md: true }
 }
-
-const defaultSort: GridSortModel = [{ field: "Date", sort: "desc" }];
 
 export default App;

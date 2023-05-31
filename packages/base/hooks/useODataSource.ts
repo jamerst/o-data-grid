@@ -10,12 +10,14 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
 ) => {
   const fetchCount = useRef(true);
+  const fetchedColumns = useRef<string[]>([]);
+  const forceFetch = useRef(false);
 
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ODataRowModel<TRow>[]>([]);
   const [rowCount, setRowCount] = useState(0);
 
-  const { alwaysSelect, columns, $filter, url, requestOptions } = props;
+  const { alwaysSelect, columns, columnVisibilityModel, $filter, url, requestOptions } = props;
   const getRows = useCallback(async () => {
     // if (
     //   !filter
@@ -30,14 +32,31 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     //   return;
     // }
 
-    // setLoading(true);
+    const responsiveColumns = columnVisibilityModel
+    ? Object.keys(columnVisibilityModel).filter(k => typeof columnVisibilityModel[k] !== "boolean")
+    : [];
 
-    const visibleColumns = gridApiRef.current.getVisibleColumns().map(c => c.field);
+    // only select columns that are visible or are responsive
+    const columnsToFetch = gridApiRef.current.getVisibleColumns()
+      .filter(c => c.type !== "actions")
+      .map(c => c.field)
+      .concat(responsiveColumns);
+
+    // prevent fetch if only column visibility changed and same columns as last time - happens when columns change
+    // visibility due to responsiveness
+    if (!forceFetch.current && !columnsToFetch.some(c => !fetchedColumns.current.includes(c))) {
+      return;
+    }
+
+    forceFetch.current = false;
+    setLoading(true);
+
+    fetchedColumns.current = columnsToFetch;
 
     // select all fields for visible columns
     const fields = new Set(
       columns
-        .filter(c => visibleColumns.includes(c.field) && c.expand === undefined && c.filterOnly !== true && c.type !== "actions")
+        .filter(c => columnsToFetch.includes(c.field) && c.expand === undefined && c.filterOnly !== true && c.type !== "actions")
         .map(c => c.select ?? c.field)
     );
 
@@ -51,7 +70,7 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     }
 
     const expands = columns
-      .filter(c => visibleColumns.includes(c.field) && c.expand)
+      .filter(c => columnsToFetch.includes(c.field) && c.expand)
       .flatMap(c => Array.isArray(c.expand) ? c.expand! : [c.expand!]);
 
     const query = new URLSearchParams();
@@ -125,7 +144,7 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     } else {
       console.error(`API request failed: ${response.url}, HTTP ${response.status}`);
     }
-  }, [filterBuilderApiRef, gridApiRef, alwaysSelect, columns, $filter, requestOptions, url]);
+  }, [filterBuilderApiRef, gridApiRef, alwaysSelect, columns, columnVisibilityModel, $filter, requestOptions, url]);
 
   const timeout = useRef<number | null>(null);
   const getRowsDebounced = useCallback(() => {
@@ -146,24 +165,30 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
   const firstRender = useRef(true);
   useEffect(() => {
     const onFilterChange = () => {
-      console.debug("filter changed");
       const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
       if (paginationModel.page !== 0) {
         gridApiRef.current.setPaginationModel({ ...paginationModel, page: 0 });
       }
 
+      forceFetch.current = true;
       getRowsDebounced();
 
       return getHistoryData();
     };
 
-    const listener = (msg: string) => () => { console.debug(msg); getRowsDebounced() };
+    const listener = (force: boolean) => {
+      if (force) {
+        forceFetch.current = true;
+      }
+
+      getRowsDebounced();
+    }
 
     const cleanup = [
       filterBuilderApiRef.current.onFilterChange.on(onFilterChange),
-      gridApiRef.current.subscribeEvent("columnVisibilityModelChange", listener("columnVisibilityModelChange")),
-      gridApiRef.current.subscribeEvent("paginationModelChange", listener("paginationModelChange")),
-      gridApiRef.current.subscribeEvent("sortModelChange", listener("sortModelChange")),
+      gridApiRef.current.subscribeEvent("columnVisibilityModelChange", () => listener(false)),
+      gridApiRef.current.subscribeEvent("paginationModelChange", () => listener(true)),
+      gridApiRef.current.subscribeEvent("sortModelChange", () => listener(true)),
     ];
 
     if (firstRender.current) {
