@@ -155,13 +155,6 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     timeout.current = setTimeout(getRows, 50);
   }, [getRows]);
 
-  const getHistoryData = useCallback(() => ({
-    oDataGrid: {
-      sortModel: gridApiRef.current.getSortModel()
-    }
-  }), [gridApiRef]);
-
-
   const firstRender = useRef(true);
   useEffect(() => {
     const onFilterChange = () => {
@@ -172,8 +165,6 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
 
       forceFetch.current = true;
       getRowsDebounced();
-
-      return getHistoryData();
     };
 
     const listener = (force: boolean) => {
@@ -197,7 +188,7 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     }
 
     return () => cleanup.forEach(c => c());
-  }, [filterBuilderApiRef, gridApiRef, getRowsDebounced, getHistoryData]);
+  }, [filterBuilderApiRef, gridApiRef, getRowsDebounced]);
 
   return { loading, rows, rowCount };
 }

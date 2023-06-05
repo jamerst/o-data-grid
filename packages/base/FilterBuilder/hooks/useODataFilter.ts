@@ -9,24 +9,24 @@ import { FieldDef } from "../models/fields";
 import { ConditionClause, GroupClause, Operation, SerialisedCondition, SerialisedGroup, StateClause, StateTree, TreeGroup } from "../models/filters";
 import { TranslatedInnerQuery, TranslatedQuery, FilterTranslator } from "../models/filters/translation";
 
-export const UseODataFilter = <TDate,>() => {
+export const useODataFilter = <TDate,>() => {
   const schema = useRecoilValue(schemaState);
   const [clauses, tree] = useRecoilValue(waitForAll([clauseState, treeState]));
 
   return useCallback(() => {
-    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup>;
+    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup> | undefined;
   }, [schema, clauses, tree]);
 }
 
-export const UseODataFilterWithState = <TDate,>() => {
+export const useODataFilterWithState = <TDate,>() => {
   const schema = useRecoilValue(schemaState);
 
   return useCallback((clauses: StateClause, tree: StateTree) => {
-    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup>;
+    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup> | undefined;
   }, [schema])
 }
 
-const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (TranslatedQuery<SerialisedGroup> | false) => {
+const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (TranslatedQuery<SerialisedGroup> | false | undefined) => {
   const clause = clauses.get(id) as GroupClause;
   const treeNode = tree.getIn([...path, id]) as TreeGroup;
 
@@ -35,7 +35,7 @@ const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
     return false;
   }
 
-  const childClauses = treeNode.children
+  const translatedChildren = treeNode.children
     .toArray()
     .map((c) => {
       if (typeof c[1] === "string") {
@@ -43,8 +43,14 @@ const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
       } else {
         return translateGroup(schema, clauses, tree, c[0], [...path, id, "children"]);
       }
-    })
-    .filter(c => c !== false) as (TranslatedQuery<SerialisedGroup> | TranslatedQuery<SerialisedCondition>)[];
+    });
+
+  if (translatedChildren.length === 1 && translatedChildren[0] === undefined) {
+    return undefined;
+  }
+
+  const childClauses = translatedChildren
+    .filter(c => !!c) as (TranslatedQuery<SerialisedGroup> | TranslatedQuery<SerialisedCondition>)[];
 
   if (childClauses.length > 1) {
     return {
@@ -63,18 +69,20 @@ const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
       queryString: childClauses[0].queryString
     }
   } else {
-    console.error("Group has no children");
+    console.error(`Group has no children: ${id}`);
     return false;
   }
 }
 
-const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, id: string): (TranslatedQuery<SerialisedCondition> | false) => {
+const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, id: string): (TranslatedQuery<SerialisedCondition> | false | undefined) => {
   const clause = clauses.get(id) as ConditionClause;
 
   let condition: SerialisedCondition | undefined = undefined;
-  if (!clause || clause.default === true) {
+  if (!clause) {
     console.error(`Clause not found: ${id}`);
     return false;
+  } else if (clause.default) {
+    return undefined;
   } else {
     condition = {
       field: clause.field,

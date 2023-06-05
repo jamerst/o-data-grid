@@ -5,5 +5,5 @@ import { TranslatedQueryResult } from "./filters/translation";
 export interface FilterBuilderApi {
   filter?: TranslatedQueryResult,
   setFilter: (filter: SerialisedGroup | undefined) => void,
-  onFilterChange: Event<TranslatedQueryResult | undefined, object>
+  onFilterChange: Event<TranslatedQueryResult | undefined>
 }

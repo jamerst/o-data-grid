@@ -98,8 +98,6 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
   //#endregion
 
   //#region Restore state from history
-  const initialSortModel = props.initialState?.sorting?.sortModel;
-
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
       stateRestored.current = true;
@@ -133,13 +131,13 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
 
       if (e.state?.oDataGrid?.sortModel) {
         gridApiRef.current.setSortModel(e.state.oDataGrid.sortModel as GridSortModel)
-      } else if (sortModel && initialSortModel) {
-        gridApiRef.current.setSortModel(initialSortModel);
+      } else if (sortModel) {
+        gridApiRef.current.setSortModel([]);
       }
     }
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [gridApiRef, filterBuilderApiRef, _defaultPageSize, initialSortModel]);
+  }, [gridApiRef, filterBuilderApiRef, _defaultPageSize]);
   //#endregion
 }

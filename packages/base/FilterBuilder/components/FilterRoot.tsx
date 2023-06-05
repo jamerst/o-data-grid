@@ -11,7 +11,7 @@ import { initialClauses, initialTree, rootConditionUuid, rootGroupUuid } from ".
 import { deserialise } from "../utils";
 
 import { useMountEffect } from "../../hooks";
-import { useFilterBuilderApiInitialization, UseODataFilter, UseODataFilterWithState } from "../hooks";
+import { useFilterBuilderApiInitialization, useODataFilter, useODataFilterWithState } from "../hooks";
 
 import { FilterBuilderApi, FilterBuilderProps } from "../models";
 import { ConditionClause, SerialisedGroup } from "../models/filters";
@@ -27,8 +27,8 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
   const setSchema = useSetRecoilState(schemaState);
   const setTree = useSetRecoilState(treeState);
 
-  const odataFilter = UseODataFilter();
-  const odataFilterWithState = UseODataFilterWithState();
+  const odataFilter = useODataFilter();
+  const odataFilterWithState = useODataFilterWithState();
 
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
@@ -40,37 +40,24 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     e.preventDefault();
     const result = odataFilter();
 
-    if (result.filter) {
+    if (result?.filter) {
       const translatedResult: TranslatedQueryResult = { ...result, filter: result.filter };
 
       apiRef.current.filter = translatedResult;
-      const fromApi = apiRef.current.onFilterChange.emit(translatedResult);
+      apiRef.current.onFilterChange.emit(translatedResult);
 
-      let fromSubmit = {};
       if (onSubmit) {
-        fromSubmit = onSubmit(translatedResult);
+        onSubmit(translatedResult);
       }
+    } else {
+      apiRef.current.filter = undefined;
+      apiRef.current.onFilterChange.emit(undefined);
 
-      const returned = fromApi.reduce((a: object, b: object) => ({ ...a, ...b }), fromSubmit);
-
-      // if (disableHistory !== true) {
-      //   window.history.pushState(
-      //     {
-      //       ...window.history.state,
-      //       ...returned,
-      //       filterBuilder: {
-      //         filter: result.filter,
-      //         compute: result.compute,
-      //         select: result.select,
-      //         serialised: result.serialised,
-      //         queryString: result.queryString
-      //       }
-      //     },
-      //     ""
-      //   );
-      // }
+      if (onSubmit) {
+        onSubmit(undefined);
+      }
     }
-  }, [onSubmit, odataFilter, disableHistory, apiRef]);
+  }, [onSubmit, odataFilter, apiRef]);
 
   const reset = useCallback(() => {
     setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
@@ -80,18 +67,9 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     apiRef.current.onFilterChange.emit(undefined);
 
     if (onSubmit) {
-      onSubmit(null);
+      onSubmit(undefined);
     }
-
-    // if (disableHistory !== true) {
-    //   window.history.pushState({
-    //     ...window.history.state,
-    //     filterBuilder: {
-    //       reset: true
-    //     }
-    //   }, "");
-    // }
-  }, [setClauses, setTree, onSubmit, props.schema, disableHistory, apiRef]);
+  }, [setClauses, setTree, onSubmit, props.schema, apiRef]);
 
   const handleReset = useCallback(() => reset(), [reset]);
 
@@ -132,7 +110,7 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
       if (serialised) {
         onRestoreState({ compute, filter, queryString, select, serialised }, state);
       } else {
-        onRestoreState(null, state);
+        onRestoreState(undefined, state);
       }
     }
   }, [onRestoreState, restoreDefault, setClauses, setTree]);
@@ -148,16 +126,18 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     setClauses(clauses);
     setTree(tree);
 
-    if (onRestoreState) {
-      const result = odataFilterWithState(clauses, tree);
+    const result = odataFilterWithState(clauses, tree);
 
-      if (result.filter) {
-        apiRef.current.onFilterChange.emit(result as TranslatedQueryResult);
-      } else {
-        apiRef.current.onFilterChange.emit(undefined);
+    if (result?.filter) {
+      apiRef.current.onFilterChange.emit(result as TranslatedQueryResult);
+      if (onRestoreState) {
+        onRestoreState({ ...result, filter: result.filter ?? "" });
       }
-
-      onRestoreState({ ...result, filter: result.filter ?? "" });
+    } else {
+      apiRef.current.onFilterChange.emit(undefined);
+      if (onRestoreState) {
+        onRestoreState(undefined);
+      }
     }
   }, [restoreDefault, setClauses, setTree, onRestoreState, odataFilterWithState, apiRef]);
 

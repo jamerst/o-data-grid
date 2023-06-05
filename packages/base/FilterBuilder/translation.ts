@@ -24,10 +24,22 @@ export const defaultTranslators: FilterTranslatorCollection<any> = {
 
   "default": ({ schema, field, op, value }) => {
     if (schema.type === "date") {
+      if (!value) {
+        return false;
+      }
+
       return `date(${field}) ${op} ${value}`;
     } else if (schema.type === "datetime") {
+      if (!value) {
+        return false;
+      }
+
       return `${field} ${op} ${value}`;
     } else if (schema.type === "boolean") {
+      if (!value) {
+        return false;
+      }
+
       return `${field} ${op} ${value}`;
     } else if (!schema.type || schema.type === "string" || typeof value === "string") {
       if (schema.caseSensitive === true) {
@@ -36,6 +48,10 @@ export const defaultTranslators: FilterTranslatorCollection<any> = {
         return `tolower(${field}) ${op} tolower('${escapeODataString(value)}')`;
       }
     } else {
+      if (!value) {
+        return false;
+      }
+
       return `${field} ${op} ${value}`;
     }
   }

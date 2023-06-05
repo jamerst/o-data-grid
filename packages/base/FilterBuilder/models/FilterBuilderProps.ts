@@ -9,8 +9,8 @@ export type FilterBuilderProps<TDate> = {
   schema: FieldDef<TDate>[],
 
   searchMenuItems?: ({ label: string, onClick: () => void })[],
-  onSubmit?: (query: TranslatedQueryResult | null) => (void | any),
-  onRestoreState?: (query: TranslatedQueryResult | null, state?: any) => void,
+  onSubmit?: (query: TranslatedQueryResult | undefined) => void,
+  onRestoreState?: (query: TranslatedQueryResult | undefined, state?: any) => void,
   localeText?: FilterBuilderLocaleText,
 
   autocompleteGroups?: string[],
