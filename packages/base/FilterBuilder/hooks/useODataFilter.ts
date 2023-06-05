@@ -82,7 +82,7 @@ const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateCla
     console.error(`Clause not found: ${id}`);
     return false;
   } else if (clause.default) {
-    return undefined;
+    return undefined; // don't translate default clauses
   } else {
     condition = {
       field: clause.field,
