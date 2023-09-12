@@ -9,8 +9,7 @@ import { FieldDef } from "../models/fields";
 import { ConditionClause, GroupClause, Operation, SerialisedCondition, SerialisedGroup, StateClause, StateTree, TreeGroup } from "../models/filters";
 import { TranslatedInnerQuery, TranslatedQuery, FilterTranslator } from "../models/filters/translation";
 
-export const useODataFilter = <TDate,>() => {
-  const schema = useRecoilValue(schemaState);
+export const useODataFilter = <TDate,>(schema: FieldDef<unknown>[]) => {
   const [clauses, tree] = useRecoilValue(waitForAll([clauseState, treeState]));
 
   return useCallback(() => {
@@ -18,9 +17,7 @@ export const useODataFilter = <TDate,>() => {
   }, [schema, clauses, tree]);
 }
 
-export const useODataFilterWithState = <TDate,>() => {
-  const schema = useRecoilValue(schemaState);
-
+export const useODataFilterWithState = <TDate,>(schema: FieldDef<unknown>[]) => {
   return useCallback((clauses: StateClause, tree: StateTree) => {
     return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup> | undefined;
   }, [schema])

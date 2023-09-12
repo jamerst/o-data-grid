@@ -8,7 +8,7 @@ export const useFilterBuilderApiInitialization = (inputApiRef: React.Ref<FilterB
   const apiRef = useRef() as React.MutableRefObject<FilterBuilderApi>;
   if (!apiRef.current) {
     apiRef.current = {
-      onFilterChange: new Event<TranslatedQueryResult | undefined, object>(),
+      onFilterChange: new Event<TranslatedQueryResult | undefined>(),
       setFilter: () => undefined
     };
   }

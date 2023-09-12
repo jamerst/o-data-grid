@@ -1,8 +1,10 @@
 import { atom } from "recoil"
 
-import { initialTree, initialClauses } from "./constants";
+import { initialTree } from "./constants";
 import { FieldDef } from "./models/fields";
 import { FilterBuilderProps } from "./models";
+import Immutable from "immutable";
+import { ConditionClause, GroupClause } from "./models/filters";
 
 export const schemaState = atom<FieldDef<unknown>[]>({
   key: "schema",
@@ -11,7 +13,7 @@ export const schemaState = atom<FieldDef<unknown>[]>({
 
 export const clauseState = atom({
   key: "filterClauses",
-  default: initialClauses
+  default: Immutable.Map<string, GroupClause | ConditionClause>()
 });
 
 export const treeState = atom({

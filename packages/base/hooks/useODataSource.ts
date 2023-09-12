@@ -163,8 +163,13 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
         gridApiRef.current.setPaginationModel({ ...paginationModel, page: 0 });
       }
 
+      fetchCount.current = true;
       forceFetch.current = true;
-      getRowsDebounced();
+
+      if (!firstRender.current || !window.history.state?.filterBuilder) {
+        console.debug("onFilterChange fetch", filterBuilderApiRef.current.filter);
+        getRowsDebounced();
+      }
     };
 
     const listener = (force: boolean) => {
@@ -175,6 +180,7 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
       getRowsDebounced();
     }
 
+    // store cleanup methods returned by subscribe methods for calling later
     const cleanup = [
       filterBuilderApiRef.current.onFilterChange.on(onFilterChange),
       gridApiRef.current.subscribeEvent("columnVisibilityModelChange", () => listener(false)),
@@ -183,8 +189,11 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     ];
 
     if (firstRender.current) {
-      getRowsDebounced();
-      firstRender.current = false;
+      if (!window.history.state?.filterBuilder) {
+        console.debug("firstRender fetch", window.history.state);
+        getRowsDebounced();
+        firstRender.current = false;
+      }
     }
 
     return () => cleanup.forEach(c => c());

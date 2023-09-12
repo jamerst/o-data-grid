@@ -27,8 +27,8 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
   const setSchema = useSetRecoilState(schemaState);
   const setTree = useSetRecoilState(treeState);
 
-  const odataFilter = useODataFilter();
-  const odataFilterWithState = useODataFilterWithState();
+  const odataFilter = useODataFilter(props.schema);
+  const odataFilterWithState = useODataFilterWithState(props.schema);
 
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
@@ -156,6 +156,8 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
 
   useMountEffect(() => {
     setProps(props);
+    // set field for initial state from props
+    setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
 
     // restore query from history state if enabled
     // if (disableHistory !== true && window.history.state && window.history.state.filterBuilder) {

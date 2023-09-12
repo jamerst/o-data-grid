@@ -4,6 +4,7 @@ import { DataGridProps, GridApiCommon, GridSortModel, gridPaginationModelSelecto
 import { FilterBuilderApi } from "../FilterBuilder/models"
 import { ODataGridBaseProps } from "../types";
 import { defaultPageSize } from "../constants";
+import { useMountEffect } from "../hooks";
 
 export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(props: ODataGridBaseProps<ComponentProps, TDate>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
@@ -87,6 +88,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
 
     const listener = () => pushStateDebounced();
 
+    // store cleanup methods returned by subscribe methods for calling later
     const cleanup = [
       filterBuilderApiRef.current.onFilterChange.on(listener),
       gridApiRef.current.subscribeEvent("paginationModelChange", listener),
@@ -98,46 +100,52 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
   //#endregion
 
   //#region Restore state from history
-  useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
-      stateRestored.current = true;
+  const restoreFromBrowserState = useCallback((state: any) => {
+    stateRestored.current = true;
 
-      const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
-      const sortModel = gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
+    const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
+    const sortModel = gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
 
-      const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
 
-      const pageStr = params.get("page");
-      if (pageStr) {
-        const page = parseInt(pageStr, 10) - 1;
-        gridApiRef.current.setPage(page);
-      } else if (paginationModel.page !== 0) {
-        gridApiRef.current.setPage(0);
-      }
-
-      const sizeStr = params.get("page-size");
-      if (sizeStr) {
-        const size = parseInt(sizeStr, 10);
-        gridApiRef.current.setPageSize(size);
-      } else if (paginationModel.pageSize !== _defaultPageSize) {
-        gridApiRef.current.setPageSize(_defaultPageSize);
-      }
-
-      if (e.state?.filterBuilder) {
-        filterBuilderApiRef.current.setFilter(e.state.filterBuilder.serialised);
-      } else if (filterBuilderApiRef.current.filter) {
-        filterBuilderApiRef.current.setFilter(undefined);
-      }
-
-      if (e.state?.oDataGrid?.sortModel) {
-        gridApiRef.current.setSortModel(e.state.oDataGrid.sortModel as GridSortModel)
-      } else if (sortModel) {
-        gridApiRef.current.setSortModel([]);
-      }
+    const pageStr = params.get("page");
+    if (pageStr) {
+      const page = parseInt(pageStr, 10) - 1;
+      gridApiRef.current.setPage(page);
+    } else if (paginationModel.page !== 0) {
+      gridApiRef.current.setPage(0);
     }
+
+    const sizeStr = params.get("page-size");
+    if (sizeStr) {
+      const size = parseInt(sizeStr, 10);
+      gridApiRef.current.setPageSize(size);
+    } else if (paginationModel.pageSize !== _defaultPageSize) {
+      gridApiRef.current.setPageSize(_defaultPageSize);
+    }
+
+    if (state?.filterBuilder) {
+      console.debug("filterBuilder restored", state.filterBuilder.serialised);
+      filterBuilderApiRef.current.setFilter(state.filterBuilder.serialised);
+    } else if (filterBuilderApiRef.current.filter) {
+      filterBuilderApiRef.current.setFilter(undefined);
+    }
+
+    if (state?.oDataGrid?.sortModel) {
+      gridApiRef.current.setSortModel(state.oDataGrid.sortModel as GridSortModel)
+    } else if (sortModel) {
+      gridApiRef.current.setSortModel([]);
+    }
+    console.debug("restored state");
+  }, [_defaultPageSize, filterBuilderApiRef, gridApiRef]);
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => restoreFromBrowserState(e.state);
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [gridApiRef, filterBuilderApiRef, _defaultPageSize]);
+  }, [restoreFromBrowserState]);
+
+  useMountEffect(() => restoreFromBrowserState(window.history.state));
   //#endregion
 }
