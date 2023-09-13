@@ -73,7 +73,7 @@ const columns: ODataGridColDef[] = [
         ? `contains(tolower(Customer/FirstName), '${safeValue}') or contains(tolower(Customer/MiddleNames), '${safeValue}') or contains(tolower(Customer/Surname), '${safeValue}')`
         : `tolower(Customer/FirstName) ${op} '${safeValue}' or tolower(Customer/MiddleNames) ${op} '${safeValue}' or tolower(Customer/Surname) ${op} '${safeValue}'`
     },
-    valueGetter: (params) => [params.row.result.Customer.FirstName, params.row.result.Customer.MiddleNames, params.row.result.Customer.Surname]
+    valueGetter: (params) => [params.row.Customer.FirstName, params.row.Customer.MiddleNames, params.row.Customer.Surname]
       .filter(n => n)
       .join(" ")
   },

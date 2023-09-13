@@ -111,6 +111,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
     const pageStr = params.get("page");
     if (pageStr) {
       const page = parseInt(pageStr, 10) - 1;
+      console.debug("setting page", page);
       gridApiRef.current.setPage(page);
     } else if (paginationModel.page !== 0) {
       gridApiRef.current.setPage(0);
@@ -125,7 +126,6 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
     }
 
     if (state?.filterBuilder) {
-      console.debug("filterBuilder restored", state.filterBuilder.serialised);
       filterBuilderApiRef.current.setFilter(state.filterBuilder.serialised);
     } else if (filterBuilderApiRef.current.filter) {
       filterBuilderApiRef.current.setFilter(undefined);
@@ -136,7 +136,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
     } else if (sortModel) {
       gridApiRef.current.setSortModel([]);
     }
-    console.debug("restored state");
+
   }, [_defaultPageSize, filterBuilderApiRef, gridApiRef]);
 
   useEffect(() => {

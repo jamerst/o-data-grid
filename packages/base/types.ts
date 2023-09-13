@@ -60,10 +60,7 @@ export type ODataGridBaseColDef<C extends GridBaseColDef<R, V, F> = GridColDef, 
 
 // type for rows when displayed in datagrid
 // allows object to be flattened for convenience, but still allows strong typing through "result" property
-export type ODataRowModel<T> = {
-  result: T,
-  [key: string]: any
-}
+export type ODataRowModel<T> = Record<string, any> & T;
 
 export type ODataResponse<T> = {
   "@odata.count"?: number,

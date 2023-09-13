@@ -68,7 +68,7 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
   }, [filterApiRef]);
 
   useEffect(() => {
-    filterApiRef.current.onFilterChange.on((x) => console.debug("filter changed", x));
+    return filterApiRef.current.onFilterChange.on((x) => console.debug("filter changed", x));
   }, [filterApiRef]);
 
   const { loading, rows, rowCount } = useODataSource(props, gridApiRef, filterApiRef);

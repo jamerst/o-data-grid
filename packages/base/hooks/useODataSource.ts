@@ -4,6 +4,7 @@ import { DataGridProps, GridApiCommon, gridPaginationModelSelector, gridSortMode
 import { FilterBuilderApi } from "../FilterBuilder/models"
 import { ODataGridBaseProps, ODataResponse, ODataRowModel } from "../types";
 import { ExpandToQuery, Flatten } from "../utils";
+import { OnFilterChangeEventArgs } from "../FilterBuilder/events/OnFilterChangeEventArgs";
 
 export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate,>(props: ODataGridBaseProps<ComponentProps, TDate>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
@@ -19,19 +20,6 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
 
   const { alwaysSelect, columns, columnVisibilityModel, $filter, url, requestOptions } = props;
   const getRows = useCallback(async () => {
-    // if (
-    //   !filter
-    //   && props.disableFilterBuilder !== true
-    //   && props.filterBuilderProps?.disableHistory !== true
-    //   && window.history.state
-    //   && window.history.state.filterBuilder
-    //   && window.history.state.filterBuilder.reset !== true
-    // ) {
-    //   // stop fetch if there is no filter but there is one in history which will be/has been restored
-    //   // this prevents a race condition between the initial data load and the query being restored
-    //   return;
-    // }
-
     const responsiveColumns = columnVisibilityModel
     ? Object.keys(columnVisibilityModel).filter(k => typeof columnVisibilityModel[k] !== "boolean")
     : [];
@@ -127,19 +115,16 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
 
       // flatten object so that the DataGrid can access all the properties
       // i.e. { Person: { name: "John" } } becomes { "Person/name": "John" }
-      // keep the original object in the "result" property so that it can still be accessed via strong typing
-      const rows: ODataRowModel<TRow>[] = data.value.map((v) => ({ result: v, ...Flatten(v, "/") }));
+      // keep the original properties too so that they can still be accessed via strong typing
+      const rows: ODataRowModel<TRow>[] = data.value.map((v) => ({...Flatten(v, "/"), ...v }));
 
       if (data["@odata.count"]) {
         setRowCount(data["@odata.count"]);
       }
 
       setRows(rows);
-      // gridApiRef.current.setRows(rows);
 
       setLoading(false);
-      // firstLoad.current = false;
-      // pendingFilter.current = false;
       fetchCount.current = false;
     } else {
       console.error(`API request failed: ${response.url}, HTTP ${response.status}`);
@@ -157,22 +142,24 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
 
   const firstRender = useRef(true);
   useEffect(() => {
-    const onFilterChange = () => {
-      const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
-      if (paginationModel.page !== 0) {
-        gridApiRef.current.setPaginationModel({ ...paginationModel, page: 0 });
+    const onFilterChange = (args: OnFilterChangeEventArgs) => {
+      if (args.resetPage) {
+        const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
+        if (paginationModel.page !== 0) {
+          gridApiRef.current.setPage(0);
+        }
       }
 
       fetchCount.current = true;
       forceFetch.current = true;
 
-      if (!firstRender.current || !window.history.state?.filterBuilder) {
-        console.debug("onFilterChange fetch", filterBuilderApiRef.current.filter);
+      if (!firstRender.current) {
         getRowsDebounced();
       }
     };
 
-    const listener = (force: boolean) => {
+    const listener = (force: boolean,) => {
+      console.debug(gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId));
       if (force) {
         forceFetch.current = true;
       }
@@ -184,16 +171,13 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     const cleanup = [
       filterBuilderApiRef.current.onFilterChange.on(onFilterChange),
       gridApiRef.current.subscribeEvent("columnVisibilityModelChange", () => listener(false)),
-      gridApiRef.current.subscribeEvent("paginationModelChange", () => listener(true)),
+      gridApiRef.current.subscribeEvent("paginationModelChange", () => { console.debug("paginationModelChanged"); listener(true); }),
       gridApiRef.current.subscribeEvent("sortModelChange", () => listener(true)),
     ];
 
     if (firstRender.current) {
-      if (!window.history.state?.filterBuilder) {
-        console.debug("firstRender fetch", window.history.state);
-        getRowsDebounced();
-        firstRender.current = false;
-      }
+      getRowsDebounced();
+      firstRender.current = false;
     }
 
     return () => cleanup.forEach(c => c());

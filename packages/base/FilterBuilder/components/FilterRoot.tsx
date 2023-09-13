@@ -44,14 +44,14 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
       const translatedResult: TranslatedQueryResult = { ...result, filter: result.filter };
 
       apiRef.current.filter = translatedResult;
-      apiRef.current.onFilterChange.emit(translatedResult);
+      apiRef.current.onFilterChange.emit({ filter: translatedResult, resetPage: true });
 
       if (onSubmit) {
         onSubmit(translatedResult);
       }
     } else {
       apiRef.current.filter = undefined;
-      apiRef.current.onFilterChange.emit(undefined);
+      apiRef.current.onFilterChange.emit({ filter: undefined, resetPage: true});
 
       if (onSubmit) {
         onSubmit(undefined);
@@ -64,7 +64,7 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     setTree(initialTree);
 
     apiRef.current.filter = undefined;
-    apiRef.current.onFilterChange.emit(undefined);
+    apiRef.current.onFilterChange.emit({ filter: undefined, resetPage: true});
 
     if (onSubmit) {
       onSubmit(undefined);
@@ -129,12 +129,14 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     const result = odataFilterWithState(clauses, tree);
 
     if (result?.filter) {
-      apiRef.current.onFilterChange.emit(result as TranslatedQueryResult);
+      apiRef.current.filter = result as TranslatedQueryResult;
+      apiRef.current.onFilterChange.emit({ filter: result as TranslatedQueryResult, resetPage: false});
       if (onRestoreState) {
         onRestoreState({ ...result, filter: result.filter ?? "" });
       }
     } else {
-      apiRef.current.onFilterChange.emit(undefined);
+      apiRef.current.filter = undefined;
+      apiRef.current.onFilterChange.emit({ filter: undefined, resetPage: false });
       if (onRestoreState) {
         onRestoreState(undefined);
       }
