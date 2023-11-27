@@ -15,7 +15,7 @@ import { useFilterBuilderApiInitialization, useODataFilter, useODataFilterWithSt
 
 import { FilterBuilderApi, FilterBuilderProps } from "../models";
 import { ConditionClause, SerialisedGroup } from "../models/filters";
-import { QueryStringCollection, TranslatedQueryResult } from "../models/filters/translation";
+import { TranslatedQueryResult } from "../models/filters/translation";
 
 type FilterRootProps<TDate> = {
   props: FilterBuilderProps<TDate>
@@ -32,7 +32,7 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
 
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
-  const { onSubmit, onRestoreState, disableHistory } = props;
+  const { onSubmit, onRestoreState } = props;
 
   const apiRef = useFilterBuilderApiInitialization(ref);
 
@@ -82,39 +82,6 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     setTree(initialTree);
   }, [props.schema, setClauses, setTree]);
 
-  const restoreState = useCallback((state: any, isPopstate: boolean) => {
-    let filter = "", serialised, queryString, compute, select;
-
-    if (state?.filterBuilder) {
-      if (state.filterBuilder.reset === true && isPopstate === true) {
-        restoreDefault();
-      }
-
-      compute = state.filterBuilder.compute as string;
-      filter = state.filterBuilder.filter as string;
-      select = state.filterBuilder.select as string[];
-      serialised = state.filterBuilder.serialised as SerialisedGroup;
-      queryString = state.filterBuilder.queryString as QueryStringCollection;
-    } else {
-      restoreDefault();
-    }
-
-    if (filter && serialised) {
-      const [tree, clauses] = deserialise(serialised);
-
-      setClauses(clauses);
-      setTree(tree);
-    }
-
-    if (onRestoreState) {
-      if (serialised) {
-        onRestoreState({ compute, filter, queryString, select, serialised }, state);
-      } else {
-        onRestoreState(undefined, state);
-      }
-    }
-  }, [onRestoreState, restoreDefault, setClauses, setTree]);
-
   const restoreFilter = useCallback((serialised: SerialisedGroup | undefined) => {
     if (!serialised) {
       restoreDefault();
@@ -144,15 +111,6 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
   }, [restoreDefault, setClauses, setTree, onRestoreState, odataFilterWithState, apiRef]);
 
   useEffect(() => {
-    if (disableHistory !== true) {
-      const handlePopState = (e: PopStateEvent) => { restoreState(e.state, true); };
-
-      window.addEventListener("popstate", handlePopState);
-      return () => window.removeEventListener("popstate", handlePopState);
-    }
-  }, [disableHistory, restoreState]);
-
-  useEffect(() => {
     apiRef.current.setFilter = restoreFilter;
   }, [restoreFilter, apiRef]);
 
@@ -160,13 +118,6 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     setProps(props);
     // set field for initial state from props
     setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
-
-    // restore query from history state if enabled
-    // if (disableHistory !== true && window.history.state && window.history.state.filterBuilder) {
-    //   restoreState(window.history.state, false);
-    // } else {
-    //   restoreDefault();
-    // }
   });
 
   return (

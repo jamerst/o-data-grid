@@ -142,12 +142,16 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
 
   const firstRender = useRef(true);
   useEffect(() => {
+    const resetPage = () => {
+      const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
+      if (paginationModel.page !== 0) {
+        gridApiRef.current.setPage(0);
+      }
+    }
+
     const onFilterChange = (args: OnFilterChangeEventArgs) => {
       if (args.resetPage) {
-        const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
-        if (paginationModel.page !== 0) {
-          gridApiRef.current.setPage(0);
-        }
+        resetPage();
       }
 
       fetchCount.current = true;
@@ -158,8 +162,13 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
       }
     };
 
-    const listener = (force: boolean,) => {
-      console.debug(gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId));
+    const onSortModelChange = () => {
+      resetPage();
+      forceFetch.current = true;
+      getRowsDebounced();
+    }
+
+    const listener = (force: boolean) => {
       if (force) {
         forceFetch.current = true;
       }
@@ -170,9 +179,9 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     // store cleanup methods returned by subscribe methods for calling later
     const cleanup = [
       filterBuilderApiRef.current.onFilterChange.on(onFilterChange),
-      gridApiRef.current.subscribeEvent("columnVisibilityModelChange", () => listener(false)),
-      gridApiRef.current.subscribeEvent("paginationModelChange", () => { console.debug("paginationModelChanged"); listener(true); }),
-      gridApiRef.current.subscribeEvent("sortModelChange", () => listener(true)),
+      gridApiRef.current.subscribeEvent("columnVisibilityModelChange", () => listener(false)), // don't force a refetch - only fetch if columns that are now visible were not fetched previously
+      gridApiRef.current.subscribeEvent("paginationModelChange", () => listener(true)),
+      gridApiRef.current.subscribeEvent("sortModelChange", onSortModelChange),
     ];
 
     if (firstRender.current) {

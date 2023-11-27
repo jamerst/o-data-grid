@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useRecoilValue, waitForAll } from "recoil"
 
 import { rootGroupUuid } from "../constants";
-import { clauseState, schemaState, treeState } from "../state"
+import { clauseState, treeState } from "../state"
 import { defaultTranslators } from "../translation";
 
 import { FieldDef } from "../models/fields";

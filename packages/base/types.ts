@@ -59,7 +59,7 @@ export type ODataGridBaseColDef<C extends GridBaseColDef<R, V, F> = GridColDef, 
   }
 
 // type for rows when displayed in datagrid
-// allows object to be flattened for convenience, but still allows strong typing through "result" property
+// allows object to be flattened for convenience, but still allows strong typing
 export type ODataRowModel<T> = Record<string, any> & T;
 
 export type ODataResponse<T> = {
@@ -74,13 +74,6 @@ export type Expand = {
   orderBy?: string,
   top?: number,
   count?: boolean
-}
-
-export type ValueOption = string | number | SelectOption;
-
-export type SelectOption = {
-  value: any,
-  label: string
 }
 
 export type ODataColumnVisibilityModel = Record<string, boolean | ResponsiveValues<boolean>>;

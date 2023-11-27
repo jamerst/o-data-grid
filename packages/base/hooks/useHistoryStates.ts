@@ -108,10 +108,22 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
 
     const params = new URLSearchParams(window.location.search);
 
+    if (state?.filterBuilder) {
+      filterBuilderApiRef.current.setFilter(state.filterBuilder.serialised);
+    } else if (filterBuilderApiRef.current.filter) {
+      filterBuilderApiRef.current.setFilter(undefined);
+    }
+
+    if (state?.oDataGrid?.sortModel) {
+      gridApiRef.current.setSortModel(state.oDataGrid.sortModel as GridSortModel)
+    } else if (sortModel) {
+      gridApiRef.current.setSortModel([]);
+    }
+
+    // set page after sort model - changing sort model will reset page
     const pageStr = params.get("page");
     if (pageStr) {
       const page = parseInt(pageStr, 10) - 1;
-      console.debug("setting page", page);
       gridApiRef.current.setPage(page);
     } else if (paginationModel.page !== 0) {
       gridApiRef.current.setPage(0);
@@ -125,26 +137,16 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
       gridApiRef.current.setPageSize(_defaultPageSize);
     }
 
-    if (state?.filterBuilder) {
-      filterBuilderApiRef.current.setFilter(state.filterBuilder.serialised);
-    } else if (filterBuilderApiRef.current.filter) {
-      filterBuilderApiRef.current.setFilter(undefined);
-    }
-
-    if (state?.oDataGrid?.sortModel) {
-      gridApiRef.current.setSortModel(state.oDataGrid.sortModel as GridSortModel)
-    } else if (sortModel) {
-      gridApiRef.current.setSortModel([]);
-    }
-
   }, [_defaultPageSize, filterBuilderApiRef, gridApiRef]);
 
   useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => restoreFromBrowserState(e.state);
+    if (props.disableHistory !== true) {
+      const handlePopState = (e: PopStateEvent) => restoreFromBrowserState(e.state);
 
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, [restoreFromBrowserState]);
+      window.addEventListener("popstate", handlePopState);
+      return () => window.removeEventListener("popstate", handlePopState);
+    }
+  }, [restoreFromBrowserState, props.disableHistory]);
 
   useMountEffect(() => restoreFromBrowserState(window.history.state));
   //#endregion
