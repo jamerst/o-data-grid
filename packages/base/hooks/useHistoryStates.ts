@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef } from "react"
-import { DataGridProps, GridApiCommon, GridSortModel, gridPaginationModelSelector, gridSortModelSelector } from "@mui/x-data-grid"
+import { DataGridProps, GridApiCommon, GridSortModel, gridPaginationModelSelector, gridSortModelSelector, GridInitialState } from "@mui/x-data-grid"
 
 import { FilterBuilderApi } from "../FilterBuilder/models"
 import { ODataGridBaseProps } from "../types";
 import { defaultPageSize } from "../constants";
 import { useMountEffect } from "../hooks";
 
-export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(props: ODataGridBaseProps<ComponentProps, TDate>,
+export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TInitialState extends GridInitialState>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
 ) => {
@@ -100,7 +100,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
   //#endregion
 
   //#region Restore state from history
-  const restoreFromBrowserState = useCallback((state: any) => {
+  const restoreFromBrowserState = useCallback((state: any, firstLoad: boolean) => {
     stateRestored.current = true;
 
     const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
@@ -110,7 +110,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
 
     if (state?.filterBuilder) {
       filterBuilderApiRef.current.setFilter(state.filterBuilder.serialised);
-    } else if (filterBuilderApiRef.current.filter) {
+    } else if (filterBuilderApiRef.current.filter && !firstLoad) {
       filterBuilderApiRef.current.setFilter(undefined);
     }
 
@@ -141,13 +141,13 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate,>(p
 
   useEffect(() => {
     if (props.disableHistory !== true) {
-      const handlePopState = (e: PopStateEvent) => restoreFromBrowserState(e.state);
+      const handlePopState = (e: PopStateEvent) => restoreFromBrowserState(e.state, false);
 
       window.addEventListener("popstate", handlePopState);
       return () => window.removeEventListener("popstate", handlePopState);
     }
   }, [restoreFromBrowserState, props.disableHistory]);
 
-  useMountEffect(() => restoreFromBrowserState(window.history.state));
+  useMountEffect(() => restoreFromBrowserState(window.history.state, true));
   //#endregion
 }

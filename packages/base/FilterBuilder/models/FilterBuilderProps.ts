@@ -4,9 +4,12 @@ import { DatePickerProps, DateTimePickerProps, LocalizationProviderProps } from 
 import { FilterBuilderLocaleText } from "."
 import { FieldDef } from "./fields";
 import { TranslatedQueryResult } from "./filters/translation";
+import { SerialisedGroup } from "./filters";
 
 export type FilterBuilderProps<TDate> = {
   schema: FieldDef<TDate>[],
+
+  initialState?: FilterBuilderInitialState,
 
   searchMenuItems?: ({ label: string, onClick: () => void })[],
   onSubmit?: (query: TranslatedQueryResult | undefined) => void,
@@ -23,4 +26,12 @@ export type FilterBuilderProps<TDate> = {
   textFieldProps?: TextFieldProps,
 
   disableHistory?: boolean
+}
+
+type FilterInitialState = {
+  filterModel?: SerialisedGroup
+}
+
+export type FilterBuilderInitialState = {
+  filterBuilder?: FilterInitialState
 }

@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { DataGridProps, GridApiCommon, gridPaginationModelSelector, gridSortModelSelector } from "@mui/x-data-grid"
+import { DataGridProps, GridApiCommon, gridPaginationModelSelector, gridSortModelSelector, GridInitialState } from "@mui/x-data-grid"
 
 import { FilterBuilderApi } from "../FilterBuilder/models"
 import { ODataGridBaseProps, ODataResponse, ODataRowModel } from "../types";
 import { ExpandToQuery, Flatten } from "../utils";
 import { OnFilterChangeEventArgs } from "../FilterBuilder/events/OnFilterChangeEventArgs";
 
-export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate,>(props: ODataGridBaseProps<ComponentProps, TDate>,
+export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate, TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
 ) => {

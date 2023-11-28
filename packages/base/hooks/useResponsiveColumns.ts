@@ -1,34 +1,32 @@
 import { useCallback, useState, useMemo } from "react"
-import { DataGridProps, GridColumnVisibilityModel } from "@mui/x-data-grid"
+import { DataGridProps, GridColumnVisibilityModel, GridInitialState } from "@mui/x-data-grid"
 
 import { ODataGridBaseProps } from "../types";
 import { ResponsiveValues, useResponsive } from "../hooks";
 
-export const useResponsiveColumns = <ComponentProps extends DataGridProps, TDate,>(props: ODataGridBaseProps<ComponentProps, TDate>) => {
+export const useResponsiveColumns = <ComponentProps extends DataGridProps, TDate, TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>) => {
   const [columnVisibilityOverride, setColumnVisibilityOverride] = useState<GridColumnVisibilityModel>({});
 
-  const { columns, columnVisibilityModel, onColumnVisibilityModelChange } = props;
+  const { columns, columnVisibilityModel, initialState, onColumnVisibilityModelChange } = props;
+
+  const propModel = useMemo(() => columnVisibilityModel ?? initialState?.columns?.columnVisibilityModel,
+    [columnVisibilityModel, initialState]
+  );
 
   const r = useResponsive();
   const visibility = useMemo(
     () => {
-      const v: GridColumnVisibilityModel = {};
-      if (columnVisibilityModel) {
-        for (const field in columnVisibilityModel) {
+      const v: GridColumnVisibilityModel = { ...columnVisibilityOverride };
+      if (propModel) {
+        for (const field in propModel) {
           if (field in columnVisibilityOverride) {
-            v[field] = columnVisibilityOverride[field]; // use override if set
-          } else if (typeof columnVisibilityModel[field] === "boolean") {
-            v[field] = columnVisibilityModel[field] as boolean;
+            continue;
+          } else if (typeof propModel[field] === "boolean") {
+            v[field] = propModel[field] as boolean;
           } else {
-            v[field] = r(columnVisibilityModel[field] as ResponsiveValues<boolean>)!;
+            v[field] = r(propModel[field] as ResponsiveValues<boolean>)!;
           }
         }
-      } else {
-        columns.filter(c => c.filterOnly !== true).forEach(c => {
-          if (c.field in columnVisibilityOverride) {
-            v[c.field] = columnVisibilityOverride[c.field];
-          }
-        });
       }
 
       columns.filter(c => c.filterOnly === true).forEach(c => {
@@ -37,7 +35,7 @@ export const useResponsiveColumns = <ComponentProps extends DataGridProps, TDate
 
       return v;
     },
-    [columnVisibilityModel, r, columns, columnVisibilityOverride]
+    [propModel, r, columns, columnVisibilityOverride]
   );
 
   const handleColumnVisibilityModelChange = useCallback((model: GridColumnVisibilityModel, details: any) => {

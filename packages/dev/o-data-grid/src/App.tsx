@@ -2,7 +2,7 @@ import React from "react"
 import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { GridActionsCellItem, GridSortModel, useGridApiRef, GridActionsColDef, GridInitialState } from "@mui/x-data-grid"
-import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, FilterBuilderProps, ODataGridColDef } from "../../../o-data-grid/src"
+import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, FilterBuilderProps, ODataGridColDef, ODataInitialState } from "../../../o-data-grid/src"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { Edit } from "@mui/icons-material";
@@ -16,6 +16,10 @@ const theme = createTheme({
 
 const getRowId = (row: any) => row.Id;
 
+const columnVisibility: ODataColumnVisibilityModel = {
+  "Customer/EmailAddress": { xs: false, md: true }
+}
+
 const App = () => {
   // const apiRef = useGridApiRef();
   // if (typeof apiRef.current.getRowsCount === "function") {
@@ -28,7 +32,7 @@ const App = () => {
       <ODataGrid
         url="https://api.o-data-grid.jtattersall.net/order"
         columns={columns}
-        columnVisibilityModel={columnVisibility}
+        // columnVisibilityModel={columnVisibility}
         // defaultSortModel={defaultSort}
         filterBuilderProps={filterBuilderProps}
         alwaysSelect={alwaysFetch}
@@ -40,7 +44,7 @@ const App = () => {
     </ThemeProvider>
   );
 }
-const initialState: GridInitialState = {
+const initialState: ODataInitialState = {
   pagination: {
     paginationModel: {
       pageSize: 10
@@ -48,8 +52,24 @@ const initialState: GridInitialState = {
   },
   sorting: {
     sortModel: [{ field: "Date", sort: "desc" }]
+  },
+  columns: {
+    columnVisibilityModel: columnVisibility
+  },
+  filterBuilder: {
+    filterModel: {
+      connective: "and",
+      children: [
+        {
+          field: "Customer/Name",
+          op: "contains",
+          value: "g"
+        }
+      ]
+    }
   }
 }
+
 const pageSizeOptions = [10, 25, 50, 100];
 
 const filterBuilderProps: DataGridFilterBuilderProps<Dayjs> = { autocompleteGroups: ["Customer", "Order"], localizationProviderProps: { dateAdapter: AdapterDayjs } };
@@ -108,9 +128,5 @@ const columns: ODataGridColDef[] = [
     ],
   }
 ];
-
-const columnVisibility: ODataColumnVisibilityModel = {
-  "Customer/EmailAddress": { xs: false, md: true }
-}
 
 export default App;

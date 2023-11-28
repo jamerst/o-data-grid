@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Box, Button } from "@mui/material";
-import { DataGridProps, GridColumnVisibilityModel, useGridApiRef } from "@mui/x-data-grid";
+import { DataGridProps, GridColumnVisibilityModel, useGridApiRef, GridInitialState } from "@mui/x-data-grid";
 
 import { ResponsiveValues, useResponsive } from "../hooks";
 
@@ -32,7 +32,8 @@ const test: SerialisedGroup = {
 
 const ODataGridBase = <ComponentProps extends DataGridProps,
   TRow,
-  TDate,>(props: ODataGridBaseProps<ComponentProps, TDate>) => {
+  TDate,
+  TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>) => {
 
   // const [rows, setRows] = useState<ODataRowModel<TRow>[]>([])
   // const [rowCount, setRowCount] = useState<number>(0);
@@ -426,6 +427,7 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
           <FilterBuilder
             {...props.filterBuilderProps}
             schema={props.columns}
+            initialState={props.initialState}
             // onSubmit={handleBuilderSubmit}
             // onRestoreState={handleBuilderRestore}
             ref={filterApiRef}

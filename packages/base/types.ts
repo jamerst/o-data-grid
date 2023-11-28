@@ -1,15 +1,17 @@
 
 import React from "react";
-import { GridColDef, GridValidRowModel, DataGridProps } from "@mui/x-data-grid";
+import { GridColDef, GridValidRowModel, DataGridProps, GridInitialState, GridColumnsInitialState } from "@mui/x-data-grid";
 import { GridBaseColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 
-import { FilterBuilderProps } from "./FilterBuilder/models/FilterBuilderProps";
+import { FilterBuilderInitialState, FilterBuilderProps } from "./FilterBuilder/models/FilterBuilderProps";
 import { FieldDef } from "./FilterBuilder/models/fields";
 import { ResponsiveValues } from "./hooks"
+import { SerialisedGroup } from "../o-data-grid/src";
 
 export type ODataGridBaseProps<
   ComponentProps extends DataGridProps,
   TDate,
+  TInitialState extends GridInitialState,
   R extends GridValidRowModel = any,
 > =
   OmitGridProps<ComponentProps>
@@ -24,10 +26,11 @@ export type ODataGridBaseProps<
     disableHistory?: boolean,
     $filter?: string,
     filterBuilderProps?: DataGridFilterBuilderProps<TDate>,
+    initialState?: ODataInitialState<TInitialState>,
     requestOptions?: RequestInit
   };
 
-export type DataGridFilterBuilderProps<TDate> = Omit<FilterBuilderProps<TDate>, "schema">
+export type DataGridFilterBuilderProps<TDate> = Omit<FilterBuilderProps<TDate>, "schema" | "initialState">
 
 // remove properties which should not be used - these are handled internally or overridden
 type OmitGridProps<T> = Omit<T,
@@ -38,6 +41,7 @@ type OmitGridProps<T> = Omit<T,
   | "disableColumnFilter"
   | "filterMode"
   | "filterModel"
+  | "initialState"
   | "loading"
   | "onFilterModelChange"
   | "onPageChange"
@@ -49,6 +53,14 @@ type OmitGridProps<T> = Omit<T,
   | "sortingMode"
   | "sortModel"
   >
+
+type ODataColumnsInitialState = Omit<GridColumnsInitialState, "columnVisibilityModel"> & {
+  columnVisibilityModel?: ODataColumnVisibilityModel
+}
+
+export type ODataInitialState<T extends GridInitialState> = Omit<T, "columns" | "filter"> & FilterBuilderInitialState & {
+  columns?: ODataColumnsInitialState
+}
 
 export type ODataGridBaseColDef<C extends GridBaseColDef<R, V, F> = GridColDef, R extends GridValidRowModel = GridValidRowModel, V = any, F = any, TDate = any> = Omit<C, "filterOperators" | "sortComparator">
   & FieldDef<TDate>

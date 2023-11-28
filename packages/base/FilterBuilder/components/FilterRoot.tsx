@@ -82,7 +82,7 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
     setTree(initialTree);
   }, [props.schema, setClauses, setTree]);
 
-  const restoreFilter = useCallback((serialised: SerialisedGroup | undefined) => {
+  const restoreFilter = useCallback((serialised: SerialisedGroup | undefined, emit: boolean) => {
     if (!serialised) {
       restoreDefault();
       return;
@@ -97,27 +97,35 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
 
     if (result?.filter) {
       apiRef.current.filter = result as TranslatedQueryResult;
-      apiRef.current.onFilterChange.emit({ filter: result as TranslatedQueryResult, resetPage: false});
-      if (onRestoreState) {
-        onRestoreState({ ...result, filter: result.filter ?? "" });
+      if (emit) {
+        apiRef.current.onFilterChange.emit({ filter: result as TranslatedQueryResult, resetPage: false});
+        if (onRestoreState) {
+          onRestoreState({ ...result, filter: result.filter ?? "" });
+        }
       }
     } else {
       apiRef.current.filter = undefined;
-      apiRef.current.onFilterChange.emit({ filter: undefined, resetPage: false });
-      if (onRestoreState) {
-        onRestoreState(undefined);
+      if (emit) {
+        apiRef.current.onFilterChange.emit({ filter: undefined, resetPage: false });
+        if (onRestoreState) {
+          onRestoreState(undefined);
+        }
       }
     }
   }, [restoreDefault, setClauses, setTree, onRestoreState, odataFilterWithState, apiRef]);
 
   useEffect(() => {
-    apiRef.current.setFilter = restoreFilter;
+    apiRef.current.setFilter = (filter) => restoreFilter(filter, true);
   }, [restoreFilter, apiRef]);
 
   useMountEffect(() => {
     setProps(props);
-    // set field for initial state from props
-    setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
+    if (props.initialState?.filterBuilder?.filterModel) {
+      restoreFilter(props.initialState.filterBuilder.filterModel, false);
+    } else {
+      // set field for initial state from props
+      setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
+    }
   });
 
   return (

@@ -13,7 +13,7 @@ export {
   numericOperators
 }
 
-export type { ODataGridProps } from "./ODataGridProps";
+export type { ODataGridProps, ODataInitialState } from "./ODataGridProps";
 export type ODataGridColDef<TRow extends GridValidRowModel = any, V = any, F = any, TDate = any>
   = ODataGridBaseColDef<GridBaseColDef<TRow, V, F>, TRow, V, F, TDate>
   | ODataGridBaseColDef<GridActionsColDef<TRow, V, F>, TRow, V, F, TDate>
