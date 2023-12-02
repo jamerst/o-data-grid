@@ -15,7 +15,7 @@ import { useFilterBuilderApiInitialization, useODataFilter, useODataFilterWithSt
 
 import { FilterBuilderApi, FilterBuilderProps } from "../models";
 import { ConditionClause, SerialisedGroup } from "../models/filters";
-import { TranslatedQueryResult } from "../models/filters/translation";
+import { TranslatedQueryResult, isDifferent } from "../models/filters/translation";
 
 type FilterRootProps<TDate> = {
   props: FilterBuilderProps<TDate>
@@ -95,20 +95,23 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
 
     const result = odataFilterWithState(clauses, tree);
 
-    if (result?.filter) {
-      apiRef.current.filter = result as TranslatedQueryResult;
-      if (emit) {
-        apiRef.current.onFilterChange.emit({ filter: result as TranslatedQueryResult, resetPage: false});
-        if (onRestoreState) {
-          onRestoreState({ ...result, filter: result.filter ?? "" });
+    // only emit event if filter has actually changed
+    if (isDifferent(apiRef.current.filter, result)) {
+      if (result?.filter) {
+        apiRef.current.filter = result as TranslatedQueryResult;
+        if (emit) {
+          apiRef.current.onFilterChange.emit({ filter: result as TranslatedQueryResult, resetPage: false});
+          if (onRestoreState) {
+            onRestoreState({ ...result, filter: result.filter ?? "" });
+          }
         }
-      }
-    } else {
-      apiRef.current.filter = undefined;
-      if (emit) {
-        apiRef.current.onFilterChange.emit({ filter: undefined, resetPage: false });
-        if (onRestoreState) {
-          onRestoreState(undefined);
+      } else {
+        apiRef.current.filter = undefined;
+        if (emit) {
+          apiRef.current.onFilterChange.emit({ filter: undefined, resetPage: false });
+          if (onRestoreState) {
+            onRestoreState(undefined);
+          }
         }
       }
     }
