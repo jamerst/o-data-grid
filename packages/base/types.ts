@@ -67,6 +67,7 @@ export type ODataGridBaseColDef<C extends GridBaseColDef<R, V, F> = GridColDef, 
   & {
     select?: string,
     expand?: Expand | Expand[],
+    compute?: string,
     filterOnly?: boolean
   }
 

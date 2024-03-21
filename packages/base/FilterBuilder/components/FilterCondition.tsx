@@ -35,8 +35,15 @@ const FilterCondition = ({ clauseId, path }: FilterConditionProps) => {
 
       if (oldFieldDef && newFieldDef) {
         // reset value if fields have different types
-        if (oldFieldDef.type !== newFieldDef.type) {
-          condition.value = "";
+        const oldType = oldFieldDef.filterType ?? oldFieldDef.type;
+        const newType = newFieldDef.filterType ?? newFieldDef.type;
+
+        if (oldType !== newType) {
+          if (newType === "boolean") {
+            condition.value = "true";
+          } else {
+            condition.value = "";
+          }
         }
 
         // reset operator if new field doesn't support current operator
@@ -95,12 +102,19 @@ const FilterCondition = ({ clauseId, path }: FilterConditionProps) => {
       condition.default = false;
 
       if (fieldDef && fieldDef.collectionFields && oldColField && newColField) {
-        const oldColFieldDef = fieldDef.collectionFields.find(c => c.field === oldColField);
-        const newColFieldDef = fieldDef.collectionFields.find(c => c.field === newColField);
+        const oldColFieldDef = fieldDef.collectionFields.find(c => c.field === oldColField)!;
+        const newColFieldDef = fieldDef.collectionFields.find(c => c.field === newColField)!;
+
+        const oldType = oldColFieldDef.filterType ?? oldColFieldDef.type;
+        const newType = newColFieldDef.filterType ?? newColFieldDef.type;
 
         // reset value if fields have different types
-        if (oldColFieldDef!.type !== newColFieldDef!.type) {
-          condition.value = "";
+        if (oldType !== newType) {
+          if (newType === "boolean") {
+            condition.value = "true";
+          } else {
+            condition.value = "";
+          }
         }
 
         // reset operator if new field doesn't support current operator

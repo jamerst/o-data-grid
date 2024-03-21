@@ -120,6 +120,22 @@ const columns: ODataGridColDef[] = [
     autocompleteGroup: "Order",
   },
   {
+    field: "TotalNoVat",
+    headerName: "Total (ex VAT)",
+    type: "number",
+    compute: "Total div 1.2 as TotalNoVat",
+    autocompleteGroup: "Order"
+  },
+  {
+    field: "HasMiddleName",
+    headerName: "Has Middle Name",
+    compute: "Customer/MiddleNames ne null and Customer/MiddleNames ne '' as HasMiddleName",
+    filterType: "boolean",
+    filterOperators: ["eq"],
+    valueGetter: (params) => params.row.HasMiddleName ? "Yes" : "No",
+    autocompleteGroup: "Customer"
+  },
+  {
     field: "actions",
     type: "actions",
     flex: .7,

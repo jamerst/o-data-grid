@@ -3,7 +3,8 @@ import { escapeODataString } from "./utils";
 
 export const defaultTranslators: FilterTranslatorCollection<any> = {
   "contains": ({ schema, field, value }) => {
-    if ((schema.type && schema.type !== "string") || typeof value !== "string") {
+    const type = schema.filterType ?? schema.type;
+    if ((type && type !== "string") || typeof value !== "string") {
       console.warn(`Warning: operation "contains" is only supported for fields of type "string"`);
       return false;
     }
@@ -23,25 +24,28 @@ export const defaultTranslators: FilterTranslatorCollection<any> = {
   },
 
   "default": ({ schema, field, op, value }) => {
-    if (schema.type === "date") {
+    const type = schema.filterType ?? schema.type;
+
+    if (type === "date") {
       if (!value) {
         return false;
       }
 
       return `date(${field}) ${op} ${value}`;
-    } else if (schema.type === "datetime") {
+    } else if (type === "datetime") {
       if (!value) {
         return false;
       }
 
       return `${field} ${op} ${value}`;
-    } else if (schema.type === "boolean") {
+    } else if (type === "boolean") {
       if (!value) {
+        console.warn(`No value for field ${field}`);
         return false;
       }
 
       return `${field} ${op} ${value}`;
-    } else if (!schema.type || schema.type === "string" || typeof value === "string") {
+    } else if (!type || type === "string" || typeof value === "string") {
       if (schema.caseSensitive === true) {
         return `${field} ${op} '${escapeODataString(value)}'`;
       } else {
@@ -49,6 +53,7 @@ export const defaultTranslators: FilterTranslatorCollection<any> = {
       }
     } else {
       if (!value) {
+        console.warn(`No value for field ${field}`);
         return false;
       }
 

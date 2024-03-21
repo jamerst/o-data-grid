@@ -92,9 +92,15 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
       query.append("$filter", $filter);
     }
 
-    const compute = filterBuilderApiRef.current.filter?.compute;
-    if (compute) {
-      query.append("$compute", compute);
+    const computes = columns.filter(c => columnsToFetch.includes(c.field) && c.compute).map(c => c.compute);
+
+    const filterCompute = filterBuilderApiRef.current.filter?.compute;
+    if (filterCompute) {
+      computes.push(filterCompute);
+    }
+
+    if (computes.length) {
+      query.append("$compute", computes.join(","));
     }
 
     const sortModel = gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
