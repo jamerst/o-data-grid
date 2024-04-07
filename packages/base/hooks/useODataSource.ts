@@ -2,10 +2,23 @@ import React, { useCallback, useEffect, useRef, useState } from "react"
 import { DataGridProps, GridApiCommon, gridPaginationModelSelector, gridSortModelSelector, GridInitialState } from "@mui/x-data-grid"
 
 import { FilterBuilderApi } from "../FilterBuilder/models"
-import { ODataGridBaseProps, ODataResponse, ODataRowModel } from "../types";
+import { ODataGridBaseProps } from "../models/ODataGridBaseProps";
+import { ODataRowModel } from "../models/OData/ODataRowModel";
 import { ExpandToQuery, Flatten } from "../utils";
 import { OnFilterChangeEventArgs } from "../FilterBuilder/events/OnFilterChangeEventArgs";
 
+type ODataResponse<T> = {
+  "@odata.count"?: number,
+  value: T[]
+}
+
+/**
+ * Use an OData API as the data source for a DataGrid
+ * @param props ODataGrid props
+ * @param gridApiRef DataGrid API object
+ * @param filterBuilderApiRef FilterBuilder API object
+ * @returns loading state, DataGrid rows and row count
+ */
 export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate, TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
@@ -148,6 +161,8 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
 
   const firstRender = useRef(true);
   useEffect(() => {
+    // attach to events for DataGrid and FilterBuilder to fetch rows when filters, page, sorting model or columns change
+
     const resetPage = () => {
       const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
       if (paginationModel.page !== 0) {

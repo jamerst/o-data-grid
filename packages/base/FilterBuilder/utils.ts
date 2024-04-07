@@ -6,6 +6,11 @@ import { defaultLocale, rootGroupUuid } from "./constants";
 import { ConditionClause, GroupClause, SerialisedGroup, StateTree, StateClause, TreeGroup } from "./models/filters";
 import { FilterBuilderLocaleText } from "./models"
 
+/**
+ * Create a new condition for a given field
+ * @param field Field name
+ * @returns New ConditionClause for field
+ */
 export const getDefaultCondition = (field: string): ConditionClause => ({
   field: field,
   op: "eq",
@@ -13,14 +18,24 @@ export const getDefaultCondition = (field: string): ConditionClause => ({
   id: uuid()
 })
 
+/**
+ * Create a new group
+ * @returns New GroupClause
+ */
 export const getDefaultGroup = (): GroupClause => ({
   connective: "and",
-  id: uuid()
+  id: uuid(),
+  negated: false
 });
 
 export const getLocaleText = (key: keyof FilterBuilderLocaleText, locale: FilterBuilderLocaleText | undefined) =>
   locale !== undefined && locale[key] ? locale[key]! : defaultLocale[key];
 
+/**
+ * Get the tree and clause state from the serialised representation of a filter
+ * @param obj SerialisedGroup to deserialise
+ * @returns Tree and clause state from object
+ */
 export const deserialise = (obj: SerialisedGroup): [StateTree, StateClause] => {
   const [treeGroup, clauses] = groupObjToMap(obj, rootGroupUuid);
 
@@ -39,11 +54,13 @@ const groupObjToMap = (obj: SerialisedGroup, id: string, clauses?: StateClause):
     clauses = Immutable.Map<string, GroupClause | ConditionClause>();
   }
 
+  // create clause for group
   clauses = clauses.set(id, {
     id: id,
     ...obj
   });
 
+  // create clauses and entries in tree for children
   obj.children.forEach((child) => {
     const childId = uuid();
     clauses = clauses!.set(childId, {
@@ -53,11 +70,13 @@ const groupObjToMap = (obj: SerialisedGroup, id: string, clauses?: StateClause):
 
     const g = child as SerialisedGroup;
     if (g.connective) {
+      // child is a group
       const result = groupObjToMap(g, childId, clauses);
 
       children = children.set(childId, result[0]);
       clauses = clauses.merge(result[1]);
     } else {
+      // child is a condition
       children = children.set(childId, childId);
     }
   });

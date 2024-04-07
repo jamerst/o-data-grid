@@ -2,6 +2,8 @@ export type FilterBuilderLocaleText = {
   and?: string,
   or?: string,
 
+  negated?: string,
+
   addCondition?: string,
   addGroup?: string,
 

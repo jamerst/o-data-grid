@@ -1,12 +1,12 @@
 import React from "react"
 import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { GridActionsCellItem, GridSortModel, useGridApiRef, GridActionsColDef, GridInitialState } from "@mui/x-data-grid"
-import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, FilterBuilderProps, ODataGridColDef, ODataInitialState } from "../../../o-data-grid/src"
+import { GridActionsCellItem } from "@mui/x-data-grid"
+import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, ODataGridColDef, ODataInitialState } from "../../../o-data-grid/src"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { Edit } from "@mui/icons-material";
-import { DataGridFilterBuilderProps } from "../../../base/types";
+import { DataGridFilterBuilderProps } from "../../../base/models";
 
 const theme = createTheme({
   palette: {
@@ -21,25 +21,17 @@ const columnVisibility: ODataColumnVisibilityModel = {
 }
 
 const App = () => {
-  // const apiRef = useGridApiRef();
-  // if (typeof apiRef.current.getRowsCount === "function") {
-  //   console.debug("gridApiRef", apiRef.current.getRowsCount());
-  // }
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ODataGrid
         url="https://api.o-data-grid.jtattersall.net/order"
         columns={columns}
-        // columnVisibilityModel={columnVisibility}
-        // defaultSortModel={defaultSort}
         filterBuilderProps={filterBuilderProps}
         alwaysSelect={alwaysFetch}
         getRowId={getRowId}
         pageSizeOptions={pageSizeOptions}
         initialState={initialState}
-        // apiRef={apiRef}
       />
     </ThemeProvider>
   );

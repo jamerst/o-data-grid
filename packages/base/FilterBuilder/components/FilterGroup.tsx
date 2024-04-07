@@ -78,10 +78,6 @@ const FilterGroup = ({ clauseId, path, root }: FilterGroupProps) => {
 
   const multiple = useMemo(() => treeGroup.children.count() > 1, [treeGroup]);
 
-  const setConnective = useCallback((con: Connective) => {
-    setClauses(clauses.update(clauseId, c => ({...c as GroupClause, connective: con})))
-  }, [clauses, setClauses, clauseId]);
-
   const addGroup = useCallback(() => {
     const group = getDefaultGroup();
     const condition = getDefaultCondition(schema[0].field);
@@ -112,31 +108,55 @@ const FilterGroup = ({ clauseId, path, root }: FilterGroupProps) => {
     );
   }, [clauses, setClauses, tree, setTree, childrenPath, schema]);
 
+  const setConnective = useCallback((con: Connective) => {
+    setClauses(clauses.update(clauseId, c => ({...c as GroupClause, connective: con})))
+  }, [clauses, setClauses, clauseId]);
+
   const handleConnective = useCallback((_: any, val: Connective | null) => {
     if (val) {
       setConnective(val);
     }
   }, [setConnective]);
 
+  const toggleNegated = useCallback(() => {
+    setClauses(clauses.update(clauseId, c => ({...c as GroupClause, negated: !(c as GroupClause)!.negated})))
+  }, [clauses, setClauses, clauseId]);
+
   return (
     <Grid item={!root} container marginBottom={1} paddingLeft={root ? 0 : 3} className={root ? "" : classes.group}>
-      <Grid item container spacing={1} justifyContent={multiple ? "space-between" : "end"} alignItems={r({ xs: "flex-start", md: "center" })} marginBottom={2} direction={r({ xs: "column-reverse", md: "row" })}>
-        {multiple && (
-          <Grid item xs={12} md="auto">
-            <ToggleButtonGroup
-              value={group.connective}
-              exclusive
-              onChange={handleConnective}
-              color="primary"
-              aria-label={`${getLocaleText("and", builderProps.localeText)}/${getLocaleText("or", builderProps.localeText)}`}
-              size="small"
-            >
-              <ToggleButton value="and">{getLocaleText("and", builderProps.localeText)}</ToggleButton>
-              <ToggleButton value="or">{getLocaleText("or", builderProps.localeText)}</ToggleButton>
-            </ToggleButtonGroup>
-          </Grid>
-        )}
-        <Grid item xs={12} md="auto">
+      <Grid item container spacing={1} justifyContent="space-between" alignItems={r({ xs: "flex-start", md: "center" })} marginBottom={2} direction={r({ xs: "column-reverse", md: "row" })}>
+        <Grid item xs="auto" container spacing={1}>
+          {multiple && (
+            <Grid item>
+              <ToggleButtonGroup
+                value={group.connective}
+                exclusive
+                onChange={handleConnective}
+                color="primary"
+                aria-label={`${getLocaleText("and", builderProps.localeText)}/${getLocaleText("or", builderProps.localeText)}`}
+                size="small"
+              >
+                <ToggleButton value="and">{getLocaleText("and", builderProps.localeText)}</ToggleButton>
+                <ToggleButton value="or">{getLocaleText("or", builderProps.localeText)}</ToggleButton>
+              </ToggleButtonGroup>
+            </Grid>
+          )}
+          {group && (
+            <Grid item>
+              <ToggleButton
+                value="not"
+                selected={group.negated}
+                onChange={toggleNegated}
+                color="primary"
+                size="small"
+                aria-label={getLocaleText("negated", builderProps.localeText)}
+              >
+                {getLocaleText("negated", builderProps.localeText)}
+              </ToggleButton>
+            </Grid>
+          )}
+        </Grid>
+        <Grid item xs="auto">
           <ButtonGroup variant="contained" size="small" color="secondary">
             <Button startIcon={<Add />} onClick={addCondition}>{getLocaleText("addCondition", builderProps.localeText)}</Button>
             <Button startIcon={<Add />} onClick={addGroup}>{getLocaleText("addGroup", builderProps.localeText)}</Button>

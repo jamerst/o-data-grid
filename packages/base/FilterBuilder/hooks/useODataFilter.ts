@@ -9,6 +9,11 @@ import { FieldDef } from "../models/fields";
 import { ConditionClause, GroupClause, Operation, SerialisedCondition, SerialisedGroup, StateClause, StateTree, TreeGroup } from "../models/filters";
 import { TranslatedInnerQuery, TranslatedQuery, FilterTranslator } from "../models/filters/translation";
 
+/**
+ * Get a function to translate the current filter state into an OData filter string
+ * @param schema Field definitions
+ * @returns Memoised function to translate the current filter state into an OData filter string
+ */
 export const useODataFilter = <TDate,>(schema: FieldDef<unknown>[]) => {
   const [clauses, tree] = useRecoilValue(waitForAll([clauseState, treeState]));
 
@@ -17,12 +22,27 @@ export const useODataFilter = <TDate,>(schema: FieldDef<unknown>[]) => {
   }, [schema, clauses, tree]);
 }
 
+/**
+ * Get a function to translate a provided filter state into an OData filter string
+ * @param schema Field definitions
+ * @returns Memoised function to translate provided filter state into an OData filter string
+ */
 export const useODataFilterWithState = <TDate,>(schema: FieldDef<unknown>[]) => {
   return useCallback((clauses: StateClause, tree: StateTree) => {
     return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup> | undefined;
   }, [schema])
 }
 
+/**
+ * Translate a GroupClause into an OData filter string
+ * @param schema Field definitions
+ * @param clauses Filter clauses state variable
+ * @param tree Filter tree state variable
+ * @param id ID of group to translate
+ * @param path Path in tree to group
+ * @returns Group translated into an OData filter string, undefined if group is a default group (from the initial state
+ * of the filter builder), false if translation fails
+ */
 const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (TranslatedQuery<SerialisedGroup> | false | undefined) => {
   const clause = clauses.get(id) as GroupClause;
   const treeNode = tree.getIn([...path, id]) as TreeGroup;
@@ -49,12 +69,12 @@ const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
   const childClauses = translatedChildren
     .filter(c => !!c) as (TranslatedQuery<SerialisedGroup> | TranslatedQuery<SerialisedCondition>)[];
 
-  if (childClauses.length > 1) {
+  if (childClauses.length > 1 || clause.negated) {
     return {
-      filter: `(${childClauses.filter(c => c.filter).map(c => c.filter).join(` ${clause.connective} `)})`,
+      filter: `${clause.negated ? "not" : ""}(${childClauses.filter(c => c.filter).map(c => c.filter).join(` ${clause.connective} `)})`,
       compute: `${childClauses.filter(c => c.compute).map(c => c.compute).join(",")}`,
       select: childClauses.filter(c => c.select).flatMap(c => c.select!),
-      serialised: { connective: clause.connective, children: childClauses.map(c => c.serialised) },
+      serialised: { connective: clause.connective, negated: clause.negated, children: childClauses.map(c => c.serialised) },
       queryString: childClauses.reduce((x, c) => ({ ...x, ...c.queryString }), {})
     };
   } else if (childClauses.length === 1) {
@@ -62,7 +82,7 @@ const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
       filter: childClauses[0].filter,
       compute: childClauses[0].compute,
       select: childClauses[0].select,
-      serialised: { connective: clause.connective, children: [childClauses[0].serialised] },
+      serialised: { connective: clause.connective, negated: clause.negated, children: [childClauses[0].serialised] },
       queryString: childClauses[0].queryString
     }
   } else {
@@ -71,6 +91,14 @@ const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
   }
 }
 
+/**
+ * Translate a ConditionClause into an OData filter string
+ * @param schema Field definitions
+ * @param clauses Filter clauses state
+ * @param id ID of condition to translate
+ * @returns Condition translated into an OData filter string, undefined if condition is a default condition (from initial
+ * state of filter builder), false if translation fails
+ */
 const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, id: string): (TranslatedQuery<SerialisedCondition> | false | undefined) => {
   const clause = clauses.get(id) as ConditionClause;
 
@@ -132,6 +160,14 @@ const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateCla
   }
 }
 
+/**
+ * Translate a condition into an OData filter string
+ * @param schema Field definition of condition to translate
+ * @param field Field name
+ * @param op Condition operation
+ * @param value Condition value
+ * @returns OData filter string for condition, false if translation fails
+ */
 const translateInnerCondition = <TDate,>(schema: FieldDef<TDate>, field: string, op: Operation, value: any): TranslatedInnerQuery | false => {
   if (schema.getCustomQueryString) {
     return {

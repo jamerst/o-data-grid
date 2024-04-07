@@ -7,6 +7,14 @@ import { defaultPageSize as _defaultPageSize } from "../constants";
 import { useMountEffect } from "../hooks";
 import { SerialisedGroup } from "../FilterBuilder/models/filters";
 
+/**
+ * Create entries in the browser history for interactions with the DataGrid and
+ * FilterBuilder, and automatically restore the state from the history entries
+ * when navigating backwards/forwards
+ * @param props ODataGrid props
+ * @param gridApiRef DataGrid API object
+ * @param filterBuilderApiRef FilterBuilder API object
+ */
 export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TInitialState extends GridInitialState>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
@@ -33,6 +41,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TI
       return;
     }
 
+    //#region Set query string parameters for pagination
     const params = new URLSearchParams(window.location.search);
     const paginationModel = gridPaginationModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
 
@@ -66,11 +75,13 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TI
     } else if (paginationModel.pageSize !== defaultPageSize) {
       params.set("page-size", paginationModel.pageSize.toString());
     }
+    //#endregion
 
     const search = params.toString();
     const url = search
       ? `${window.location.pathname}?${search}${window.location.hash}`
       : `${window.location.pathname}${window.location.hash}`;
+
     const state = getHistoryState();
 
     window.history.pushState(state, "", url);
@@ -86,6 +97,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TI
   }, [pushState]);
 
   useEffect(() => {
+    // attach to events for FilterBuilder and DataGrid to trigger history entry creation
     if (props.disableHistory || !gridApiRef.current?.subscribeEvent || !filterBuilderApiRef.current?.onFilterChange) {
       return;
     }
@@ -105,6 +117,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TI
 
   //#region Restore state from history
   const restoreState = useCallback((state: ODataGridState) => {
+    // set the state of the FilterBuilder and DataGrid using the API objects
     if (state.filter !== false) {
       filterBuilderApiRef.current.setFilter(state.filter);
     }
@@ -113,7 +126,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TI
       gridApiRef.current.setSortModel(state.sortModel);
     }
 
-    // set page after sort model - changing sort model will reset page
+    // set page after sort model - changing sort model will reset page number
     if (state.page !== false) {
       gridApiRef.current.setPage(state.page);
     }
@@ -124,6 +137,8 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TI
   }, [filterBuilderApiRef, gridApiRef]);
 
   const restoreFromBrowserState = useCallback((state: any, firstLoad: boolean) => {
+    // get the component state from the browser history entry state object and restore it
+
     stateRestored.current = true;
 
     const newState: ODataGridState = {
@@ -133,6 +148,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TI
       pageSize: false
     };
 
+    // restore from initial state of component if when navigating back to initial history entry
     const fromInitialState = !firstLoad && state?.initialState === true;
 
     if (fromInitialState && props.initialState?.filterBuilder?.filterModel) {

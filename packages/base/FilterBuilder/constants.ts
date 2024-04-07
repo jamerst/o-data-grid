@@ -12,7 +12,8 @@ export const numericOperators: Operation[] = ["eq", "ne", "gt", "lt", "ge", "le"
 export const initialClauses = Immutable.Map<string, GroupClause | ConditionClause>({
   [rootGroupUuid]: {
     id: rootGroupUuid,
-    connective: "and"
+    connective: "and",
+    negated: false
   },
   [rootConditionUuid]: {
     id: rootConditionUuid,
@@ -33,6 +34,8 @@ export const initialTree = Immutable.Map<string, TreeGroup | string>({
 export const defaultLocale: Required<FilterBuilderLocaleText> = {
   and: "And",
   or: "Or",
+
+  negated: "Not",
 
   addCondition: "Add Condition",
   addGroup: "Add Group",

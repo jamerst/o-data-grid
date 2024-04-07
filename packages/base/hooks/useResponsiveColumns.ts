@@ -4,6 +4,11 @@ import { DataGridProps, GridColumnVisibilityModel, GridInitialState } from "@mui
 import { ODataGridBaseProps } from "../types";
 import { ResponsiveValues, useResponsive } from "../hooks";
 
+/**
+ * Add responsive column visibility support to DataGrid
+ * @param props ODataGrid props
+ * @returns Column visibility model to pass to DataGrid, and function to handle ColumnVisibilityModelChange event
+ */
 export const useResponsiveColumns = <ComponentProps extends DataGridProps, TDate, TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>) => {
   const [columnVisibilityOverride, setColumnVisibilityOverride] = useState<GridColumnVisibilityModel>({});
 

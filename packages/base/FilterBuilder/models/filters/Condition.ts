@@ -2,6 +2,9 @@ import { CollectionOperation } from "./CollectionOperation";
 import { Operation } from "./Operation";
 import { Clause } from "./Clause";
 
+/**
+ * A filter condition on a single field
+ */
 export type ConditionClause = Clause & {
   field: string,
   op: Operation;

@@ -1,8 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { useTheme, Breakpoint, Theme } from "@mui/material/styles"
 
+/**
+ * Values which should vary depending on the screen size
+ */
 export type ResponsiveValues<P> = Partial<Record<Breakpoint, P>>
 
+/**
+ * Get the values for the current screen size from ResponsiveValues
+ * @returns Values for current screen size
+ */
 export const useResponsive = () => {
   const theme = useTheme()
   const keys = theme.breakpoints.keys;
@@ -26,7 +33,7 @@ export const useResponsive = () => {
 // eslint-disable-next-line react-hooks/exhaustive-deps
 export const useMountEffect = (func: React.EffectCallback) => useEffect(func, []);
 
-export const useBreakpoints = ():Partial<Record<Breakpoint, boolean>> => {
+const useBreakpoints = ():Partial<Record<Breakpoint, boolean>> => {
   const theme = useTheme();
   const [matches, setMatches] = useState<Partial<Record<Breakpoint, boolean>>>(getMatches(theme.breakpoints.keys, theme));
 
