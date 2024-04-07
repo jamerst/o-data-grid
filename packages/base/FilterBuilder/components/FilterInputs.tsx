@@ -1,10 +1,10 @@
 import React, { Fragment, useMemo } from "react"
-import { useRecoilValue } from "recoil";
+import { useAtomValue } from "jotai";
 import { Autocomplete, FormControl, Grid, InputLabel, MenuItem, Select, TextField, TextFieldProps } from "@mui/material";
 import { ValueOptions } from "@mui/x-data-grid";
 import { DatePicker, DatePickerProps, DatePickerSlotsComponentsProps, DateTimePicker, DateTimePickerProps, DateTimePickerSlotsComponentsProps, LocalizationProvider } from "@mui/x-date-pickers";
 
-import { propsState, schemaState } from "../state"
+import { propsAtom, schemaAtom } from "../atoms"
 import { getLocaleText } from "../utils";
 import { allOperators, numericOperators } from "../constants";
 
@@ -40,8 +40,8 @@ const FilterInputs = <TDate,>({
   onCollectionFieldChange
 }: FilterInputsProps) => {
 
-  const schema = useRecoilValue(schemaState) as FieldDef<TDate>[];
-  const builderProps = useRecoilValue(propsState);
+  const schema = useAtomValue(schemaAtom) as FieldDef<TDate>[];
+  const builderProps = useAtomValue(propsAtom);
 
   const dateAdapter = useMemo(() => builderProps.localizationProviderProps?.dateAdapter, [builderProps]);
 

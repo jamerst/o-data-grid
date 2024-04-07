@@ -1,5 +1,4 @@
-import React from "react"
-import { RecoilRoot } from "recoil";
+import React from "react";
 
 import FilterRoot from "./FilterRoot";
 
@@ -7,9 +6,7 @@ import { FilterBuilderApi, FilterBuilderProps } from "../models";
 
 const FilterBuilderInner = <TDate,>(props: FilterBuilderProps<TDate>, ref?: React.ForwardedRef<FilterBuilderApi>) => {
   return (
-    <RecoilRoot override>
-      <FilterRoot props={props} ref={ref} />
-    </RecoilRoot>
+    <FilterRoot props={props} ref={ref} />
   );
 }
 

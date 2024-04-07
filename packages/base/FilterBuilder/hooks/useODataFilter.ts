@@ -1,8 +1,8 @@
 import { useCallback } from "react";
-import { useRecoilValue, waitForAll } from "recoil"
+import { useAtomValue } from "jotai"
 
 import { rootGroupUuid } from "../constants";
-import { clauseState, treeState } from "../state"
+import { clausesAtom, treeAtom } from "../atoms"
 import { defaultTranslators } from "../translation";
 
 import { FieldDef } from "../models/fields";
@@ -15,7 +15,8 @@ import { TranslatedInnerQuery, TranslatedQuery, FilterTranslator } from "../mode
  * @returns Memoised function to translate the current filter state into an OData filter string
  */
 export const useODataFilter = <TDate,>(schema: FieldDef<unknown>[]) => {
-  const [clauses, tree] = useRecoilValue(waitForAll([clauseState, treeState]));
+  const clauses = useAtomValue(clausesAtom);
+  const tree = useAtomValue(treeAtom);
 
   return useCallback(() => {
     return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup> | undefined;

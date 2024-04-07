@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react"
-import { useRecoilValue, useSetRecoilState, waitForAll } from "recoil";
+import { useAtomValue, useSetAtom } from "jotai";
 import Immutable from "immutable";
 import { Button, ButtonGroup, Grid, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { Add } from "@mui/icons-material";
@@ -8,7 +8,7 @@ import FilterCondition from "./FilterCondition";
 
 import { useResponsive } from "../../hooks";
 import makeStyles from "../../makeStyles";
-import { clauseState, propsState, schemaState, treeState } from "../state"
+import { clausesAtom, propsAtom, schemaAtom, treeAtom } from "../atoms"
 import { getDefaultCondition, getDefaultGroup, getLocaleText } from "../utils";
 
 import { Connective, GroupClause, TreeChildren, TreeGroup } from "../models/filters";
@@ -65,11 +65,12 @@ const FilterGroup = ({ clauseId, path, root }: FilterGroupProps) => {
   const { classes } = useStyles();
   const r = useResponsive();
 
-  const [tree, clauses] = useRecoilValue(waitForAll([treeState, clauseState]));
-  const setTree = useSetRecoilState(treeState);
-  const setClauses = useSetRecoilState(clauseState);
-  const schema = useRecoilValue(schemaState);
-  const builderProps = useRecoilValue(propsState);
+  const tree = useAtomValue(treeAtom);
+  const clauses = useAtomValue(clausesAtom);
+  const setTree = useSetAtom(treeAtom);
+  const setClauses = useSetAtom(clausesAtom);
+  const schema = useAtomValue(schemaAtom);
+  const builderProps = useAtomValue(propsAtom);
 
   const group = useMemo(() => clauses.get(clauseId) as GroupClause, [clauses, clauseId]);
   const treeGroup = useMemo(() => tree.getIn([...path, clauseId]) as TreeGroup, [tree, path, clauseId]);

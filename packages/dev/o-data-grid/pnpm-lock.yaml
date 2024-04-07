@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@mui/icons-material':
     specifier: ^5.11.16
@@ -22,12 +26,6 @@ dependencies:
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
-  recoil:
-    specifier: ^0.7.7
-    version: 0.7.7(react-dom@18.2.0)(react@18.2.0)
-  recoil-toolkit:
-    specifier: ^0.2.11
-    version: 0.2.11(react@18.2.0)(recoil@0.7.7)
   tss-react:
     specifier: ^4.8.2
     version: 4.8.2(@emotion/react@11.10.6)(react@18.2.0)
@@ -1058,10 +1056,6 @@ packages:
   /function-bind@1.1.1:
     resolution: {integrity: sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==}
 
-  /hamt_plus@1.0.2:
-    resolution: {integrity: sha1-4hwlKWjH4zsg9qGwlM2FeHomVgE=}
-    dev: false
-
   /has-flag@3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
     engines: {node: '>=4'}
@@ -1215,39 +1209,6 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /recoil-toolkit@0.2.11(react@18.2.0)(recoil@0.7.7):
-    resolution: {integrity: sha512-nOp6PhhKe86lJ/gaDpd4Q3wIEfM4LVo9qACVw4YlVaZ3UTa8JvxH27rUU4vsO6EZdOFBTccq4MIoxGcHX/zVlA==}
-    engines: {node: '>=10', npm: '>=6'}
-    peerDependencies:
-      react: ^16.8.3 || ^17 || ^18
-      recoil: ^0.7.5
-      redux: ^4.2.0
-    peerDependenciesMeta:
-      redux:
-        optional: true
-    dependencies:
-      react: 18.2.0
-      recoil: 0.7.7(react-dom@18.2.0)(react@18.2.0)
-      tiny-invariant: 1.3.1
-    dev: false
-
-  /recoil@0.7.7(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-8Og5KPQW9LwC577Vc7Ug2P0vQshkv1y3zG3tSSkWMqkWSwHmE+by06L8JtnGocjW6gcCvfwB3YtrJG6/tWivNQ==}
-    peerDependencies:
-      react: '>=16.13.1'
-      react-dom: '*'
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-    dependencies:
-      hamt_plus: 1.0.2
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
   /regenerator-runtime@0.13.11:
     resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
     dev: false
@@ -1311,10 +1272,6 @@ packages:
   /supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
-
-  /tiny-invariant@1.3.1:
-    resolution: {integrity: sha512-AD5ih2NlSssTCwsMznbvwMZpJ1cbhkGd2uueNxzv2jDlEeZdU04JQfRnggJQ8DrcVBGjAsCKwFBbDlVNtEMlzw==}
-    dev: false
 
   /to-fast-properties@2.0.0:
     resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}

@@ -1,11 +1,11 @@
 import React, { Fragment, useCallback, useEffect, useState } from "react"
-import { useSetRecoilState } from "recoil";
+import { useSetAtom } from "jotai";
 import { ArrowDropDown } from "@mui/icons-material";
 import { Button, ButtonGroup, Grid, MenuItem, MenuList, Paper, Popover } from "@mui/material";
 
 import FilterGroup from "./FilterGroup";
 
-import { clauseState, propsState, schemaState, treeState } from "../state"
+import { clausesAtom, propsAtom, schemaAtom, treeAtom } from "../atoms"
 
 import { initialClauses, initialTree, rootConditionUuid, rootGroupUuid } from "../constants"
 import { deserialise } from "../utils";
@@ -22,10 +22,10 @@ type FilterRootProps<TDate> = {
 }
 
 const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.ForwardedRef<FilterBuilderApi>) => {
-  const setClauses = useSetRecoilState(clauseState);
-  const setProps = useSetRecoilState(propsState);
-  const setSchema = useSetRecoilState(schemaState);
-  const setTree = useSetRecoilState(treeState);
+  const setClauses = useSetAtom(clausesAtom);
+  const setProps = useSetAtom(propsAtom);
+  const setSchema = useSetAtom(schemaAtom);
+  const setTree = useSetAtom(treeAtom);
 
   const odataFilter = useODataFilter(props.schema);
   const odataFilterWithState = useODataFilterWithState(props.schema);

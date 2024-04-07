@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from "react"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Grid, IconButton } from "@mui/material";
 import { Remove } from "@mui/icons-material";
 
 import FilterInputs from "./FilterInputs";
 
-import { clauseState, schemaState, treeState } from "../state"
+import { clausesAtom, schemaAtom, treeAtom } from "../atoms"
 import { numericOperators } from "../constants";
 
 import { CollectionOperation, ConditionClause, Operation, TreeGroup } from "../models/filters"
@@ -17,10 +17,10 @@ type FilterConditionProps = {
 }
 
 const FilterCondition = ({ clauseId, path }: FilterConditionProps) => {
-  const [clauses, setClauses] = useRecoilState(clauseState);
-  const setTree = useSetRecoilState(treeState);
+  const [clauses, setClauses] = useAtom(clausesAtom);
+  const setTree = useSetAtom(treeAtom);
 
-  const schema = useRecoilValue(schemaState);
+  const schema = useAtomValue(schemaAtom);
 
   const condition = useMemo(() => clauses.get(clauseId) as ConditionClause, [clauses, clauseId]);
 
