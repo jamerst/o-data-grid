@@ -1,12 +1,12 @@
 import { AutocompleteProps, SelectProps, TextFieldProps } from "@mui/material";
-import { DatePickerProps, DateTimePickerProps, LocalizationProviderProps } from "@mui/x-date-pickers";
+import { DatePickerProps, DateTimePickerProps, LocalizationProviderProps, PickerValidDate } from "@mui/x-date-pickers";
 
 import { FilterBuilderApi, FilterBuilderLocaleText } from "."
 import { FieldDef } from "./fields";
 import { TranslatedQueryResult } from "./filters/translation";
 import { SerialisedGroup } from "./filters";
 
-export type FilterBuilderProps<TDate> = {
+export type FilterBuilderProps<TDate extends PickerValidDate, TLocale = unknown> = {
   /**
    * Filterable field definitions
    */
@@ -59,7 +59,7 @@ export type FilterBuilderProps<TDate> = {
   /**
    * LocalizationProviderProps for DatePicker and DateTimePicker
    */
-  localizationProviderProps?: LocalizationProviderProps<TDate>,
+  localizationProviderProps?: LocalizationProviderProps<TDate, TLocale>,
   /**
    * Props to pass to the Select component for the filter value
    */

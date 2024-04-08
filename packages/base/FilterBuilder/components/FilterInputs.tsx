@@ -1,8 +1,8 @@
-import React, { Fragment, useMemo } from "react"
+import React, { useMemo } from "react"
 import { useAtomValue } from "jotai";
 import { Autocomplete, FormControl, Grid, InputLabel, MenuItem, Select, TextField, TextFieldProps } from "@mui/material";
 import { ValueOptions } from "@mui/x-data-grid";
-import { DatePicker, DatePickerProps, DatePickerSlotsComponentsProps, DateTimePicker, DateTimePickerProps, DateTimePickerSlotsComponentsProps, LocalizationProvider } from "@mui/x-date-pickers";
+import { DatePicker, DatePickerProps, DateTimePicker, DateTimePickerProps, LocalizationProvider, PickerValidDate } from "@mui/x-date-pickers";
 
 import { propsAtom, schemaAtom } from "../atoms"
 import { getLocaleText } from "../utils";
@@ -26,7 +26,7 @@ type FilterInputsProps = {
   onCollectionFieldChange: (field: string, oldField: string | undefined, currentOp: Operation, newField: string | undefined) => void,
 }
 
-const FilterInputs = <TDate,>({
+const FilterInputs = <TDate extends PickerValidDate,>({
   clauseId,
   field,
   onFieldChange,
@@ -83,7 +83,7 @@ const FilterInputs = <TDate,>({
   );
 
   const dateValue = useMemo(() => {
-    if (fieldDef && (fieldDef.type === "date" || fieldDef.type === "datetime")) {
+    if (fieldDef && (fieldDef.type === "date" || fieldDef.type === "dateTime")) {
       if (typeof value === "string") {
         return new dateAdapter!().date(value);
       } else {
@@ -95,7 +95,7 @@ const FilterInputs = <TDate,>({
   }, [fieldDef, value, dateAdapter]);
 
   const datePickerSlotProps = useMemo(() => ({
-    textField: { fullWidth: true, size: "small", ...builderProps.textFieldProps, ...fieldDef?.textFieldProps }
+    textField: { fullWidth: true, size: "small", ...builderProps.textFieldProps, ...fieldDef?.textFieldProps } as TextFieldProps
   }), [builderProps, fieldDef]);
 
   if (schema.length < 1 || !fieldDef) {
@@ -103,7 +103,7 @@ const FilterInputs = <TDate,>({
   }
 
   return (
-    <Fragment>
+    <>
       <Grid item xs={12} md={fieldDef.collection ? true : 4}>
         <Autocomplete
           size="small"
@@ -183,7 +183,7 @@ const FilterInputs = <TDate,>({
           {
             op !== "null" && op !== "notnull" &&
             (fieldDef.renderCustomInput ? fieldDef.renderCustomInput(value, onValueChange) :
-            <Fragment>
+            <>
               {
                 fieldDef.type === "date" &&
                 <LocalizationProvider dateAdapter={dateAdapter!} {...builderProps.localizationProviderProps}>
@@ -192,20 +192,20 @@ const FilterInputs = <TDate,>({
                     {...builderProps.datePickerProps}
                     {...fieldDef.datePickerProps}
                     value={dateValue}
-                    slotProps={datePickerSlotProps as DatePickerSlotsComponentsProps<TDate>}
-                    onChange={(date) => onValueChange(new dateAdapter!().formatByString(date, "YYYY-MM-DD"))}
+                    slotProps={datePickerSlotProps}
+                    onChange={(date) => onValueChange(new dateAdapter!().formatByString(date as TDate, "YYYY-MM-DD"))}
                   />
                 </LocalizationProvider>
               }
               {
-                fieldDef.type === "datetime" &&
+                fieldDef.type === "dateTime" &&
                 <LocalizationProvider dateAdapter={dateAdapter!} {...builderProps.localizationProviderProps}>
                   <DateTimePicker
                     label={getLocaleText("value", builderProps.localeText)}
                     {...fieldDef.dateTimePickerProps}
                     value={dateValue}
-                    slotProps={datePickerSlotProps as DateTimePickerSlotsComponentsProps<TDate>}
-                    onChange={(date) => onValueChange(new dateAdapter!().toISO(date))}
+                    slotProps={datePickerSlotProps}
+                    onChange={(date) => onValueChange(new dateAdapter!().formatByString(date as TDate, "YYYY-MM-DDTHH:mm:ss.sssZ"))}
                   />
                 </LocalizationProvider>
               }
@@ -256,16 +256,16 @@ const FilterInputs = <TDate,>({
                   type={fieldDef.type === "number" ? "number" : "text"}
                 />
               }
-            </Fragment>)
+            </>)
           }
         </Grid>
       }
-    </Fragment>
+    </>
   )
 };
 export default React.memo(FilterInputs);
 
-const getOptions = (fieldDef: SingleSelectFieldDef<unknown>) => {
+const getOptions = <TDate extends PickerValidDate,>(fieldDef: SingleSelectFieldDef<TDate>) => {
   const _options = typeof fieldDef.valueOptions === "function"
     ? fieldDef.valueOptions({ field: fieldDef.field })
     : fieldDef.valueOptions;
@@ -294,7 +294,7 @@ const getOptions = (fieldDef: SingleSelectFieldDef<unknown>) => {
   }
 }
 
-type AugmentedFieldDef<T extends FieldDef<TDate>, TDate> = T & {
+type AugmentedFieldDef<T extends FieldDef<TDate>, TDate extends PickerValidDate> = T & {
   fieldLabel: string,
   type?: string,
   ops: Operation[],
@@ -310,7 +310,7 @@ type AugmentedFieldDef<T extends FieldDef<TDate>, TDate> = T & {
   dateTimePickerProps?: DateTimePickerProps<TDate>
 }
 
-const getAugmentedFieldDef = <T extends FieldDef<TDate>, TDate,>(fieldDef: T): AugmentedFieldDef<T, TDate> => {
+const getAugmentedFieldDef = <T extends FieldDef<TDate>, TDate extends PickerValidDate,>(fieldDef: T): AugmentedFieldDef<T, TDate> => {
   const result: AugmentedFieldDef<T, TDate> = {
     ...fieldDef,
     fieldLabel: fieldDef.label ?? fieldDef.headerName ?? fieldDef.field,
@@ -334,7 +334,7 @@ const getAugmentedFieldDef = <T extends FieldDef<TDate>, TDate,>(fieldDef: T): A
   return result;
 }
 
-const findFieldDef = <TDate,>(field: string | undefined, fieldDefs: FieldDef<TDate>[]) =>
+const findFieldDef = <TDate extends PickerValidDate,>(field: string | undefined, fieldDefs: FieldDef<TDate>[]) =>
   field
     ? fieldDefs.find(f => f.field === field) ?? fieldDefs[0]
     : fieldDefs[0];

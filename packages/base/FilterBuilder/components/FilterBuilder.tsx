@@ -1,10 +1,11 @@
 import React from "react";
+import { PickerValidDate } from "@mui/x-date-pickers";
 
 import FilterRoot from "./FilterRoot";
 
 import { FilterBuilderProps } from "../models";
 
-const FilterBuilder = <TDate,>(props: FilterBuilderProps<TDate>) => {
+const FilterBuilder = <TDate extends PickerValidDate,>(props: FilterBuilderProps<TDate>) => {
   return (
     <FilterRoot props={props} />
   );

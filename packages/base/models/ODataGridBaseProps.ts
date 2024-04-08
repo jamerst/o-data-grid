@@ -5,10 +5,11 @@ import { FilterBuilderInitialState, FilterBuilderProps } from "../FilterBuilder/
 import { ResponsiveValues } from "../hooks";
 import { ODataGridBaseColDef } from "./columns/ODataGridBaseColDef";
 import { ODataGridApi  } from "./ODataGridApi";
+import { PickerValidDate } from "@mui/x-date-pickers";
 
 export type ODataGridBaseProps<
   ComponentProps extends DataGridProps,
-  TDate,
+  TDate extends PickerValidDate,
   TInitialState extends GridInitialState,
   R extends GridValidRowModel = any,
 > =
@@ -77,7 +78,7 @@ export type ODataGridBaseProps<
     apiRef?: React.MutableRefObject<ODataGridApi>
   };
 
-export type DataGridFilterBuilderProps<TDate> = Omit<FilterBuilderProps<TDate>, "schema" | "initialState">
+export type DataGridFilterBuilderProps<TDate extends PickerValidDate> = Omit<FilterBuilderProps<TDate>, "schema" | "initialState">
 
 // remove properties which should not be used - these are handled internally or overridden
 type OmitGridProps<T> = Omit<T,

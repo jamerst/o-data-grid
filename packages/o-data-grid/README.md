@@ -23,7 +23,7 @@ ODataGrid is an extension to the [MUI DataGrid](https://github.com/mui-org/mater
 Coming soon!
 
 ## Notes
-ODataGrid is still in the fairly early stages of development. I'm not aware of any issues currently, but it hasn't been battle-tested. It also utilises [Recoil](https://github.com/facebookexperimental/Recoil) for state management in the filter builder, which is still considered experimental by Facebook.
+ODataGrid is still in the fairly early stages of development. I'm not aware of any issues currently, but it hasn't been battle-tested.
 
 Please report any issues that you find, and feel free to make feature requests. This will help to make ODataGrid better.
 

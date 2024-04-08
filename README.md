@@ -125,7 +125,7 @@ _* = not applicable to collection fields_
 | `collection*` | `boolean` | | Indicates this column is a collection, i.e. is an array. Enables the "Any", "All" and "Count" options. |
 | `collectionFields` | `ODataGridColDef` | | Column definitions for the subfields of the collection. Any properties marked with * are not supported. |
 | `datePickerProps` | [`DatePickerProps`](https://mui.com/api/date-picker/) | | Props to pass to the `DatePicker` component for columns with type `date` |
-| `dateTimePickerProps` | [`DateTimePickerProps`](https://mui.com/api/date-time-picker/) | | Props to pass to the `DateTimePicker` component for columns with type `datetime` |
+| `dateTimePickerProps` | [`DateTimePickerProps`](https://mui.com/api/date-time-picker/) | | Props to pass to the `DateTimePicker` component for columns with type `dateTime` |
 | `expand` | `Expand \| Expand[]` | | Include related entities using the `$expand` clause. |
 | `filterable` | `boolean` | | Hides the field and does not allow filtering in the FilterBuilder when set to `false`. |
 | `filterField` | `string` | | If the field name is different to the field which should be used for filtering, provide the field for filtering here. See also: `filterType`. |
@@ -149,7 +149,7 @@ _* = not applicable to collection fields_
 | `autocompleteGroups` | `string[]` | | Array of groups for field selection dropdown (used for setting group order) |
 | `autocompleteProps` | [`AutocompleteProps`](https://mui.com/api/autocomplete/#props) | | Props to pass to the `Autocomplete` component used for the field and collection field dropdowns |
 | `datePickerProps` | [`DatePickerProps`](https://mui.com/api/date-picker/#props) | | Props to pass to the `DatePicker` component used for the value input for columns of type `date` |
-| `datePickerProps` | [`DatePickerProps`](https://mui.com/api/date-time-picker/#props) | | Props to pass to the `DateTimePicker` component used for the value input for columns of type `datetime` |
+| `datePickerProps` | [`DatePickerProps`](https://mui.com/api/date-time-picker/#props) | | Props to pass to the `DateTimePicker` component used for the value input for columns of type `dateTime` |
 | `disableHistory` | `boolean` | | Disables browser history integration if set to `true` |
 | `filter` | `SerialisedGroup` | | Allows setting the state of the FilterBuilder using a `SerialisedGroup`. You could use this to implement filter saving and restoring.<br/><br/>Changing the value of this property will cause `restoreState` to be called, but with the `state` property undefined. |
 | `localeText` | [`FilterBuilderLocaleText`](#FilterBuilderLocaleText) | | Localization strings for `FilterBuilder` (see [Localization](#localization) section) |

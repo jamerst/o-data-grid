@@ -5,6 +5,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid"
 import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, ODataGridColDef, ODataGridInitialState, useODataGridApiRef, SerialisedGroup } from "../../../o-data-grid/src"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
+import "dayjs/locale/en-gb"
 import { Edit } from "@mui/icons-material";
 import { DataGridFilterBuilderProps } from "../../../base/models";
 
@@ -91,7 +92,7 @@ const initialState: ODataGridInitialState = {
 
 const pageSizeOptions = [10, 25, 50, 100];
 
-const filterBuilderProps: DataGridFilterBuilderProps<Dayjs> = { autocompleteGroups: ["Customer", "Order"], localizationProviderProps: { dateAdapter: AdapterDayjs } };
+const filterBuilderProps: DataGridFilterBuilderProps<Dayjs> = { autocompleteGroups: ["Customer", "Order"], localizationProviderProps: { dateAdapter: AdapterDayjs, adapterLocale: "en-gb" } };
 
 const alwaysFetch = ["Id"];
 const columns: ODataGridColDef[] = [
@@ -112,7 +113,7 @@ const columns: ODataGridColDef[] = [
         ? `contains(tolower(Customer/FirstName), '${safeValue}') or contains(tolower(Customer/MiddleNames), '${safeValue}') or contains(tolower(Customer/Surname), '${safeValue}')`
         : `tolower(Customer/FirstName) ${op} '${safeValue}' or tolower(Customer/MiddleNames) ${op} '${safeValue}' or tolower(Customer/Surname) ${op} '${safeValue}'`
     },
-    valueGetter: (params) => [params.row.Customer.FirstName, params.row.Customer.MiddleNames, params.row.Customer.Surname]
+    valueGetter: (_, row) => [row.Customer.FirstName, row.Customer.MiddleNames, row.Customer.Surname]
       .filter(n => n)
       .join(" ")
   },
@@ -128,10 +129,10 @@ const columns: ODataGridColDef[] = [
   },
   {
     field: "Date",
-    type: "datetime",
+    type: "dateTime",
     flex: .9,
     autocompleteGroup: "Order",
-    valueGetter: (params) => new Date(params.value)
+    valueGetter: (v) => new Date(v)
   },
   {
     field: "Total",
@@ -151,7 +152,7 @@ const columns: ODataGridColDef[] = [
     compute: "Customer/MiddleNames ne null and Customer/MiddleNames ne '' as HasMiddleName",
     filterType: "boolean",
     filterOperators: ["eq"],
-    valueGetter: (params) => params.row.HasMiddleName ? "Yes" : "No",
+    valueGetter: (v) => v ? "Yes" : "No",
     autocompleteGroup: "Customer"
   },
   {

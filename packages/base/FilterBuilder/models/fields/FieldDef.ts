@@ -1,6 +1,6 @@
 import { FormControlProps, SelectProps, TextFieldProps } from "@mui/material";
 import { GridColDef, GridSingleSelectColDef } from "@mui/x-data-grid";
-import { DatePickerProps, DateTimePickerProps } from "@mui/x-date-pickers";
+import { DatePickerProps, DateTimePickerProps, PickerValidDate } from "@mui/x-date-pickers";
 
 import { FilterCompute, QueryStringCollection } from "../filters/translation";
 import { Operation } from "../filters/";
@@ -8,7 +8,7 @@ import { Operation } from "../filters/";
 /**
  * Utility type to get the filter field definition from a DataGrid column definition type
  */
-type FieldDefFromColDef<TDate, T extends GridColDef, K extends keyof T = never> =
+type FieldDefFromColDef<TDate extends PickerValidDate, T extends GridColDef, K extends keyof T = never> =
   Pick<T, "field" | "headerName" | "type" | "filterable" | K> & {
     /**
      * Group for the field in the Autocomplete dropdown
@@ -88,7 +88,7 @@ type FieldDefFromColDef<TDate, T extends GridColDef, K extends keyof T = never> 
     renderCustomFilter?: (value: any, setValue: (v: unknown) => void) => React.ReactNode,
   };
 
-export type TextFieldDef<TDate> = FieldDefFromColDef<TDate, GridColDef> & {
+export type TextFieldDef<TDate extends PickerValidDate> = FieldDefFromColDef<TDate, GridColDef> & {
   textFieldProps?: TextFieldProps
 }
 
@@ -98,21 +98,21 @@ export type SelectControlProps = {
   label?: string
 }
 
-export type SingleSelectFieldDef<TDate> = FieldDefFromColDef<TDate, GridSingleSelectColDef, "valueOptions" | "getOptionValue" | "getOptionLabel"> & {
+export type SingleSelectFieldDef<TDate extends PickerValidDate> = FieldDefFromColDef<TDate, GridSingleSelectColDef, "valueOptions" | "getOptionValue" | "getOptionLabel"> & {
   selectProps?: SelectControlProps,
 }
 
-export type DateFieldDef<TDate> = FieldDefFromColDef<TDate, GridColDef> & {
+export type DateFieldDef<TDate extends PickerValidDate> = FieldDefFromColDef<TDate, GridColDef> & {
   type: "date",
   datePickerProps?: DatePickerProps<TDate>,
 }
 
-export type DateTimeFieldDef<TDate> = FieldDefFromColDef<TDate, GridColDef> & {
-  type: "datetime",
+export type DateTimeFieldDef<TDate extends PickerValidDate> = FieldDefFromColDef<TDate, GridColDef> & {
+  type: "dateTime",
   dateTimePickerProps?: DateTimePickerProps<TDate>,
 }
 
-export type BooleanFieldDef<TDate> = FieldDefFromColDef<TDate, GridColDef> & {
+export type BooleanFieldDef<TDate extends PickerValidDate> = FieldDefFromColDef<TDate, GridColDef> & {
   type: "boolean",
   selectProps?: SelectControlProps
 }
@@ -120,10 +120,10 @@ export type BooleanFieldDef<TDate> = FieldDefFromColDef<TDate, GridColDef> & {
 /**
  * Definition for a filterable field in FilterBuilder
  */
-export type FieldDef<TDate> = TextFieldDef<TDate>
+export type FieldDef<TDate extends PickerValidDate> = TextFieldDef<TDate>
   | SingleSelectFieldDef<TDate>
   | DateFieldDef<TDate>
   | DateTimeFieldDef<TDate>
   | BooleanFieldDef<TDate>;
 
-export type CollectionFieldDef<TDate> = Omit<FieldDef<TDate>, "headerName" | "collection" | "collectionFields">;
+export type CollectionFieldDef<TDate extends PickerValidDate> = Omit<FieldDef<TDate>, "headerName" | "collection" | "collectionFields">;

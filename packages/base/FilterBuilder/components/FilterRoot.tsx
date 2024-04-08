@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { useSetAtom } from "jotai";
 import { ArrowDropDown } from "@mui/icons-material";
 import { Button, ButtonGroup, Grid, MenuItem, MenuList, Paper, Popover } from "@mui/material";
@@ -17,11 +17,11 @@ import { FilterBuilderProps } from "../models";
 import { ConditionClause, SerialisedGroup } from "../models/filters";
 import { TranslatedQueryResult, isDifferent } from "../models/filters/translation";
 
-type FilterRootProps<TDate> = {
+type FilterRootProps<TDate extends never> = {
   props: FilterBuilderProps<TDate>
 }
 
-const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
+const FilterRoot = <TDate extends never,>({ props }: FilterRootProps<TDate>) => {
   const setClauses = useSetAtom(clausesAtom);
   const setProps = useSetAtom(propsAtom);
   const setSchema = useSetAtom(schemaAtom);
@@ -132,7 +132,7 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
   });
 
   return (
-    <Fragment>
+    <>
       <form onSubmit={submit}>
         <FilterGroup
           clauseId={rootGroupUuid}
@@ -186,7 +186,7 @@ const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
         }
       </form>
 
-    </Fragment>
+    </>
   );
 }
 
