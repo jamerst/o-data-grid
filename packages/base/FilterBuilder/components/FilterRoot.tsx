@@ -13,7 +13,7 @@ import { deserialise } from "../utils";
 import { useMountEffect } from "../../hooks";
 import { useFilterBuilderApiInitialization, useODataFilter, useODataFilterWithState } from "../hooks";
 
-import { FilterBuilderApi, FilterBuilderProps } from "../models";
+import { FilterBuilderProps } from "../models";
 import { ConditionClause, SerialisedGroup } from "../models/filters";
 import { TranslatedQueryResult, isDifferent } from "../models/filters/translation";
 
@@ -21,7 +21,7 @@ type FilterRootProps<TDate> = {
   props: FilterBuilderProps<TDate>
 }
 
-const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.ForwardedRef<FilterBuilderApi>) => {
+const FilterRoot = <TDate,>({ props }: FilterRootProps<TDate>) => {
   const setClauses = useSetAtom(clausesAtom);
   const setProps = useSetAtom(propsAtom);
   const setSchema = useSetAtom(schemaAtom);
@@ -34,7 +34,7 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
 
   const { onSubmit, onRestoreState } = props;
 
-  const apiRef = useFilterBuilderApiInitialization(ref);
+  const apiRef = useFilterBuilderApiInitialization(props.apiRef);
 
   const submit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -190,5 +190,4 @@ const FilterRootInner = <TDate,>({ props }: FilterRootProps<TDate>, ref?: React.
   );
 }
 
-const FilterRoot = React.forwardRef(FilterRootInner);
 export default FilterRoot;

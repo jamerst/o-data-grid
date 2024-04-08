@@ -1,7 +1,7 @@
 import { AutocompleteProps, SelectProps, TextFieldProps } from "@mui/material";
 import { DatePickerProps, DateTimePickerProps, LocalizationProviderProps } from "@mui/x-date-pickers";
 
-import { FilterBuilderLocaleText } from "."
+import { FilterBuilderApi, FilterBuilderLocaleText } from "."
 import { FieldDef } from "./fields";
 import { TranslatedQueryResult } from "./filters/translation";
 import { SerialisedGroup } from "./filters";
@@ -72,7 +72,12 @@ export type FilterBuilderProps<TDate> = {
   /**
    * Disable history state creation when set to true
    */
-  disableHistory?: boolean
+  disableHistory?: boolean,
+
+  /**
+   * Ref for API object which allows interacting with FilterBuilder programmatically
+   */
+  apiRef?: React.MutableRefObject<FilterBuilderApi>
 }
 
 type FilterInitialState = {

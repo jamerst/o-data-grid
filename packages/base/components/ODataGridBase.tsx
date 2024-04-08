@@ -1,8 +1,8 @@
-import React, { useMemo } from "react"
+import React, { useImperativeHandle, useMemo } from "react"
 import { Box } from "@mui/material";
 import { DataGridProps, useGridApiRef, GridInitialState } from "@mui/x-data-grid";
 
-import { ODataGridBaseProps } from "../models";
+import { ODataGridBaseProps, ODataGridApi } from "../models";
 
 import { useODataSource } from "../hooks/useODataSource";
 import { useHistoryStates } from "../hooks/useHistoryStates";
@@ -11,12 +11,15 @@ import { useResponsiveColumns } from "../hooks/useResponsiveColumns";
 import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 import { useFilterBuilderApiRef } from "../FilterBuilder/hooks";
 
-const ODataGridBase = <ComponentProps extends DataGridProps,
+const ODataGridBaseRaw = <ComponentProps extends DataGridProps,
   TRow,
   TDate,
-  TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>) => {
+  TInitialState extends GridInitialState,
+  TApi extends ODataGridApi,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState, TApi>, ref: React.Ref<HTMLDivElement>) => {
   const gridApiRef = useGridApiRef();
   const filterApiRef = useFilterBuilderApiRef();
+
+  useImperativeHandle(props.apiRef, () => ({ ...gridApiRef.current, ...filterApiRef.current }), [gridApiRef, filterApiRef]);
 
   const { loading, rows, rowCount } = useODataSource(props, gridApiRef, filterApiRef);
   useHistoryStates(props, gridApiRef, filterApiRef);
@@ -35,13 +38,13 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
             {...props.filterBuilderProps}
             schema={props.columns}
             initialState={props.initialState}
-            ref={filterApiRef}
+            apiRef={filterApiRef}
           />
         </Box>
       }
       <GridComponent
         autoHeight
-        ref={React.createRef()}
+        ref={ref}
 
         {...props}
 
@@ -66,5 +69,7 @@ const ODataGridBase = <ComponentProps extends DataGridProps,
     </>
   )
 };
+
+const ODataGridBase = React.forwardRef(ODataGridBaseRaw);
 
 export default ODataGridBase;

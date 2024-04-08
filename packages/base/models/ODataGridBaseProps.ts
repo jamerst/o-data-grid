@@ -4,6 +4,7 @@ import { GridColDef, GridValidRowModel, DataGridProps, GridInitialState, GridCol
 import { FilterBuilderInitialState, FilterBuilderProps } from "../FilterBuilder/models/FilterBuilderProps";
 import { ResponsiveValues } from "../hooks";
 import { ODataGridBaseColDef } from "./columns/ODataGridBaseColDef";
+import { ODataGridApi  } from "./ODataGridApi";
 
 export type ODataGridBaseProps<
   ComponentProps extends DataGridProps,
@@ -68,14 +69,20 @@ export type ODataGridBaseProps<
     /**
      * Options to add to OData request
      */
-    requestOptions?: RequestInit
+    requestOptions?: RequestInit,
+
+    /**
+     * Ref for API object which allows interacting with DataGrid and FilterBuilder programmatically
+     */
+    apiRef?: React.MutableRefObject<ODataGridApi>
   };
 
 export type DataGridFilterBuilderProps<TDate> = Omit<FilterBuilderProps<TDate>, "schema" | "initialState">
 
 // remove properties which should not be used - these are handled internally or overridden
 type OmitGridProps<T> = Omit<T,
-  "columns"
+  "apiRef"
+  | "columns"
   | "rows"
   | "autoPageSize"
   | "columnVisibilityModel"

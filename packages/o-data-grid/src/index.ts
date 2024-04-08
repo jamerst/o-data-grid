@@ -1,7 +1,7 @@
-import { GridColDef, GridActionsColDef, GridValidRowModel } from "@mui/x-data-grid";
+import { GridActionsColDef, GridValidRowModel } from "@mui/x-data-grid";
 
 import ODataGrid from "./ODataGrid";
-import { ODataGridBaseColDef, ODataRowModel } from "../../base/types";
+import { ODataGridBaseColDef } from "../../base/models";
 import FilterBuilder from "../../base/FilterBuilder/components/FilterBuilder";
 import { allOperators, numericOperators } from "../../base/FilterBuilder/constants";
 import { GridBaseColDef, GridSingleSelectColDef } from "@mui/x-data-grid/internals";
@@ -13,7 +13,7 @@ export {
   numericOperators
 }
 
-export type { ODataGridProps, ODataInitialState } from "./ODataGridProps";
+export type { ODataGridProps, ODataGridInitialState } from "./ODataGridProps";
 export type ODataGridColDef<TRow extends GridValidRowModel = any, V = any, F = any, TDate = any>
   = ODataGridBaseColDef<GridBaseColDef<TRow, V, F>, TRow, V, F, TDate>
   | ODataGridBaseColDef<GridActionsColDef<TRow, V, F>, TRow, V, F, TDate>
@@ -22,7 +22,9 @@ export type ODataGridColDef<TRow extends GridValidRowModel = any, V = any, F = a
     // supposedly GridActionsColDef has been removed according to the migration guide, but it hasn't and is still
     // needed?
 
-export type { SelectOption, ValueOption, ODataColumnVisibilityModel } from "../../base/types";
+export type { ODataColumnVisibilityModel } from "../../base/models";
+
+export { useODataGridApiRef } from "../../base/hooks/useODataGridApiRef";
 
 export type {
   FilterBuilderLocaleText,
@@ -36,7 +38,6 @@ export type {
   DateTimeFieldDef,
   SingleSelectFieldDef,
   TextFieldDef,
-
 } from "../../base/FilterBuilder/models/fields";
 export type {
   CollectionOperation,
@@ -45,7 +46,7 @@ export type {
   SerialisedCondition,
 } from "../../base/FilterBuilder/models/filters";
 export type {
-  TranslatedQuery as BuiltQuery,
+  TranslatedQuery,
   ComputeSelect,
   FilterCompute,
   QueryStringCollection,

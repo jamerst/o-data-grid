@@ -1,6 +1,6 @@
-import { GridColumnVisibilityModel, GridInitialState, GridPaginationModel } from "@mui/x-data-grid";
-import { ODataGridBaseProps, ODataRowModel, ODataInitialState as ODataBaseInitialState } from "../../base/types";
-import { DataGridProps, GridColDef, GridSortModel } from "@mui/x-data-grid";
+import { GridInitialState} from "@mui/x-data-grid";
+import { ODataGridBaseProps, ODataRowModel, ODataGridInitialState as ODataGridBaseInitialState } from "../../base/models";
+import { DataGridProps } from "@mui/x-data-grid";
 
 export type ODataGridProps<TRow = any, TDate = any> = Omit<
     ODataGridBaseProps<DataGridProps<ODataRowModel<TRow>>,
@@ -9,4 +9,4 @@ export type ODataGridProps<TRow = any, TDate = any> = Omit<
   "component"
   >;
 
-export type ODataInitialState = ODataBaseInitialState<GridInitialState>;
+export type ODataGridInitialState = ODataGridBaseInitialState<GridInitialState>;

@@ -1,8 +1,8 @@
-import React from "react"
-import { CssBaseline } from "@mui/material";
+import React, { useEffect, useRef } from "react"
+import { Button, CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { GridActionsCellItem } from "@mui/x-data-grid"
-import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, ODataGridColDef, ODataInitialState } from "../../../o-data-grid/src"
+import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, ODataGridColDef, ODataGridInitialState, useODataGridApiRef, SerialisedGroup } from "../../../o-data-grid/src"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { Edit } from "@mui/icons-material";
@@ -20,7 +20,30 @@ const columnVisibility: ODataColumnVisibilityModel = {
   "Customer/EmailAddress": { xs: false, md: true }
 }
 
+const test: SerialisedGroup = {
+  connective: "and",
+  negated: false,
+  children: [
+    {
+      field: "Customer/Name",
+      op: "contains",
+      value: "ga"
+    }
+  ]
+};
+
 const App = () => {
+  const apiRef = useODataGridApiRef();
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    console.debug("attaching event");
+    return apiRef.current.onFilterChange.on((args) => console.debug(args));
+  }, [apiRef]);
+
+  useEffect(() => console.debug("ref", ref), [ref]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -32,11 +55,14 @@ const App = () => {
         getRowId={getRowId}
         pageSizeOptions={pageSizeOptions}
         initialState={initialState}
+        apiRef={apiRef}
+        ref={ref}
       />
+      <Button onClick={() => apiRef.current.setFilter(test)}>Set Filter</Button>
     </ThemeProvider>
   );
 }
-const initialState: ODataInitialState = {
+const initialState: ODataGridInitialState = {
   pagination: {
     paginationModel: {
       pageSize: 10
@@ -51,6 +77,7 @@ const initialState: ODataInitialState = {
   filterBuilder: {
     filterModel: {
       connective: "and",
+      negated: false,
       children: [
         {
           field: "Customer/Name",
@@ -80,7 +107,7 @@ const columns: ODataGridColDef[] = [
     autocompleteGroup: "Customer",
     filterOperators: ["eq", "ne", "contains"],
     getCustomFilterString: (op, value) => {
-      const safeValue = escapeODataString(value)?.toLowerCase();
+      const safeValue = escapeODataString(value as string)?.toLowerCase();
       return op === "contains"
         ? `contains(tolower(Customer/FirstName), '${safeValue}') or contains(tolower(Customer/MiddleNames), '${safeValue}') or contains(tolower(Customer/Surname), '${safeValue}')`
         : `tolower(Customer/FirstName) ${op} '${safeValue}' or tolower(Customer/MiddleNames) ${op} '${safeValue}' or tolower(Customer/Surname) ${op} '${safeValue}'`
