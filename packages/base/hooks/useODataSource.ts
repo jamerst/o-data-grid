@@ -6,6 +6,7 @@ import { ODataGridBaseProps } from "../models/ODataGridBaseProps";
 import { ODataRowModel } from "../models/OData/ODataRowModel";
 import { ExpandToQuery, Flatten } from "../utils";
 import { OnFilterChangeEventArgs } from "../FilterBuilder/events/OnFilterChangeEventArgs";
+import { PickerValidDate } from "@mui/x-date-pickers";
 
 type ODataResponse<T> = {
   "@odata.count"?: number,
@@ -19,7 +20,7 @@ type ODataResponse<T> = {
  * @param filterBuilderApiRef FilterBuilder API object
  * @returns loading state, DataGrid rows and row count
  */
-export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate, TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
+export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate extends PickerValidDate, TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
 ) => {

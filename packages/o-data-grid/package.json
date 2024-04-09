@@ -8,8 +8,6 @@
   "sideEffects": false,
   "scripts": {
     "build": "cd ../ && node_modules/.bin/rollup -c ./rollup.o-data-grid.config.mjs",
-    "start": "cd ../ && node_modules/.bin/webpack-dev-server --mode development --open --hot -c ./webpack.o-data-grid.config.js",
-    "build-dev": "cd ../ && node_modules/.bin/webpack -c ./webpack.o-data-grid.config.js",
     "lint": "cd ../ && node_modules/.bin/eslint ./o-data-grid"
   },
   "repository": {
@@ -38,7 +36,7 @@
   "homepage": "https://github.com/jamerst/o-data-grid#readme",
   "peerDependencies": {
     "@emotion/react": "^11.4.1",
-    "@mui/icons-material": "^5.11.16",
+    "@mui/icons-material": "^5.0.0",
     "@mui/material": "^5.15.14",
     "@mui/x-data-grid": "^7.0.0",
     "@mui/x-date-pickers": "^7.0.0",

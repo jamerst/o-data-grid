@@ -77,7 +77,7 @@ type FieldDefFromColDef<TDate extends PickerValidDate, T extends GridColDef, K e
      * @param setValue Function to set filter value
      * @returns React component for custom filter value input
      */
-    renderCustomInput?: (value: any, setValue: (v: unknown) => void) => React.ReactNode,
+    renderCustomInput?: (value: any, setValue: (v: unknown) => void) => React.ReactElement,
 
     /**
      * Provide a custom component for the filter inputs (operation and value fields)
@@ -85,7 +85,7 @@ type FieldDefFromColDef<TDate extends PickerValidDate, T extends GridColDef, K e
      * @param setValue Function to set filter value
      * @returns React component for custom filter inputs
      */
-    renderCustomFilter?: (value: any, setValue: (v: unknown) => void) => React.ReactNode,
+    renderCustomFilter?: (value: any, setValue: (v: unknown) => void) => React.ReactElement,
   };
 
 export type TextFieldDef<TDate extends PickerValidDate> = FieldDefFromColDef<TDate, GridColDef> & {

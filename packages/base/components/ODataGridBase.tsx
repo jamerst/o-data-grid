@@ -1,8 +1,8 @@
-import React, { useImperativeHandle, useMemo } from "react"
+import React, { useImperativeHandle, useMemo } from "react";
 import { Box } from "@mui/material";
-import { DataGridProps, useGridApiRef, GridInitialState } from "@mui/x-data-grid";
+import { DataGridProps, useGridApiRef, GridInitialState, GridValidRowModel } from "@mui/x-data-grid";
 
-import { ODataGridBaseProps, ODataGridApi } from "../models";
+import { ODataGridBaseProps } from "../models";
 
 import { useODataSource } from "../hooks/useODataSource";
 import { useHistoryStates } from "../hooks/useHistoryStates";
@@ -10,12 +10,12 @@ import { useResponsiveColumns } from "../hooks/useResponsiveColumns";
 
 import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 import { useFilterBuilderApiRef } from "../FilterBuilder/hooks";
+import { PickerValidDate } from "@mui/x-date-pickers";
 
 const ODataGridBaseRaw = <ComponentProps extends DataGridProps,
-  TRow,
-  TDate,
-  TInitialState extends GridInitialState,
-  TApi extends ODataGridApi,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState, TApi>, ref: React.Ref<HTMLDivElement>) => {
+  TRow extends GridValidRowModel,
+  TDate extends PickerValidDate,
+  TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState, TRow>, ref: React.Ref<HTMLDivElement>) => {
   const gridApiRef = useGridApiRef();
   const filterApiRef = useFilterBuilderApiRef();
 

@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { DataGridProps, GridApiCommon, GridSortModel, gridPaginationModelSelector, gridSortModelSelector, GridInitialState } from "@mui/x-data-grid"
 
 import { FilterBuilderApi } from "../FilterBuilder/models"
-import { ODataGridBaseProps } from "../types";
+import { ODataGridBaseProps } from "../models";
 import { defaultPageSize as _defaultPageSize } from "../constants";
 import { useMountEffect } from "../hooks";
 import { SerialisedGroup } from "../FilterBuilder/models/filters";
+import { PickerValidDate } from "@mui/x-date-pickers";
 
 /**
  * Create entries in the browser history for interactions with the DataGrid and
@@ -15,7 +16,7 @@ import { SerialisedGroup } from "../FilterBuilder/models/filters";
  * @param gridApiRef DataGrid API object
  * @param filterBuilderApiRef FilterBuilder API object
  */
-export const useHistoryStates = <ComponentProps extends DataGridProps, TDate, TInitialState extends GridInitialState>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
+export const useHistoryStates = <ComponentProps extends DataGridProps, TDate extends PickerValidDate, TInitialState extends GridInitialState>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
 ) => {

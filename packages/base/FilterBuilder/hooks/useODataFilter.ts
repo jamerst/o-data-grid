@@ -8,13 +8,14 @@ import { defaultTranslators } from "../translation";
 import { FieldDef } from "../models/fields";
 import { ConditionClause, GroupClause, Operation, SerialisedCondition, SerialisedGroup, StateClause, StateTree, TreeGroup } from "../models/filters";
 import { TranslatedInnerQuery, TranslatedQuery, FilterTranslator } from "../models/filters/translation";
+import { PickerValidDate } from "@mui/x-date-pickers";
 
 /**
  * Get a function to translate the current filter state into an OData filter string
  * @param schema Field definitions
  * @returns Memoised function to translate the current filter state into an OData filter string
  */
-export const useODataFilter = <TDate,>(schema: FieldDef<unknown>[]) => {
+export const useODataFilter = <TDate extends PickerValidDate,>(schema: FieldDef<TDate>[]) => {
   const clauses = useAtomValue(clausesAtom);
   const tree = useAtomValue(treeAtom);
 
@@ -28,7 +29,7 @@ export const useODataFilter = <TDate,>(schema: FieldDef<unknown>[]) => {
  * @param schema Field definitions
  * @returns Memoised function to translate provided filter state into an OData filter string
  */
-export const useODataFilterWithState = <TDate,>(schema: FieldDef<unknown>[]) => {
+export const useODataFilterWithState = <TDate extends PickerValidDate,>(schema: FieldDef<TDate>[]) => {
   return useCallback((clauses: StateClause, tree: StateTree) => {
     return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup> | undefined;
   }, [schema])
@@ -44,7 +45,7 @@ export const useODataFilterWithState = <TDate,>(schema: FieldDef<unknown>[]) => 
  * @returns Group translated into an OData filter string, undefined if group is a default group (from the initial state
  * of the filter builder), false if translation fails
  */
-const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (TranslatedQuery<SerialisedGroup> | false | undefined) => {
+const translateGroup = <TDate extends PickerValidDate,>(schema: FieldDef<TDate>[], clauses: StateClause, tree: StateTree, id: string, path: string[]): (TranslatedQuery<SerialisedGroup> | false | undefined) => {
   const clause = clauses.get(id) as GroupClause;
   const treeNode = tree.getIn([...path, id]) as TreeGroup;
 
@@ -100,7 +101,7 @@ const translateGroup = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause,
  * @returns Condition translated into an OData filter string, undefined if condition is a default condition (from initial
  * state of filter builder), false if translation fails
  */
-const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateClause, id: string): (TranslatedQuery<SerialisedCondition> | false | undefined) => {
+const translateCondition = <TDate extends PickerValidDate,>(schema: FieldDef<TDate>[], clauses: StateClause, id: string): (TranslatedQuery<SerialisedCondition> | false | undefined) => {
   const clause = clauses.get(id) as ConditionClause;
 
   let condition: SerialisedCondition | undefined = undefined;
@@ -169,7 +170,7 @@ const translateCondition = <TDate,>(schema: FieldDef<TDate>[], clauses: StateCla
  * @param value Condition value
  * @returns OData filter string for condition, false if translation fails
  */
-const translateInnerCondition = <TDate,>(schema: FieldDef<TDate>, field: string, op: Operation, value: any): TranslatedInnerQuery | false => {
+const translateInnerCondition = <TDate extends PickerValidDate,>(schema: FieldDef<TDate>, field: string, op: Operation, value: any): TranslatedInnerQuery | false => {
   if (schema.getCustomQueryString) {
     return {
       queryString: schema.getCustomQueryString(op, value)

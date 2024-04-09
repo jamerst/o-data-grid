@@ -194,12 +194,10 @@ The `FilterBuilder` component supports localization like the `DataGrid` through 
 ```
 
 ## Development
-ODataGrid is developed using [pnpm](https://pnpm.io/). It will probably work fine with npm too, but this hasn't been tested.
-
-To build and run the packages, you first need to install the development packages by running `pnpm i` in the `packages` directory. Once you have done that you can build or run the relevant package.
+To build and run the packages, you first need to install the development packages by running `npm i` in the `packages` directory. Once you have done that you can build or run the relevant package.
 
 ### Building
-Building is simple, just run `pnpm build` in `packages/o-data-grid` or `packages/o-data-grid-pro`.
+Building is simple, just run `npm run build` in `packages/o-data-grid` or `packages/o-data-grid-pro`.
 
 The build output is in the `build` directory.
 

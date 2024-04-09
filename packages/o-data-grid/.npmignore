@@ -1,5 +1,5 @@
 src/
-.eslintrc.json
+eslint.config.js
 pnpm-lock.yaml
 .pnpm-debug.log
 tsconfig.json

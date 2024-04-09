@@ -1,7 +1,7 @@
 import { FilterTranslatorCollection } from "./models/filters/translation";
 import { escapeODataString } from "./utils";
 
-export const defaultTranslators: FilterTranslatorCollection<any> = {
+export const defaultTranslators: FilterTranslatorCollection<never> = {
   "contains": ({ schema, field, value }) => {
     const type = schema.filterType ?? schema.type;
     if ((type && type !== "string") || typeof value !== "string") {
