@@ -1,6 +1,6 @@
 import React from "react"
 import { ODataGridProps } from "./ODataGridProps"
-import ODataGridBase from "./base/components/ODataGridBase"
+import ODataGridBase from "../../base/components/ODataGridBase"
 import { DataGrid } from "@mui/x-data-grid"
 
 const ODataGridRaw = (props: ODataGridProps, ref: React.Ref<HTMLDivElement>) => (

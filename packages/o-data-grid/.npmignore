@@ -1,4 +1,5 @@
 src/
+build/build/
 eslint.config.js
 pnpm-lock.yaml
 .pnpm-debug.log
