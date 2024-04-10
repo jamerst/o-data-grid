@@ -7,7 +7,7 @@ import { defaultTranslators } from "../translation";
 
 import { FieldDef } from "../models/fields";
 import { ConditionClause, GroupClause, Operation, SerialisedCondition, SerialisedGroup, StateClause, StateTree, TreeGroup } from "../models/filters";
-import { TranslatedInnerQuery, TranslatedQuery, FilterTranslator } from "../models/filters/translation";
+import { TranslatedInnerQuery, TranslatedQuery, FilterTranslator, QueryStringCollection } from "../models/filters/translation";
 import { PickerValidDate } from "@mui/x-date-pickers";
 
 /**
@@ -129,7 +129,7 @@ const translateCondition = <TDate extends PickerValidDate,>(schema: FieldDef<TDa
 
   const filterField = def.filterField ?? def.field;
 
-  let innerResult;
+  let innerResult: TranslatedInnerQuery | false;
   if (clause.collectionOp) {
     if (clause.collectionOp === "count") {
       innerResult = {
@@ -138,6 +138,10 @@ const translateCondition = <TDate extends PickerValidDate,>(schema: FieldDef<TDa
     } else {
       const collectionDef = def.collectionFields!.find(d => d.field === clause.collectionField!);
       innerResult = translateInnerCondition(collectionDef!, "x/" + clause.collectionField!, clause.op, clause.value);
+
+      if (innerResult !== false) {
+        innerResult.filter = `${filterField}/${clause.collectionOp}(x:${innerResult.filter})`;
+      }
     }
   } else {
     innerResult = translateInnerCondition(def, filterField, clause.op, clause.value);
@@ -171,10 +175,9 @@ const translateCondition = <TDate extends PickerValidDate,>(schema: FieldDef<TDa
  * @returns OData filter string for condition, false if translation fails
  */
 const translateInnerCondition = <TDate extends PickerValidDate,>(schema: FieldDef<TDate>, field: string, op: Operation, value: any): TranslatedInnerQuery | false => {
+  let queryString: QueryStringCollection | undefined = undefined;
   if (schema.getCustomQueryString) {
-    return {
-      queryString: schema.getCustomQueryString(op, value)
-    };
+    queryString = schema.getCustomQueryString(op, value);
   }
 
   if (schema.getCustomFilterString) {
@@ -189,13 +192,15 @@ const translateInnerCondition = <TDate extends PickerValidDate,>(schema: FieldDe
       if (typeof compute === "string") {
         return {
           filter: result.filter,
-          compute: compute
+          compute: compute,
+          queryString: queryString
         };
       } else {
         return {
           filter: result.filter,
           compute: compute.compute,
-          select: compute.select
+          select: compute.select,
+          queryString: queryString
         };
       }
     } else {
@@ -214,7 +219,8 @@ const translateInnerCondition = <TDate extends PickerValidDate,>(schema: FieldDe
 
   if (typeof result === "string") {
     return {
-      filter: result
+      filter: result,
+      queryString: queryString
     };
   } else {
     return result;
