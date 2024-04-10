@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react"
 import { Button, CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { GridActionsCellItem } from "@mui/x-data-grid"
-import { ODataGrid, ODataColumnVisibilityModel, escapeODataString, ODataGridColDef, ODataGridInitialState, useODataGridApiRef, SerialisedGroup } from "../../../o-data-grid/src"
+import { GridActionsCellItem } from "@mui/x-data-grid-premium"
+import { ODataGridPremium, ODataColumnVisibilityModel, escapeODataString, ODataGridColDef, ODataGridInitialState, useODataGridApiRef, SerialisedGroup } from "../../../o-data-grid-premium/src"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import "dayjs/locale/en-gb"
@@ -48,7 +48,7 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <ODataGrid
+      <ODataGridPremium
         url="https://api.o-data-grid.jtattersall.net/order"
         columns={columns}
         filterBuilderProps={filterBuilderProps}

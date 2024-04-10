@@ -1,10 +1,10 @@
-import { DataGridProps, GridInitialState} from "@mui/x-data-grid";
+import { DataGridPremiumProps, GridInitialState} from "@mui/x-data-grid-premium";
 import { PickerValidDate } from "@mui/x-date-pickers";
 
 import { ODataGridBaseProps, ODataRowModel, ODataGridInitialState as ODataGridBaseInitialState } from "../../base/models";
 
-export type ODataGridProps<TRow = any, TDate extends PickerValidDate = PickerValidDate> = Omit<
-  ODataGridBaseProps<DataGridProps<ODataRowModel<TRow>>, TDate, GridInitialState>,
+export type ODataGridPremiumProps<TRow = any, TDate extends PickerValidDate = PickerValidDate> = Omit<
+  ODataGridBaseProps<DataGridPremiumProps<ODataRowModel<TRow>>, TDate, GridInitialState>,
   "component"
   >;
 

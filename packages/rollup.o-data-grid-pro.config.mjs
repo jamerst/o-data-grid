@@ -1,6 +1,7 @@
 import dts from "rollup-plugin-dts"
-import pkg from "./o-data-grid-pro/package.json"
-import typescript from "rollup-plugin-typescript2";
+import pkg from "./o-data-grid-pro/package.json" assert { type: "json" };
+import typescript from '@rollup/plugin-typescript';
+import { del } from "@kineticcafe/rollup-plugin-delete";
 
 export default [
     {
@@ -16,7 +17,8 @@ export default [
             }
         ],
         plugins: [
-            typescript({ clean: true })
+            del({ targets: "o-data-grid-pro/build/*"}),
+            typescript(),
         ],
         external: Object.keys({ ...pkg.peerDependencies, ...pkg.dependencies }).map((packageName) => {
             // Make sure that e.g. `react` as well as `react/jsx-runtime` is considered an external
@@ -24,7 +26,7 @@ export default [
         }),
     },
     {
-        input: "./o-data-grid-pro/build/o-data-grid-pro/src/index.d.ts",
+        input: "./o-data-grid-pro/build/build/o-data-grid-pro/src/index.d.ts",
         output: [
             {
                 file: "./o-data-grid-pro/build/o-data-grid-pro.d.ts",

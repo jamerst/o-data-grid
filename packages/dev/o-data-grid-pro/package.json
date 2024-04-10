@@ -1,0 +1,30 @@
+{
+  "name": "o-data-grid",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mui/icons-material": "^5.15.15",
+    "@mui/material": "^5.15.15",
+    "@mui/x-data-grid-pro": "^7.1.1",
+    "@mui/x-date-pickers": "^7.1.1",
+    "immutable": "^4.3.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tss-react": "^4.9.6",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.5",
+    "@types/react": "^18.2.74",
+    "@types/react-dom": "^18.2.24",
+    "@vitejs/plugin-react-swc": "^3.6.0",
+    "typescript": "^5.4.4",
+    "vite": "^5.2.8"
+  }
+}

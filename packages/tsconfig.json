@@ -24,6 +24,8 @@
   },
   "include": [
     "./o-data-grid/src",
+    "./o-data-grid-premium/src",
+    "./o-data-grid-pro/src",
     "./base"
   ]
 }
