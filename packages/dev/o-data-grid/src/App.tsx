@@ -58,6 +58,7 @@ const App = () => {
         initialState={initialState}
         apiRef={apiRef}
         ref={ref}
+        // $filter="contains(tolower(Customer/FirstName), 'ag')"
       />
       <Button onClick={() => apiRef.current.setFilter(test)}>Set Filter</Button>
     </ThemeProvider>

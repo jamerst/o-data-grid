@@ -32,7 +32,7 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
   const [rows, setRows] = useState<ODataRowModel<TRow>[]>([]);
   const [rowCount, setRowCount] = useState(0);
 
-  const { alwaysSelect, columns, columnVisibilityModel, $filter, url, requestOptions } = props;
+  const { alwaysSelect, columns, columnVisibilityModel, disableFilterBuilder, $filter, url, requestOptions } = props;
   const getRows = useCallback(async () => {
     const responsiveColumns = columnVisibilityModel
     ? Object.keys(columnVisibilityModel).filter(k => typeof columnVisibilityModel[k] !== "boolean")
@@ -99,11 +99,13 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
       }
     }
 
-    const filter = filterBuilderApiRef.current.filter?.filter;
-    if (filter) {
-      query.append("$filter", filter);
-    } else if ($filter) {
+    if ($filter) {
       query.append("$filter", $filter);
+    } else if (!disableFilterBuilder) {
+      const filter = filterBuilderApiRef.current.filter?.filter;
+      if (filter) {
+        query.append("$filter", filter);
+      }
     }
 
     const computes = columns.filter(c => columnsToFetch.includes(c.field) && c.compute).map(c => c.compute);
@@ -149,7 +151,7 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     } else {
       console.error(`API request failed: ${response.url}, HTTP ${response.status}`);
     }
-  }, [filterBuilderApiRef, gridApiRef, alwaysSelect, columns, columnVisibilityModel, $filter, requestOptions, url]);
+  }, [filterBuilderApiRef, gridApiRef, alwaysSelect, columns, columnVisibilityModel, disableFilterBuilder, $filter, requestOptions, url]);
 
   const timeout = useRef<number | null>(null);
   const getRowsDebounced = useCallback(() => {
@@ -171,19 +173,6 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
       }
     }
 
-    const onFilterChange = (args: OnFilterChangeEventArgs) => {
-      if (args.resetPage) {
-        resetPage();
-      }
-
-      fetchCount.current = true;
-      forceFetch.current = true;
-
-      if (!firstRender.current) {
-        getRowsDebounced();
-      }
-    };
-
     const onSortModelChange = () => {
       resetPage();
       forceFetch.current = true;
@@ -200,11 +189,27 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
 
     // store cleanup methods returned by subscribe methods for calling later
     const cleanup = [
-      filterBuilderApiRef.current.onFilterChange.on(onFilterChange),
       gridApiRef.current.subscribeEvent("columnVisibilityModelChange", () => listener(false)), // don't force a refetch - only fetch if columns that are now visible were not fetched previously
       gridApiRef.current.subscribeEvent("paginationModelChange", () => listener(true)),
       gridApiRef.current.subscribeEvent("sortModelChange", onSortModelChange),
     ];
+
+    if (!props.disableFilterBuilder && !props.$filter) {
+      const onFilterChange = (args: OnFilterChangeEventArgs) => {
+        if (args.resetPage) {
+          resetPage();
+        }
+
+        fetchCount.current = true;
+        forceFetch.current = true;
+
+        if (!firstRender.current) {
+          getRowsDebounced();
+        }
+      };
+
+      cleanup.push(filterBuilderApiRef.current.onFilterChange.on(onFilterChange));
+    }
 
     if (firstRender.current) {
       getRowsDebounced();
@@ -212,7 +217,7 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     }
 
     return () => cleanup.forEach(c => c());
-  }, [filterBuilderApiRef, gridApiRef, getRowsDebounced]);
+  }, [filterBuilderApiRef, gridApiRef, getRowsDebounced, props.disableHistory, props.$filter]);
 
   return { loading, rows, rowCount };
 }

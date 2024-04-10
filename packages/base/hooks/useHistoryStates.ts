@@ -107,13 +107,16 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
 
     // store cleanup methods returned by subscribe methods for calling later
     const cleanup = [
-      filterBuilderApiRef.current.onFilterChange.on(listener),
       gridApiRef.current.subscribeEvent("paginationModelChange", listener),
       gridApiRef.current.subscribeEvent("sortModelChange", listener),
     ];
 
+    if (!props.disableFilterBuilder && !props.$filter) {
+      cleanup.push(filterBuilderApiRef.current.onFilterChange.on(listener));
+    }
+
     return () => cleanup.forEach(c => c());
-  }, [props.disableHistory, filterBuilderApiRef, gridApiRef, pushStateDebounced]);
+  }, [props.disableHistory, props.disableFilterBuilder, props.$filter, filterBuilderApiRef, gridApiRef, pushStateDebounced]);
   //#endregion
 
   //#region Restore state from history
