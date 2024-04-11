@@ -7,6 +7,7 @@ import { ODataRowModel } from "../models/OData/ODataRowModel";
 import { ExpandToQuery, Flatten } from "../utils";
 import { OnFilterChangeEventArgs } from "../FilterBuilder/events/OnFilterChangeEventArgs";
 import { PickerValidDate } from "@mui/x-date-pickers";
+import { InternalODataGridApi } from "../models";
 
 type ODataResponse<T> = {
   "@odata.count"?: number,
@@ -22,7 +23,8 @@ type ODataResponse<T> = {
  */
 export const useODataSource = <ComponentProps extends DataGridProps, TRow extends GridValidRowModel, TDate extends PickerValidDate, TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
-  filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
+  filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>,
+  internalApiRef: React.MutableRefObject<InternalODataGridApi>
 ) => {
   const fetchCount = useRef(true);
   const fetchedColumns = useRef<string[]>([]);
@@ -152,6 +154,13 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow extend
       console.error(`API request failed: ${response.url}, HTTP ${response.status}`);
     }
   }, [filterBuilderApiRef, gridApiRef, alwaysSelect, columns, columnVisibilityModel, disableFilterBuilder, $filter, requestOptions, url]);
+
+  useEffect(() => {
+    internalApiRef.current.reload = () => {
+      forceFetch.current = true;
+      return getRows()
+    }
+  }, [getRows, internalApiRef]);
 
   const timeout = useRef<number | null>(null);
   const getRowsDebounced = useCallback(() => {

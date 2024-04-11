@@ -11,6 +11,7 @@ import { useResponsiveColumns } from "../hooks/useResponsiveColumns";
 import FilterBuilder from "../FilterBuilder/components/FilterBuilder";
 import { useFilterBuilderApiRef } from "../FilterBuilder/hooks";
 import { PickerValidDate } from "@mui/x-date-pickers";
+import { useInternalODataGridApiRef } from "../hooks/useInternalODataGridApiRef";
 
 const ODataGridBaseRaw = <ComponentProps extends DataGridProps,
   TRow extends GridValidRowModel,
@@ -18,10 +19,14 @@ const ODataGridBaseRaw = <ComponentProps extends DataGridProps,
   TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState, TRow>, ref: React.Ref<HTMLDivElement>) => {
   const gridApiRef = useGridApiRef();
   const filterApiRef = useFilterBuilderApiRef();
+  const internalApiRef = useInternalODataGridApiRef();
 
-  useImperativeHandle(props.apiRef, () => ({ ...gridApiRef.current, ...filterApiRef.current }), [gridApiRef, filterApiRef]);
+  useImperativeHandle(props.apiRef,
+    () => ({ ...gridApiRef.current, ...filterApiRef.current, ...internalApiRef.current }),
+    [gridApiRef, filterApiRef, internalApiRef]
+  );
 
-  const { loading, rows, rowCount } = useODataSource(props, gridApiRef, filterApiRef);
+  const { loading, rows, rowCount } = useODataSource(props, gridApiRef, filterApiRef, internalApiRef);
   useHistoryStates(props, gridApiRef, filterApiRef);
 
   const [columnVisibilityModel, handleColumnVisibilityModelChange] = useResponsiveColumns(props);
