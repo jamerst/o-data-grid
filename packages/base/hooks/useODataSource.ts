@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { DataGridProps, GridApiCommon, gridPaginationModelSelector, gridSortModelSelector, GridInitialState } from "@mui/x-data-grid"
+import { DataGridProps, GridApiCommon, gridPaginationModelSelector, gridSortModelSelector, GridInitialState, GridValidRowModel } from "@mui/x-data-grid"
 
 import { FilterBuilderApi } from "../FilterBuilder/models"
 import { ODataGridBaseProps } from "../models/ODataGridBaseProps";
@@ -20,7 +20,7 @@ type ODataResponse<T> = {
  * @param filterBuilderApiRef FilterBuilder API object
  * @returns loading state, DataGrid rows and row count
  */
-export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate extends PickerValidDate, TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
+export const useODataSource = <ComponentProps extends DataGridProps, TRow extends GridValidRowModel, TDate extends PickerValidDate, TInitialState extends GridInitialState,>(props: ODataGridBaseProps<ComponentProps, TDate, TInitialState>,
   gridApiRef: React.MutableRefObject<GridApiCommon>,
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
 ) => {
@@ -136,9 +136,9 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
       const data = await response.json() as ODataResponse<TRow>;
 
       // flatten object so that the DataGrid can access all the properties
-      // i.e. { Person: { name: "John" } } becomes { "Person/name": "John" }
+      // i.e. { Person: { name: "John" } } becomes { Person: { name: "John" }, "Person/name": "John" }
       // keep the original properties too so that they can still be accessed via strong typing
-      const rows: ODataRowModel<TRow>[] = data.value.map((v) => ({...Flatten(v, "/"), ...v }));
+      const rows: ODataRowModel<TRow>[] = data.value.map((v) => Flatten(v, "/"));
 
       if (data["@odata.count"]) {
         setRowCount(data["@odata.count"]);
@@ -217,7 +217,7 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow, TDate
     }
 
     return () => cleanup.forEach(c => c());
-  }, [filterBuilderApiRef, gridApiRef, getRowsDebounced, props.disableHistory, props.$filter]);
+  }, [filterBuilderApiRef, gridApiRef, getRowsDebounced, props.disableHistory, props.$filter, props.disableFilterBuilder]);
 
   return { loading, rows, rowCount };
 }

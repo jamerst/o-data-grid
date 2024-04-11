@@ -95,8 +95,30 @@ const pageSizeOptions = [10, 25, 50, 100];
 
 const filterBuilderProps: DataGridFilterBuilderProps<Dayjs> = { autocompleteGroups: ["Customer", "Order"], localizationProviderProps: { dateAdapter: AdapterDayjs, adapterLocale: "en-gb" } };
 
+type Customer = {
+  FirstName: string,
+  MiddleNames?: string,
+  Surname: string,
+  EmailAddress: string
+}
+
+type Product = {
+  Name: string
+}
+
+type OrderProduct = {
+  Product: Product
+}
+
+type Order = {
+  Id: number,
+  Customer: Customer,
+  Total: number,
+  OrderProducts: OrderProduct[]
+}
+
 const alwaysFetch = ["Id"];
-const columns: ODataGridColDef[] = [
+const columns: ODataGridColDef<Order>[] = [
   {
     field: "Customer/Name",
     headerName: "Name",
@@ -114,9 +136,12 @@ const columns: ODataGridColDef[] = [
         ? `contains(tolower(Customer/FirstName), '${safeValue}') or contains(tolower(Customer/MiddleNames), '${safeValue}') or contains(tolower(Customer/Surname), '${safeValue}')`
         : `tolower(Customer/FirstName) ${op} '${safeValue}' or tolower(Customer/MiddleNames) ${op} '${safeValue}' or tolower(Customer/Surname) ${op} '${safeValue}'`
     },
-    valueGetter: (_, row) => [row.Customer.FirstName, row.Customer.MiddleNames, row.Customer.Surname]
-      .filter(n => n)
-      .join(" ")
+    valueGetter: (_, row) => {
+      // console.debug(row);
+      return [row.Customer.FirstName, row.Customer.MiddleNames, row.Customer.Surname]
+        .filter(n => n)
+        .join(" ");
+    }
   },
   {
     field: "Customer/EmailAddress",
@@ -127,6 +152,17 @@ const columns: ODataGridColDef[] = [
     },
     flex: 2,
     autocompleteGroup: "Customer",
+  },
+  {
+    field: "DeliveryAddress/PostCode",
+    headerName: "Delivery Post Code",
+    expand: {
+      navigationField: "DeliveryAddress",
+      expand: {
+        navigationField: "Customer",
+        select: "CreatedDate"
+      }
+    }
   },
   {
     field: "Date",

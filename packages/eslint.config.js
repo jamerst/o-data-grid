@@ -11,12 +11,14 @@ export default tseslint.config(
         plugins: {
           "react-hooks": hooksPlugin,
         },
-        rules: hooksPlugin.configs.recommended.rules,
+        rules: {
+            ...hooksPlugin.configs.recommended.rules
+        },
     },
     {
         rules: {
             "react-hooks/rules-of-hooks": "error",
-            "react-hooks/exhaustive-deps": "warn",
+            "react-hooks/exhaustive-deps": "error",
             "react/display-name": "off",
             "react/prop-types": "off",
             "@typescript-eslint/no-non-null-assertion": "off",

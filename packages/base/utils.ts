@@ -65,29 +65,30 @@ export const GroupArrayBy = <TKey, T,>(arr: T[], keySelector: (e: T) => TKey) =>
   .reduce((m, e) => m.set(keySelector(e), [...m.get(keySelector(e)) || [], e]), new Map<TKey, T[]>());
 
 /**
- * Flatten an object to a single level, i.e. { Person: { Name: "John" } } becomes { "Person.Name": "John" }.
- * Arrays are kept as arrays, with their elements flattened.
+ * Flatten nested objects inside an object, combining with the original object structure.
+ * e.g. { Person: { Name: "John" } } becomes { Person: { Name: "John" }, "Person.Name": "John" }.
  * @param obj Object to flatten
  * @param sep Level separator (default ".")
  * @returns Flattened object
  */
+export const Flatten = <T extends object,>(obj: T, sep = ".") => _flatten(obj, sep, "");
 
-export const Flatten = (obj: any, sep = ".") => _flatten(obj, sep, "");
+const _flatten = <T extends object,>(obj: T, sep: string, prefix: string) =>
+  Object.keys(obj).reduce((x: Record<string, any>, k) => {
+    const value = obj[k as keyof T]
 
-const _flatten = (obj: any, sep: string, prefix: string) =>
-  Object.keys(obj).reduce((x: { [key: string]: any }, k) => {
-    if (obj[k] !== null) {
-      const pre = prefix.length ? prefix + sep : "";
-      if (Array.isArray(obj[k])) {
-        x[pre + k] = (obj[k] as Array<any>).map(i => Flatten(i, sep));
-      } else if (typeof obj[k] === "object") {
-        Object.assign(x, _flatten(obj[k], sep, pre + k));
-      } else {
-        x[pre + k] = obj[k];
+    const pre = prefix.length ? prefix + sep : "";
+    if (!Array.isArray(value)) {
+      if (value !== null && typeof value === "object") {
+        // flatten nested object and add keys to accumulator to flatten multiple levels
+        Object.assign(x, _flatten(value, sep, pre + k));
+      } else if (prefix.length) {
+        // only assign if in nested object - no point overwriting original
+        x[pre + k] = value;
       }
     }
     return x;
-  }, {});
+  }, prefix.length ? {} : obj) as T & Record<string, any>;
 
 export const GetPageNumber = () => {
   const params = new URLSearchParams(window.location.search);

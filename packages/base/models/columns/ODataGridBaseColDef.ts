@@ -4,11 +4,12 @@ import { GridBaseColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 import { FieldDef } from "../../FilterBuilder/models/fields";
 import { Expand } from "../OData/Expand";
 import { PickerValidDate } from "@mui/x-date-pickers";
+import { ODataRowModel } from "../OData";
 
 /**
  * Column definition for ODataGrid
  */
-export type ODataGridBaseColDef<C extends GridBaseColDef<R, V, F>, R extends GridValidRowModel = GridValidRowModel, V = any, F = any, TDate extends PickerValidDate = never> = Omit<C, "filterOperators" | "sortComparator">
+export type ODataGridBaseColDef<C extends GridBaseColDef<ODataRowModel<R>, V, F>, R extends GridValidRowModel = GridValidRowModel, V = any, F = any, TDate extends PickerValidDate = never> = Omit<C, "filterOperators" | "sortComparator">
   & FieldDef<TDate>
   & {
     /**

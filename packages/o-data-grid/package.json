@@ -1,6 +1,6 @@
 {
   "name": "o-data-grid",
-  "version": "7.0.0-alpha.1",
+  "version": "7.0.0-alpha.2",
   "description": "A React Data Grid and Query Builder for OData APIs. Based on the Material-UI DataGrid.",
   "main": "build/o-data-grid-cjs.js",
   "module": "build/o-data-grid-esm.js",
@@ -8,7 +8,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "cd ../ && node_modules/.bin/rollup -c ./rollup.o-data-grid.config.mjs",
-    "lint": "cd ../ && node_modules/.bin/eslint ./o-data-grid"
+    "lint": "cd ../ && node_modules/.bin/eslint ./base ./o-data-grid"
   },
   "repository": {
     "type": "git",

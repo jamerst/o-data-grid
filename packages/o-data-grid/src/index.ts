@@ -4,7 +4,7 @@ import { PickerValidDate } from "@mui/x-date-pickers";
 
 import { allOperators, numericOperators } from "../../base/FilterBuilder/constants";
 import FilterBuilder from "../../base/FilterBuilder/components/FilterBuilder";
-import { ODataGridBaseColDef } from "../../base/models";
+import { ODataGridBaseColDef, ODataRowModel } from "../../base/models";
 
 import ODataGrid from "./ODataGrid";
 
@@ -17,11 +17,11 @@ export {
 
 export type { ODataGridProps, ODataGridInitialState } from "./ODataGridProps";
 export type ODataGridColDef<TRow extends GridValidRowModel = any, V = any, F = any, TDate extends PickerValidDate = PickerValidDate>
-  = ODataGridBaseColDef<GridBaseColDef<TRow, V, F>, TRow, V, F, TDate>
-  | ODataGridBaseColDef<GridActionsColDef<TRow, V, F>, TRow, V, F, TDate>
-  | ODataGridBaseColDef<GridSingleSelectColDef<TRow, V, F>, TRow, V, F, TDate>;
+  = ODataGridBaseColDef<GridBaseColDef<ODataRowModel<TRow>, V, F>, TRow, V, F, TDate>
+  | ODataGridBaseColDef<GridActionsColDef<ODataRowModel<TRow>, V, F>, TRow, V, F, TDate>
+  | ODataGridBaseColDef<GridSingleSelectColDef<ODataRowModel<TRow>, V, F>, TRow, V, F, TDate>;
 
-export type { ODataColumnVisibilityModel } from "../../base/models";
+export type { ODataColumnVisibilityModel, ODataRowModel } from "../../base/models";
 
 export { useODataGridApiRef } from "../../base/hooks/useODataGridApiRef";
 
