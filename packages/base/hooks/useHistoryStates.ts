@@ -29,7 +29,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
 
   //#region Create history states
   const getHistoryState = useCallback(() => ({
-    filterBuilder: filterBuilderApiRef.current.filter,
+    filterBuilder: filterBuilderApiRef.current?.filter,
     oDataGrid: {
       sortModel: gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId)
     }
@@ -99,7 +99,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
 
   useEffect(() => {
     // attach to events for FilterBuilder and DataGrid to trigger history entry creation
-    if (props.disableHistory || !gridApiRef.current?.subscribeEvent || !filterBuilderApiRef.current?.onFilterChange) {
+    if (props.disableHistory || !gridApiRef.current?.subscribeEvent) {
       return;
     }
 
@@ -111,18 +111,18 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
       gridApiRef.current.subscribeEvent("sortModelChange", listener),
     ];
 
-    if (!props.disableFilterBuilder && !props.$filter) {
+    if (filterBuilderApiRef.current?.onFilterChange) {
       cleanup.push(filterBuilderApiRef.current.onFilterChange.on(listener));
     }
 
     return () => cleanup.forEach(c => c());
-  }, [props.disableHistory, props.disableFilterBuilder, props.$filter, filterBuilderApiRef, gridApiRef, pushStateDebounced]);
+  }, [props.disableHistory, filterBuilderApiRef, gridApiRef, pushStateDebounced]);
   //#endregion
 
   //#region Restore state from history
   const restoreState = useCallback((state: ODataGridState) => {
     // set the state of the FilterBuilder and DataGrid using the API objects
-    if (state.filter !== false) {
+    if (state.filter !== false && filterBuilderApiRef.current?.setFilter) {
       filterBuilderApiRef.current.setFilter(state.filter);
     }
 
@@ -143,7 +143,9 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
   const restoreFromBrowserState = useCallback((state: any, firstLoad: boolean) => {
     // get the component state from the browser history entry state object and restore it
 
-    stateRestored.current = true;
+    if (!firstLoad) {
+      stateRestored.current = true;
+    }
 
     const newState: ODataGridState = {
       filter: false,
@@ -167,7 +169,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
       newState.sortModel = props.initialState.sorting.sortModel;
     } else if (state?.oDataGrid?.sortModel) {
       newState.sortModel = state.oDataGrid.sortModel;
-    } else if (gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId)) {
+    } else if (gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId) && !firstLoad) {
       // remove sort model if one is currently set
       newState.sortModel = [];
     }

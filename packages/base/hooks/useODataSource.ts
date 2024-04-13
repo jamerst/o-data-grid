@@ -29,15 +29,19 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow extend
   const fetchCount = useRef(true);
   const fetchedColumns = useRef<string[]>([]);
   const forceFetch = useRef(false);
+  const firstLoad = useRef(true);
 
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ODataRowModel<TRow>[]>([]);
   const [rowCount, setRowCount] = useState(0);
 
-  const { alwaysSelect, columns, columnVisibilityModel, disableFilterBuilder, $filter, url, requestOptions } = props;
+  const { alwaysSelect, columns, columnVisibilityModel, disableFilterBuilder, $filter, url, requestOptions, initialState } = props;
+
   const getRows = useCallback(async () => {
-    const responsiveColumns = columnVisibilityModel
-    ? Object.keys(columnVisibilityModel).filter(k => typeof columnVisibilityModel[k] !== "boolean")
+    const visibilityModel = columnVisibilityModel ?? initialState?.columns?.columnVisibilityModel;
+
+    const responsiveColumns = visibilityModel
+    ? Object.keys(visibilityModel).filter(k => typeof visibilityModel[k] !== "boolean")
     : [];
 
     // only select columns that are visible or are responsive
@@ -122,7 +126,7 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow extend
     }
 
     const sortModel = gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId);
-    if (sortModel && sortModel.length > 0) {
+    if (sortModel?.length > 0) {
       const sortCols = sortModel
         .map(s => ({ col: columns.find(c => c.field === s.field), sort: s.sort }))
         .filter(c => c.col)
@@ -150,10 +154,12 @@ export const useODataSource = <ComponentProps extends DataGridProps, TRow extend
 
       setLoading(false);
       fetchCount.current = false;
+      firstLoad.current = false;
     } else {
       console.error(`API request failed: ${response.url}, HTTP ${response.status}`);
     }
-  }, [filterBuilderApiRef, gridApiRef, alwaysSelect, columns, columnVisibilityModel, disableFilterBuilder, $filter, requestOptions, url]);
+
+  }, [filterBuilderApiRef, gridApiRef, alwaysSelect, columns, columnVisibilityModel, disableFilterBuilder, $filter, requestOptions, url, initialState]);
 
   useEffect(() => {
     internalApiRef.current.reload = () => {
