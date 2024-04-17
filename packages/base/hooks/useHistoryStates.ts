@@ -143,7 +143,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
   const restoreFromBrowserState = useCallback((state: any, firstLoad: boolean) => {
     // get the component state from the browser history entry state object and restore it
 
-    if (!firstLoad) {
+    if (!firstLoad || state?.filterBuilder) {
       stateRestored.current = true;
     }
 
