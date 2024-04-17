@@ -143,9 +143,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
   const restoreFromBrowserState = useCallback((state: any, firstLoad: boolean) => {
     // get the component state from the browser history entry state object and restore it
 
-    if (!firstLoad || state?.filterBuilder) {
-      stateRestored.current = true;
-    }
+    stateRestored.current = true;
 
     const newState: ODataGridState = {
       filter: false,
@@ -214,11 +212,20 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
   useMountEffect(() => {
     // set flag if history entry does not contain any state and the initial state prop is being used
     // used to restore the initial state when this history state is popped
-    if (!window.history.state?.filterBuilder && (props.initialState?.filterBuilder?.filterModel || props.initialState?.sorting?.sortModel || props.initialState?.pagination?.paginationModel)) {
+    if ((!window.history.state || !("filterBuilder" in window.history.state)) && (props.initialState?.filterBuilder?.filterModel || props.initialState?.sorting?.sortModel || props.initialState?.pagination?.paginationModel)) {
       window.history.replaceState({ ...window.history.state, initialState: true }, "");
     }
 
     restoreFromBrowserState(window.history.state, true);
+
+    // reset flag if actually first load (and not navigating back from another page to a history state that with
+    // component state stored in it)
+
+    // prevents issues where first interaction won't push a history state, or duplicate states being pushed when
+    // navigating back
+    if (!window.history.state || !("filterBuilder" in window.history.state)) {
+      stateRestored.current = false;
+    }
   });
   //#endregion
 }

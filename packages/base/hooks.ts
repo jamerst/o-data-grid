@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTheme, Breakpoint, Theme } from "@mui/material/styles"
 
 /**
@@ -30,8 +30,16 @@ export const useResponsive = () => {
   return getResponsiveValue;
 }
 
-// eslint-disable-next-line react-hooks/exhaustive-deps
-export const useMountEffect = (func: React.EffectCallback) => useEffect(func, []);
+export const useMountEffect = (func: React.EffectCallback) => {
+  const run = useRef(false);
+
+  useEffect(() => {
+    if (!run.current) {
+      run.current = true;
+      return func();
+    }
+  }, [func]);
+};
 
 const useBreakpoints = ():Partial<Record<Breakpoint, boolean>> => {
   const theme = useTheme();

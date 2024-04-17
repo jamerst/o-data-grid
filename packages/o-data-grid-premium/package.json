@@ -1,6 +1,6 @@
 {
   "name": "o-data-grid-premium",
-  "version": "7.0.0-alpha.5",
+  "version": "7.0.0-alpha.6",
   "description": "A React Data Grid and Query Builder for OData APIs. Based on the Material-UI DataGridPremium.",
   "main": "build/o-data-grid-premium-cjs.js",
   "module": "build/o-data-grid-premium-esm.js",

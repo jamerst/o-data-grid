@@ -8,6 +8,7 @@ import { Dayjs } from "dayjs";
 import "dayjs/locale/en-gb"
 import { Edit } from "@mui/icons-material";
 import { DataGridFilterBuilderProps } from "../../../base/models";
+import { Link } from "react-router-dom";
 
 const theme = createTheme({
   palette: {
@@ -39,11 +40,11 @@ const App = () => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.debug("attaching event");
-    return apiRef.current.onFilterChange.on((args) => console.debug(args));
+    // console.debug("attaching event");
+    return apiRef.current?.onFilterChange?.on((args) => console.debug(args));
   }, [apiRef]);
 
-  useEffect(() => console.debug("ref", ref), [ref]);
+  // useEffect(() => console.debug("ref", ref), [ref]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -62,6 +63,7 @@ const App = () => {
       />
       <Button onClick={() => apiRef.current.setFilter(test)}>Set Filter</Button>
       <Button onClick={() => apiRef.current.reload()}>Reload Rows</Button>
+      <Link to="/test">Change page</Link>
     </ThemeProvider>
   );
 }
