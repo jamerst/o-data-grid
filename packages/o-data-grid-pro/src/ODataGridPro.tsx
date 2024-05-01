@@ -10,6 +10,7 @@ const ODataGridRaw = (props: ODataGridProProps, ref: React.Ref<HTMLDivElement>) 
     {...props}
     component={DataGridPro}
     ref={ref}
+    pagination
   />
 )
 

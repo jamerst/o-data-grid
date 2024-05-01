@@ -27,17 +27,20 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
     [props.initialState]
   );
 
+  const stateKey = useMemo(() => props.historyStateKey ?? "oDataGrid", [props.historyStateKey]);
+
   //#region Create history states
   const getHistoryState = useCallback(() => ({
-    filterBuilder: filterBuilderApiRef.current?.filter,
-    oDataGrid: {
+    [stateKey]: {
+      filterBuilder: filterBuilderApiRef.current?.filter,
       sortModel: gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId)
     }
-  }), [filterBuilderApiRef, gridApiRef]);
+  }), [filterBuilderApiRef, gridApiRef, stateKey]);
 
   const pushState = useCallback(() => {
     // prevent state being overwritten straight after restoring
     if (stateRestored.current) {
+      console.debug("preventing pushState");
       stateRestored.current = false;
       return;
     }
@@ -85,6 +88,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
 
     const state = getHistoryState();
 
+    console.debug("pushing state", state, url);
     window.history.pushState(state, "", url);
   }, [gridApiRef, defaultPageSize, getHistoryState]);
 
@@ -165,8 +169,8 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
 
     if (fromInitialState && props.initialState?.sorting?.sortModel) {
       newState.sortModel = props.initialState.sorting.sortModel;
-    } else if (state?.oDataGrid?.sortModel) {
-      newState.sortModel = state.oDataGrid.sortModel;
+    } else if (state?.sortModel) {
+      newState.sortModel = state.sortModel;
     } else if (gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId) && !firstLoad) {
       // remove sort model if one is currently set
       newState.sortModel = [];
@@ -202,30 +206,32 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
 
   useEffect(() => {
     if (props.disableHistory !== true) {
-      const handlePopState = (e: PopStateEvent) => restoreFromBrowserState(e.state, false);
+      const handlePopState = (e: PopStateEvent) => restoreFromBrowserState(e.state ? e.state[stateKey] : undefined, false);
 
       window.addEventListener("popstate", handlePopState);
       return () => window.removeEventListener("popstate", handlePopState);
     }
-  }, [restoreFromBrowserState, props.disableHistory]);
+  }, [restoreFromBrowserState, props.disableHistory, stateKey]);
 
   useMountEffect(() => {
-    // set flag if history entry does not contain any state and the initial state prop is being used
-    // used to restore the initial state when this history state is popped
-    if ((!window.history.state || !("filterBuilder" in window.history.state)) && (props.initialState?.filterBuilder?.filterModel || props.initialState?.sorting?.sortModel || props.initialState?.pagination?.paginationModel)) {
-      window.history.replaceState({ ...window.history.state, initialState: true }, "");
-    }
-
-    restoreFromBrowserState(window.history.state, true);
+    restoreFromBrowserState(window.history.state ? window.history.state[stateKey] : undefined, true);
 
     // reset flag if actually first load (and not navigating back from another page to a history state that with
     // component state stored in it)
 
     // prevents issues where first interaction won't push a history state, or duplicate states being pushed when
     // navigating back
-    if (!window.history.state || !("filterBuilder" in window.history.state)) {
+    if (!window.history.state || !(stateKey in window.history.state)) {
+      console.debug("resetting stateRestored");
       stateRestored.current = false;
+
+      // set flag if the initial state prop is being used
+      // used to restore the initial state when this history state is popped
+      if (props.initialState?.filterBuilder?.filterModel || props.initialState?.sorting?.sortModel || props.initialState?.pagination?.paginationModel) {
+        window.history.replaceState({ ...window.history.state, [stateKey]: { initialState: true } }, "");
+      }
     }
+
   });
   //#endregion
 }

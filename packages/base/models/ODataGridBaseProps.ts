@@ -17,9 +17,9 @@ export type ODataGridBaseProps<
   &
   {
     /**
-     * URL of OData endpoint
+     * Ref for API object which allows interacting with DataGrid and FilterBuilder programmatically
      */
-    url: string,
+    apiRef?: React.MutableRefObject<ODataGridApi>,
 
     /**
      * Fields to always add to $select clause (regardless of whether the associated column is visible, if one even exists)
@@ -63,6 +63,11 @@ export type ODataGridBaseProps<
     filterBuilderProps?: DataGridFilterBuilderProps<TDate>,
 
     /**
+     * Key to use in browser history state for storing component state (defaults to "oDataGrid")
+     */
+    historyStateKey?: string,
+
+    /**
      * Initial state of component when mounted
      */
     initialState?: ODataGridInitialState<TInitialState>,
@@ -73,9 +78,9 @@ export type ODataGridBaseProps<
     requestOptions?: RequestInit,
 
     /**
-     * Ref for API object which allows interacting with DataGrid and FilterBuilder programmatically
+     * URL of OData endpoint
      */
-    apiRef?: React.MutableRefObject<ODataGridApi>
+    url: string,
   };
 
 export type DataGridFilterBuilderProps<TDate extends PickerValidDate> = Omit<FilterBuilderProps<TDate>, "schema" | "initialState">
