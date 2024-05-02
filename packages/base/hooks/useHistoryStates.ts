@@ -3,7 +3,6 @@ import { DataGridProps, GridApiCommon, GridSortModel, gridPaginationModelSelecto
 
 import { FilterBuilderApi } from "../FilterBuilder/models"
 import { ODataGridBaseProps } from "../models";
-import { defaultPageSize as _defaultPageSize } from "../constants";
 import { useMountEffect } from "../hooks";
 import { SerialisedGroup } from "../FilterBuilder/models/filters";
 import { PickerValidDate } from "@mui/x-date-pickers";
@@ -21,9 +20,11 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
   filterBuilderApiRef: React.MutableRefObject<FilterBuilderApi>
 ) => {
   const stateRestored = useRef(false);
+  const fromMountEffect = useRef(false);
+  fromMountEffect.current = false; // reset flag on every render to ensure subsequent interactions do push a history state
 
   const defaultPageSize = useMemo(
-    () => props.initialState?.pagination?.paginationModel?.pageSize ?? _defaultPageSize,
+    () => props.initialState?.pagination?.paginationModel?.pageSize,
     [props.initialState]
   );
 
@@ -38,9 +39,13 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
   }), [filterBuilderApiRef, gridApiRef, stateKey]);
 
   const pushState = useCallback(() => {
+    // prevent state being pushed on mount when DataGrid state is being set (e.g. setting page number from query string)
+    if (fromMountEffect.current) {
+      return;
+    }
+
     // prevent state being overwritten straight after restoring
     if (stateRestored.current) {
-      console.debug("preventing pushState");
       stateRestored.current = false;
       return;
     }
@@ -88,7 +93,6 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
 
     const state = getHistoryState();
 
-    console.debug("pushing state", state, url);
     window.history.pushState(state, "", url);
   }, [gridApiRef, defaultPageSize, getHistoryState]);
 
@@ -96,6 +100,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
   const pushStateDebounced = useCallback(() => {
     if (timeout.current !== null) {
       clearTimeout(timeout.current);
+      timeout.current = null;
     }
 
     timeout.current = setTimeout(pushState, 50);
@@ -171,7 +176,7 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
       newState.sortModel = props.initialState.sorting.sortModel;
     } else if (state?.sortModel) {
       newState.sortModel = state.sortModel;
-    } else if (gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId) && !firstLoad) {
+    } else if (gridSortModelSelector(gridApiRef.current.state, gridApiRef.current.instanceId).length && !firstLoad) {
       // remove sort model if one is currently set
       newState.sortModel = [];
     }
@@ -183,7 +188,10 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
     } else {
       const pageStr = params.get("page");
       if (pageStr) {
-        newState.page = parseInt(pageStr, 10) - 1;
+        const page = parseInt(pageStr, 10) - 1;
+        if (page !== paginationModel.page) {
+          newState.page = page;
+        }
       } else if (paginationModel.page !== 0) {
         newState.page = 0;
       }
@@ -194,14 +202,16 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
     } else {
       const sizeStr = params.get("page-size");
       if (sizeStr) {
-        newState.pageSize = parseInt(sizeStr, 10);
-      } else if (paginationModel.pageSize !== defaultPageSize) {
+        const pageSize = parseInt(sizeStr, 10);
+        if (pageSize !== paginationModel.pageSize) {
+          newState.pageSize = pageSize;
+        }
+      } else if (defaultPageSize && paginationModel.pageSize !== defaultPageSize) {
         newState.pageSize = defaultPageSize;
       }
     }
 
     restoreState(newState);
-
   }, [defaultPageSize, filterBuilderApiRef, gridApiRef, props.initialState, restoreState]);
 
   useEffect(() => {
@@ -214,18 +224,19 @@ export const useHistoryStates = <ComponentProps extends DataGridProps, TDate ext
   }, [restoreFromBrowserState, props.disableHistory, stateKey]);
 
   useMountEffect(() => {
+    fromMountEffect.current = true;
+
     restoreFromBrowserState(window.history.state ? window.history.state[stateKey] : undefined, true);
 
-    // reset flag if actually first load (and not navigating back from another page to a history state that with
-    // component state stored in it)
-
-    // prevents issues where first interaction won't push a history state, or duplicate states being pushed when
-    // navigating back
     if (!window.history.state || !(stateKey in window.history.state)) {
-      console.debug("resetting stateRestored");
+      // reset flag if actually first load (and not navigating back from another page to a history state that with
+      // component state stored in it)
+
+      // prevents issues where first interaction won't push a history state, or duplicate states being pushed when
+      // navigating back
       stateRestored.current = false;
 
-      // set flag if the initial state prop is being used
+      // set flag in current history state if the initial state prop is being used
       // used to restore the initial state when this history state is popped
       if (props.initialState?.filterBuilder?.filterModel || props.initialState?.sorting?.sortModel || props.initialState?.pagination?.paginationModel) {
         window.history.replaceState({ ...window.history.state, [stateKey]: { initialState: true } }, "");

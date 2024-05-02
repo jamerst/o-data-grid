@@ -40,7 +40,7 @@ const FilterRoot = <TDate extends never,>({ props }: FilterRootProps<TDate>) => 
     e.preventDefault();
     const result = odataFilter();
 
-    if (result?.filter) {
+    if (result !== false && result?.filter) {
       const translatedResult: TranslatedQueryResult = { ...result, filter: result.filter };
 
       apiRef.current.filter = translatedResult;
@@ -96,7 +96,7 @@ const FilterRoot = <TDate extends never,>({ props }: FilterRootProps<TDate>) => 
     const result = odataFilterWithState(clauses, tree);
 
     // only emit event if filter has actually changed
-    if (isDifferent(apiRef.current.filter, result)) {
+    if (result !== false && isDifferent(apiRef.current.filter, result)) {
       if (result?.filter) {
         apiRef.current.filter = result as TranslatedQueryResult;
         if (emit) {

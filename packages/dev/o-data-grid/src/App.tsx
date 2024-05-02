@@ -68,11 +68,11 @@ const App = () => {
   );
 }
 const initialState: ODataGridInitialState = {
-  pagination: {
-    paginationModel: {
-      pageSize: 10
-    }
-  },
+  // pagination: {
+  //   paginationModel: {
+  //     pageSize: 10
+  //   }
+  // },
   sorting: {
     sortModel: [{ field: "Date", sort: "desc" }]
   },

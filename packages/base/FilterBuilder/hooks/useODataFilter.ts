@@ -20,7 +20,7 @@ export const useODataFilter = <TDate extends PickerValidDate,>(schema: FieldDef<
   const tree = useAtomValue(treeAtom);
 
   return useCallback(() => {
-    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup> | undefined;
+    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []);
   }, [schema, clauses, tree]);
 }
 
@@ -31,7 +31,7 @@ export const useODataFilter = <TDate extends PickerValidDate,>(schema: FieldDef<
  */
 export const useODataFilterWithState = <TDate extends PickerValidDate,>(schema: FieldDef<TDate>[]) => {
   return useCallback((clauses: StateClause, tree: StateTree) => {
-    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []) as TranslatedQuery<SerialisedGroup> | undefined;
+    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []);
   }, [schema])
 }
 

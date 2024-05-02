@@ -63,7 +63,8 @@ export type ODataGridBaseProps<
     filterBuilderProps?: DataGridFilterBuilderProps<TDate>,
 
     /**
-     * Key to use in browser history state for storing component state (defaults to "oDataGrid")
+     * Key to use in browser history state for storing component state
+     * @default "oDataGrid"
      */
     historyStateKey?: string,
 

@@ -1,7 +1,5 @@
 import { Expand } from "./models/OData";
 
-import { defaultPageSize } from "./constants";
-
 /**
  * Convert an Expand object (or array of objects) to a clause to use in an OData $expand query parameter
  * @param e Expand(s) to convert
@@ -17,7 +15,7 @@ export const ExpandToQuery = (expand?: Expand[] | Expand): string => {
   }
 
   // group all expands by the navigation field
-  const groupedExpands = GroupArrayBy(expand, (e) => e.navigationField);
+  const groupedExpands = Map.groupBy(expand, (e) => e.navigationField);
 
   // construct a single expand for each navigation field, combining nested query options (where possible)
   const expands: Expand[] = [];
@@ -29,8 +27,6 @@ export const ExpandToQuery = (expand?: Expand[] | Expand): string => {
       count: e.some(e2 => e2.count),
       select: Array.from(new Set(e.filter(e2 => e2.select).map(e2 => e2.select))).join(","),
       expand: e.filter(e2 => e2.expand)
-        // .map(e2 => e2.expand!)
-        // .reduce((a: Expand[], b) => Array.isArray(b) ? a.concat(b) : [...a, b], [])
         .flatMap(c => Array.isArray(c.expand) ? c.expand! : [c.expand!])
     });
   });
@@ -54,15 +50,6 @@ export const ExpandToQuery = (expand?: Expand[] | Expand): string => {
 
   }).join(",")
 }
-
-/**
- * Group an array into multiple arrays linked by a common key value
- * @param arr Array to group
- * @param keySelector Function to select property to group by
- * @returns ES6 Map of keys to arrays of values
- */
-export const GroupArrayBy = <TKey, T,>(arr: T[], keySelector: (e: T) => TKey) => arr
-  .reduce((m, e) => m.set(keySelector(e), [...m.get(keySelector(e)) || [], e]), new Map<TKey, T[]>());
 
 /**
  * Flatten nested objects inside an object, combining with the original object structure.
@@ -89,27 +76,3 @@ const _flatten = <T extends object,>(obj: T, sep: string, prefix: string) =>
     }
     return x;
   }, prefix.length ? {} : obj) as T & Record<string, any>;
-
-export const GetPageNumber = () => {
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("page")) {
-    const pageVal = params.get("page");
-    if (pageVal) {
-      return parseInt(pageVal, 10) - 1;
-    }
-  }
-
-  return 0;
-}
-
-export const GetPageSizeOrDefault = (defaultSize?: number) => {
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("page-size")) {
-    const sizeVal = params.get("page-size");
-    if (sizeVal) {
-      return parseInt(sizeVal, 10);
-    }
-  }
-
-  return defaultSize ?? defaultPageSize;
-}
