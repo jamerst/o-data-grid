@@ -64,15 +64,16 @@ const App = () => {
       <Button onClick={() => apiRef.current.setFilter(test)}>Set Filter</Button>
       <Button onClick={() => apiRef.current.reload()}>Reload Rows</Button>
       <Link to="/test">Change page</Link>
+      <Link to="/">Home</Link>
     </ThemeProvider>
   );
 }
 const initialState: ODataGridInitialState = {
-  // pagination: {
-  //   paginationModel: {
-  //     pageSize: 10
-  //   }
-  // },
+  pagination: {
+    paginationModel: {
+      pageSize: 10
+    }
+  },
   sorting: {
     sortModel: [{ field: "Date", sort: "desc" }]
   },
