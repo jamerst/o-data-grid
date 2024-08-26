@@ -1,10 +1,12 @@
 import Immutable from "immutable";
-import { v4 as uuid } from "uuid";
+import { nanoid } from "nanoid/non-secure";
 
-import { defaultLocale, rootGroupUuid } from "./constants";
+import { defaultLocale, rootGroupId } from "./constants";
 
 import { ConditionClause, GroupClause, SerialisedGroup, StateTree, StateClause, TreeGroup } from "./models/filters";
 import { FilterBuilderLocaleText } from "./models"
+
+const getId = () => nanoid(15);
 
 /**
  * Create a new condition for a given field
@@ -15,7 +17,7 @@ export const getDefaultCondition = (field: string): ConditionClause => ({
   field: field,
   op: "eq",
   value: null,
-  id: uuid()
+  id: getId()
 })
 
 /**
@@ -24,7 +26,7 @@ export const getDefaultCondition = (field: string): ConditionClause => ({
  */
 export const getDefaultGroup = (): GroupClause => ({
   connective: "and",
-  id: uuid(),
+  id: getId(),
   negated: false
 });
 
@@ -37,11 +39,11 @@ export const getLocaleText = (key: keyof FilterBuilderLocaleText, locale: Filter
  * @returns Tree and clause state from object
  */
 export const deserialise = (obj: SerialisedGroup): [StateTree, StateClause] => {
-  const [treeGroup, clauses] = groupObjToMap(obj, rootGroupUuid);
+  const [treeGroup, clauses] = groupObjToMap(obj, rootGroupId);
 
   return [
     Immutable.Map<string, string | TreeGroup>({
-      [rootGroupUuid]: treeGroup
+      [rootGroupId]: treeGroup
     }),
     clauses
   ];
@@ -62,7 +64,7 @@ const groupObjToMap = (obj: SerialisedGroup, id: string, clauses?: StateClause):
 
   // create clauses and entries in tree for children
   obj.children.forEach((child) => {
-    const childId = uuid();
+    const childId = getId();
     clauses = clauses!.set(childId, {
       id: childId,
       ...child

@@ -3,20 +3,20 @@ import Immutable from "immutable";
 import { ConditionClause, GroupClause, Operation, TreeGroup } from "./models/filters"
 import { FilterBuilderLocaleText } from "./models";
 
-export const rootGroupUuid = "17c63a07-397b-4f03-a74b-2f935dcc6c8a";
-export const rootConditionUuid = "18c1713a-2480-40c0-b60f-220a3fd4b117";
+export const rootGroupId = "root-group";
+export const rootConditionId = "root-condition";
 
 export const allOperators: Operation[] = ["eq", "ne", "gt", "lt", "ge", "le", "contains", "null", "notnull"];
 export const numericOperators: Operation[] = ["eq", "ne", "gt", "lt", "ge", "le"];
 
 export const initialClauses = Immutable.Map<string, GroupClause | ConditionClause>({
-  [rootGroupUuid]: {
-    id: rootGroupUuid,
+  [rootGroupId]: {
+    id: rootGroupId,
     connective: "and",
     negated: false
   },
-  [rootConditionUuid]: {
-    id: rootConditionUuid,
+  [rootConditionId]: {
+    id: rootConditionId,
     field: "",
     op: "eq",
     value: null,
@@ -25,9 +25,9 @@ export const initialClauses = Immutable.Map<string, GroupClause | ConditionClaus
 })
 
 export const initialTree = Immutable.Map<string, TreeGroup | string>({
-  [rootGroupUuid]: {
-    id: rootGroupUuid,
-    children: Immutable.Map({ [rootConditionUuid]: rootConditionUuid })
+  [rootGroupId]: {
+    id: rootGroupId,
+    children: Immutable.Map({ [rootConditionId]: rootConditionId })
   }
 })
 

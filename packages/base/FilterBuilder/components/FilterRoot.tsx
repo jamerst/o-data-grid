@@ -7,7 +7,7 @@ import FilterGroup from "./FilterGroup";
 
 import { clausesAtom, propsAtom, schemaAtom, treeAtom } from "../atoms"
 
-import { initialClauses, initialTree, rootConditionUuid, rootGroupUuid } from "../constants"
+import { initialClauses, initialTree, rootConditionId, rootGroupId } from "../constants"
 import { deserialise } from "../utils";
 
 import { useMountEffect } from "../../hooks";
@@ -60,7 +60,7 @@ const FilterRoot = <TDate extends never,>({ props }: FilterRootProps<TDate>) => 
   }, [onSubmit, odataFilter, apiRef]);
 
   const reset = useCallback(() => {
-    setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
+    setClauses(initialClauses.update(rootConditionId, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
     setTree(initialTree);
 
     apiRef.current.filter = undefined;
@@ -78,7 +78,7 @@ const FilterRoot = <TDate extends never,>({ props }: FilterRootProps<TDate>) => 
   }, [props.schema, setSchema]);
 
   const restoreDefault = useCallback(() => {
-    setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
+    setClauses(initialClauses.update(rootConditionId, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
     setTree(initialTree);
   }, [props.schema, setClauses, setTree]);
 
@@ -127,7 +127,7 @@ const FilterRoot = <TDate extends never,>({ props }: FilterRootProps<TDate>) => 
       restoreFilter(props.initialState.filterBuilder.filterModel, false);
     } else {
       // set field for initial state from props
-      setClauses(initialClauses.update(rootConditionUuid, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
+      setClauses(initialClauses.update(rootConditionId, (c) => ({ ...c as ConditionClause, field: props.schema[0].field })));
     }
   });
 
@@ -135,7 +135,7 @@ const FilterRoot = <TDate extends never,>({ props }: FilterRootProps<TDate>) => 
     <>
       <form onSubmit={submit}>
         <FilterGroup
-          clauseId={rootGroupUuid}
+          clauseId={rootGroupId}
           path={[]}
           root
         />

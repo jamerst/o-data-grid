@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useAtomValue } from "jotai"
 
-import { rootGroupUuid } from "../constants";
+import { rootGroupId } from "../constants";
 import { clausesAtom, treeAtom } from "../atoms"
 import { defaultTranslators } from "../translation";
 
@@ -20,7 +20,7 @@ export const useODataFilter = <TDate extends PickerValidDate,>(schema: FieldDef<
   const tree = useAtomValue(treeAtom);
 
   return useCallback(() => {
-    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []);
+    return translateGroup<TDate>(schema, clauses, tree, rootGroupId, []);
   }, [schema, clauses, tree]);
 }
 
@@ -31,7 +31,7 @@ export const useODataFilter = <TDate extends PickerValidDate,>(schema: FieldDef<
  */
 export const useODataFilterWithState = <TDate extends PickerValidDate,>(schema: FieldDef<TDate>[]) => {
   return useCallback((clauses: StateClause, tree: StateTree) => {
-    return translateGroup<TDate>(schema, clauses, tree, rootGroupUuid, []);
+    return translateGroup<TDate>(schema, clauses, tree, rootGroupId, []);
   }, [schema])
 }
 

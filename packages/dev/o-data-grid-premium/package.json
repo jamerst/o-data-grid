@@ -14,10 +14,10 @@
     "@mui/x-data-grid-premium": "^7.1.1",
     "@mui/x-date-pickers": "^7.1.1",
     "immutable": "^4.3.5",
+    "nanoid": "^5.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tss-react": "^4.9.6",
-    "uuid": "^9.0.1"
+    "tss-react": "^4.9.6"
   },
   "devDependencies": {
     "@types/node": "^20.12.5",

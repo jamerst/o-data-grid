@@ -47,7 +47,7 @@
   "dependencies": {
     "immutable": "^4.0.0",
     "jotai": "^2.7.2",
-    "tss-react": "^3.6.2",
-    "uuid": "^8.3.2"
+    "nanoid": "^5.0.0",
+    "tss-react": "^3.6.2"
   }
 }
